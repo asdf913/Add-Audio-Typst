@@ -1163,6 +1163,16 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 		private File file;
 
+		private static void setTextPosition(final TextPositionEntry instance, final TextPosition textPosition) {
+			if (instance != null) {
+				instance.setTextPosition(textPosition);
+			}
+		}
+
+		private void setTextPosition(final TextPosition textPosition) {
+			this.textPosition = textPosition;
+		}
+
 	}
 
 	public static void main(final String[] args) {
@@ -1246,12 +1256,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							put(map, key, textPositionEntry = new TextPositionEntry());
 							//
 						} // if
-						if (textPositionEntry != null) {
 							//
-							textPositionEntry.textPosition = textPosition;
-							//
-						} // if
-							//
+						TextPositionEntry.setTextPosition(textPositionEntry, textPosition);
+						//
 					} // if
 						//
 				} // for

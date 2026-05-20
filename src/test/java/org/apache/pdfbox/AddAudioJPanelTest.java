@@ -879,4 +879,14 @@ class AddAudioJPanelTest {
 		//
 	}
 
+	@Test
+	void testTextPositionEntry() throws ClassNotFoundException, NoSuchMethodException {
+		//
+		final Class<?> clz = Class.forName("org.apache.pdfbox.AddAudioJPanel$TextPositionEntry");
+		//
+		Assert.assertNull(Narcissus.invokeStaticMethod(
+				clz != null ? clz.getDeclaredMethod("setTextPosition", clz, TextPosition.class) : null, null, null));
+		//
+	}
+
 }
