@@ -102,12 +102,18 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 	@Note("Template")
 	private JTextComponent tfFileTemplate;
 
-	private JTextComponent tfFileSpreadsheet, tfFilePdf;
+	@Note("Spreadsheet")
+	private JTextComponent tfFileSpreadsheet;
+
+	private JTextComponent tfFilePdf;
 
 	@Note("Template")
 	private AbstractButton btnFileTemplate;
 
-	private AbstractButton btnFileSpreadsheet, btnExecute;
+	@Note("Spreadsheet")
+	private AbstractButton btnFileSpreadsheet;
+
+	private AbstractButton btnExecute;
 
 	private DefaultTableModel dtm = null;
 
