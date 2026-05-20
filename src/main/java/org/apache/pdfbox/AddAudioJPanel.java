@@ -470,18 +470,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 								testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
 								toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)));
 						//
-						final Collection<TextPositionEntry> values = map != null ? map.values() : null;
+						forEach(map != null ? map.values() : null,
+								x -> addRow(dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new),
+										new Object[] { x }));
 						//
-						if (values != null) {
-							//
-							values.forEach(x -> {
-								//
-								addRow(dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new), new Object[] { x });
-								//
-							});
-							//
-						} // if
-							//
 					} catch (final InvalidFormatException | IOException e) {
 						//
 						throw e instanceof RuntimeException re ? re : new RuntimeException(e);
@@ -648,6 +640,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static <T> void forEach(final Iterable<T> instance, final Consumer<T> consumer) {
+		if (instance != null) {
+			instance.forEach(consumer);
+		}
 	}
 
 	private static Map<String, TextPositionEntry> createStringTextPositionEntryMap(final Iterable<Row> rows,
