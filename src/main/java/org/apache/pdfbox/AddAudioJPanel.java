@@ -526,22 +526,19 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			PDDocument pdDocument = null;
 			//
-			PDPage pdPage = null;
-			//
 			try {
 				//
 				if (!isTestMode()
 						&& (process = new ProcessBuilder(TYPST, "compile",
 								StringUtils.defaultString(getText(instance.tfFileTemplate)), outputPdf).start()) != null
 						&& process.waitFor() == 0) {
-					//
-					pdPage = getPage(pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), 0);
+					// ;
 					//
 					final GetTextLocation pdfTextStripper = new GetTextLocation(map);
 					//
 					pdfTextStripper.setStartPage(1);
 					//
-					if (pdDocument != null) {
+					if ((pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf)))) != null) {
 						//
 						pdfTextStripper.setEndPage(pdDocument.getNumberOfPages());
 						//
@@ -577,75 +574,17 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 			try {
 				//
-				if (process != null && process.waitFor() == 0) {
+				if (process != null && process.waitFor() == 0 && addPDAnnotations(map,
+						pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), getPage(pdDocument, 0))) {
 					//
-					pdPage = getPage(pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), 0);
-					//
-					if (iterator(entrySet(map)) != null) {
+					if (pdDocument != null) {
 						//
-						PDComplexFileSpecification pdComplexFileSpecification = null;
-						//
-						PDEmbeddedFile pdEmbeddedFile = null;
-						//
-						PDAnnotationFileAttachment pdAnnotationFileAttachment = null;
-						//
-						TextPosition textPosition = null;
-						//
-						File file = null;
-						//
-						TextPositionEntry textPositionEntry = null;
-						//
-						for (final Entry<String, TextPositionEntry> entry : entrySet(map)) {
-							//
-							if ((textPositionEntry = getValue(entry)) == null
-									|| (textPosition = textPositionEntry.textPosition) == null) {
-								//
-								continue;
-								//
-							} // if
-								//
-							(pdComplexFileSpecification = new PDComplexFileSpecification())
-									.setFile(getName(file = textPositionEntry.file));
-							//
-							pdComplexFileSpecification
-									.setFile(Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1) + ".wav");
-							//
-							try (final InputStream is = Files.newInputStream(file.getAbsoluteFile().toPath())) {
-								//
-								(pdEmbeddedFile = new PDEmbeddedFile(pdDocument, is)).setSubtype("audio/wav");
-								//
-								pdComplexFileSpecification.setEmbeddedFile(pdEmbeddedFile);
-								//
-							} // try
-								//
-							(pdAnnotationFileAttachment = new PDAnnotationFileAttachment())
-									.setFile(pdComplexFileSpecification);
-							//
-							pdAnnotationFileAttachment.setRectangle(new PDRectangle(textPosition.getX(),
-									pdPage.getMediaBox().getHeight() - textPosition.getY(), textPosition.getWidth(),
-									textPosition.getHeight()));
-							//
-							pdAnnotationFileAttachment.setContents(textPositionEntry.text);
-							//
-							pdAnnotationFileAttachment.setConstantOpacity(0);
-							//
-							// 2. Mark as Locked (Bit 8) - prevents the annotation from being moved or
-							// resized
-							//
-							// flags |= (1 << 7);
-							//
-							pdAnnotationFileAttachment
-									.setAnnotationFlags(pdAnnotationFileAttachment.getAnnotationFlags() | (1 << 7));
-							//
-							add(getAnnotations(pdPage), pdAnnotationFileAttachment);
-							//
-						} // for
-							//
 						pdDocument.save(toFile(Path.of(outputPdf)));
 						//
-						setText(instance.tfFilePdf, outputPdf);
 					} // if
 						//
+					setText(instance.tfFilePdf, outputPdf);
+					//
 				} // if
 					//
 			} catch (final InterruptedException | IOException e) {
@@ -656,6 +595,107 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static boolean addPDAnnotations(final Map<String, TextPositionEntry> map, final PDDocument pdDocument,
+			final PDPage pdPage) throws IOException {
+		//
+		if (iterator(entrySet(map)) != null) {
+			//
+			PDComplexFileSpecification pdComplexFileSpecification = null;
+			//
+			PDEmbeddedFile pdEmbeddedFile = null;
+			//
+			PDAnnotationFileAttachment pdAnnotationFileAttachment = null;
+			//
+			TextPosition textPosition = null;
+			//
+			File file = null;
+			//
+			TextPositionEntry textPositionEntry = null;
+			//
+			for (final Entry<String, TextPositionEntry> entry : entrySet(map)) {
+				//
+				if ((textPositionEntry = getValue(entry)) == null
+						|| (textPosition = textPositionEntry.textPosition) == null) {
+					//
+					continue;
+					//
+				} // if
+					//
+				(pdComplexFileSpecification = new PDComplexFileSpecification())
+						.setFile(getName(file = textPositionEntry.file));
+				//
+				pdComplexFileSpecification
+						.setFile(Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1) + ".wav");
+				//
+				try (final InputStream is = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(file)),
+						Files::newInputStream, null)) {
+					//
+					if ((pdEmbeddedFile = testAndApply(Objects::nonNull, pdDocument, x -> new PDEmbeddedFile(x, is),
+							null)) != null) {
+						//
+						pdEmbeddedFile.setSubtype("audio/wav");
+						//
+					} // if
+						//
+					pdComplexFileSpecification.setEmbeddedFile(pdEmbeddedFile);
+					//
+				} // try
+					//
+				(pdAnnotationFileAttachment = new PDAnnotationFileAttachment()).setFile(pdComplexFileSpecification);
+				//
+				pdAnnotationFileAttachment.setRectangle(new PDRectangle(textPosition.getX(),
+						(pdPage != null ? pdPage.getMediaBox().getHeight() : 0) - textPosition.getY(),
+						getWidth(textPosition), textPosition.getHeight()));
+				//
+				pdAnnotationFileAttachment.setContents(textPositionEntry.text);
+				//
+				pdAnnotationFileAttachment.setConstantOpacity(0);
+				//
+				// 2. Mark as Locked (Bit 8) - prevents the annotation from being moved or
+				// resized
+				//
+				// flags |= (1 << 7);
+				//
+				pdAnnotationFileAttachment
+						.setAnnotationFlags(pdAnnotationFileAttachment.getAnnotationFlags() | (1 << 7));
+				//
+				add(getAnnotations(pdPage), pdAnnotationFileAttachment);
+				//
+			} // for
+				//
+			return true;
+			//
+		} // if
+			//
+		return false;
+		//
+	}
+
+	private static float getWidth(final TextPosition instance) {
+		//
+		if (instance == null) {
+			//
+			return 0;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "textMatrix")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		return field == null || Narcissus.getField(instance, field) != null ? instance.getWidth() : 0;
+		//
+	}
+
+	private static Path toPath(final File instance) {
+		return instance != null && instance.getPath() != null ? instance.toPath() : null;
+	}
+
+	private static File getAbsoluteFile(final File instance) {
+		return instance != null && instance.getPath() != null ? instance.getAbsoluteFile() : null;
 	}
 
 	private static <T> void forEach(final Iterable<T> instance, final Consumer<T> consumer) {

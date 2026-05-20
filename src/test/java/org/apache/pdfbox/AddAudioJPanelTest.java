@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -73,8 +74,8 @@ class AddAudioJPanelTest {
 			METHOD_TEST_AND_APPLY, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX,
 			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW,
 			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
-			METHOD_TEST_AND_ACCEPT, METHOD_AND, METHOD_TEST_AND_RUN,
-			METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP = null;
+			METHOD_TEST_AND_ACCEPT, METHOD_AND, METHOD_TEST_AND_RUN, METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP,
+			METHOD_ADD_PD_ANNOTATIONS = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -138,6 +139,9 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP = clz.getDeclaredMethod("createStringTextPositionEntryMap",
 				Iterable.class, File.class)).setAccessible(true);
+		//
+		(METHOD_ADD_PD_ANNOTATIONS = clz.getDeclaredMethod("addPDAnnotations", Map.class, PDDocument.class,
+				PDPage.class)).setAccessible(true);
 		//
 	}
 
@@ -352,7 +356,7 @@ class AddAudioJPanelTest {
 				//
 			} // if
 				//
-			if (contains(Arrays.asList(Integer.TYPE, Boolean.TYPE), getReturnType(m))) {
+			if (contains(Arrays.asList(Integer.TYPE, Boolean.TYPE, Float.TYPE), getReturnType(m))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
@@ -523,7 +527,7 @@ class AddAudioJPanelTest {
 				//
 			} // if
 				//
-			if (contains(Arrays.asList(Integer.TYPE, Boolean.TYPE), getReturnType(m))
+			if (contains(Arrays.asList(Integer.TYPE, Boolean.TYPE, Float.TYPE), getReturnType(m))
 					|| Boolean.logicalAnd(Objects.equals(name, "getName"),
 							Arrays.equals(parameterTypes, new Class<?>[] { Class.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "getClass"),
@@ -847,6 +851,30 @@ class AddAudioJPanelTest {
 		} // if
 			//
 		Assert.assertNotNull(invoke(METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, null, List.of(row), null));
+		//
+	}
+
+	@Test
+	void testAddPDAnnotations() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+		//
+		final Map<?, Object> map = new LinkedHashMap<>();
+		//
+		map.put(null, null);
+		//
+		Assert.assertEquals(Boolean.TRUE, invoke(METHOD_ADD_PD_ANNOTATIONS, null, map, null, null));
+		//
+		final Class<?> clz = Class.forName("org.apache.pdfbox.AddAudioJPanel$TextPositionEntry");
+		//
+		final Object textPositionEntry = Narcissus.allocateInstance(clz);
+		//
+		map.put(null, textPositionEntry);
+		//
+		Assert.assertEquals(Boolean.TRUE, invoke(METHOD_ADD_PD_ANNOTATIONS, null, map, null, null));
+		//
+		FieldUtils.writeDeclaredField(textPositionEntry, "textPosition", Narcissus.allocateInstance(TextPosition.class),
+				true);
+		//
+		Assert.assertEquals(Boolean.TRUE, invoke(METHOD_ADD_PD_ANNOTATIONS, null, map, null, null));
 		//
 	}
 
