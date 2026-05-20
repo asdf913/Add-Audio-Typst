@@ -11,6 +11,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -86,9 +90,21 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 2701307780245601666L;
 
-	private JTextComponent tfFileTemplate, tfFileSpreadsheet, tfFilePdf;
+	@Target(ElementType.FIELD)
+	@Retention(RetentionPolicy.RUNTIME)
+	private @interface Note {
+		String value();
+	}
 
-	private AbstractButton btnFileTemplate, btnFileSpreadsheet, btnExecute;
+	@Note("Template")
+	private JTextComponent tfFileTemplate;
+
+	private JTextComponent tfFileSpreadsheet, tfFilePdf;
+
+	@Note("Template")
+	private AbstractButton btnFileTemplate;
+
+	private AbstractButton btnFileSpreadsheet, btnExecute;
 
 	private DefaultTableModel dtm = null;
 
