@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -442,7 +443,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				try {
 					//
 					setText(tfFileSpreadsheet,
-							(isXlsx = isXlsx(Files.readAllBytes(Path.of((file = jfc.getSelectedFile()).toURI()))))
+							(isXlsx = isXlsx(Files.readAllBytes(Path.of(toURI(file = jfc.getSelectedFile())))))
 									? getAbsolutePath(file)
 									: null);
 					//
@@ -599,7 +600,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				String string = testAndApply(AddAudioJPanel::isFile,
 						testAndApply(Objects::nonNull, getText(tfFileTemplate), File::new, null),
-						x -> Files.readString(Path.of(x != null ? x.toURI() : null)), null);
+						x -> Files.readString(Path.of(toURI(x))), null);
 				//
 				TextStringBuilder tsb = null;
 				//
@@ -716,6 +717,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static URI toURI(final File instance) {
+		return instance != null && instance.getPath() != null ? instance.toURI() : null;
 	}
 
 	private static void write(final Writer instance, final String string) throws IOException {

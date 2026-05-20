@@ -60,7 +60,7 @@ class AddAudioJPanelTest {
 
 	private static Method METHOD_EXISTS, METHOD_GET_CLASS, METHOD_IS_FILE, METHOD_GET_NAME, METHOD_GET_ABSOLUTE_PATH,
 			METHOD_TEST_AND_APPLY, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX,
-			METHOD_WRITE = null;
+			METHOD_WRITE, METHOD_TO_URI = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -92,6 +92,8 @@ class AddAudioJPanelTest {
 		(METHOD_IS_XLSX = clz.getDeclaredMethod("isXlsx", byte[].class)).setAccessible(true);
 		//
 		(METHOD_WRITE = clz.getDeclaredMethod("write", Writer.class, String.class)).setAccessible(true);
+		//
+		(METHOD_TO_URI = clz.getDeclaredMethod("toURI", File.class)).setAccessible(true);
 		//
 	}
 
@@ -638,6 +640,13 @@ class AddAudioJPanelTest {
 			//
 		} // try
 			//
+	}
+
+	@Test
+	void testToURI() throws Throwable {
+		//
+		Assert.assertNotNull(invoke(METHOD_TO_URI, null, Path.of(".").toFile()));
+		//
 	}
 
 	@Test
