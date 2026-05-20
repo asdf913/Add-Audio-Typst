@@ -39,6 +39,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -439,13 +440,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			File file = null;
 			//
-			if (exists(file = toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)))
-					&& isFile(file)) {
-				//
-				jfc.setCurrentDirectory(file.getParentFile());
-				//
-			} // if
-				//
+			testAndAccept(x -> exists(x) && isFile(x),
+					file = toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)),
+					x -> jfc.setCurrentDirectory(getParentFile(x)));
+			//
 			if (testAndGetAsBoolean(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
 					() -> jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)) {
 				//
@@ -490,7 +488,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 								} // if
 									//
 								(textPositionEntry = new TextPositionEntry()).file = toFile(Path
-										.of(fileTemplate.getParentFile().getAbsolutePath(), getStringCellValue(cell2)));
+										.of(getParentFile(fileTemplate).getAbsolutePath(), getStringCellValue(cell2)));
 								//
 								textPositionEntry.marker = getStringCellValue(getCell(row, 0));
 								//
@@ -541,7 +539,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						} // if
 							//
 						(textPositionEntry = new TextPositionEntry()).file = toFile(
-								Path.of(fileTemplate.getParentFile().getAbsolutePath(), getStringCellValue(cell2)));
+								Path.of(getParentFile(fileTemplate).getAbsolutePath(), getStringCellValue(cell2)));
 						//
 						textPositionEntry.text = getStringCellValue(getCell(row, 1));
 						//
@@ -693,6 +691,16 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static File getParentFile(final File instance) {
+		return instance != null && instance.getPath() != null ? instance.getParentFile() : null;
+	}
+
+	private static <T> void testAndAccept(final Predicate<T> predicate, final T value, final Consumer<T> consumer) {
+		if (predicate != null && predicate.test(value) && consumer != null) {
+			consumer.accept(value);
+		}
 	}
 
 	private static <K, V> void put(final Map<K, V> instance, final K key, final V value) {

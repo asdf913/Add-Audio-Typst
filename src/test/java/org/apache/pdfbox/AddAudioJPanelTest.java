@@ -2,6 +2,7 @@ package org.apache.pdfbox;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -24,6 +25,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import javax.swing.AbstractButton;
@@ -57,6 +59,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.google.common.base.Predicates;
 import com.google.common.reflect.Reflection;
 
 import io.github.toolfactory.narcissus.Narcissus;
@@ -69,7 +72,8 @@ class AddAudioJPanelTest {
 	private static Method METHOD_EXISTS, METHOD_GET_CLASS, METHOD_IS_FILE, METHOD_GET_NAME, METHOD_GET_ABSOLUTE_PATH,
 			METHOD_TEST_AND_APPLY, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX,
 			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW,
-			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW = null;
+			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
+			METHOD_TEST_AND_ACCEPT = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -121,6 +125,11 @@ class AddAudioJPanelTest {
 				.setAccessible(true);
 		//
 		(METHOD_ADD_ROW = clz.getDeclaredMethod("addRow", DefaultTableModel.class, Object[].class)).setAccessible(true);
+		//
+		(METHOD_GET_PARENT_FILE = clz.getDeclaredMethod("getParentFile", File.class)).setAccessible(true);
+		//
+		(METHOD_TEST_AND_ACCEPT = clz.getDeclaredMethod("testAndAccept", Predicate.class, Object.class, Consumer.class))
+				.setAccessible(true);
 		//
 	}
 
@@ -569,30 +578,16 @@ class AddAudioJPanelTest {
 
 	private static Object invoke(final Method method, final Object instance, final Object... args)
 			throws IllegalAccessException, InvocationTargetException {
-		//
 		return METHOD_INVOKE != null ? METHOD_INVOKE.invoke(null, method, instance, args) : null;
-		//
 	}
 
 	@Test
 	void testExists() throws Throwable {
 		//
-		Assert.assertTrue(exists(Path.of(".").toFile()));
+		Assert.assertEquals(Boolean.TRUE, invoke(METHOD_EXISTS, null, Path.of(".").toFile()));
 		//
-		Assert.assertFalse(exists(Path.of("1").toFile()));
+		Assert.assertEquals(Boolean.FALSE, invoke(METHOD_EXISTS, null, Path.of("1").toFile()));
 		//
-	}
-
-	private static boolean exists(final File instance) throws Throwable {
-		try {
-			final Object obj = invoke(METHOD_EXISTS, null, instance);
-			if (obj instanceof Boolean) {
-				return ((Boolean) obj).booleanValue();
-			} // if
-			throw new Throwable(Objects.toString(getClass(obj)));
-		} catch (final InvocationTargetException e) {
-			throw e.getTargetException();
-		}
 	}
 
 	private static Class<?> getClass(final Object instance) throws Throwable {
@@ -612,45 +607,19 @@ class AddAudioJPanelTest {
 	@Test
 	void testIsFile() throws Throwable {
 		//
-		Assert.assertTrue(isFile(Path.of("pom.xml").toFile()));
+		Assert.assertEquals(Boolean.TRUE, invoke(METHOD_IS_FILE, null, Path.of("pom.xml").toFile()));
 		//
-		Assert.assertFalse(isFile(Path.of(".").toFile()));
+		Assert.assertEquals(Boolean.FALSE, invoke(METHOD_IS_FILE, null, Path.of(".").toFile()));
 		//
-	}
-
-	private static boolean isFile(final File instance) throws Throwable {
-		try {
-			final Object obj = invoke(METHOD_IS_FILE, null, instance);
-			if (obj instanceof Boolean) {
-				return ((Boolean) obj).booleanValue();
-			} // if
-			throw new Throwable(Objects.toString(getClass(obj)));
-		} catch (final InvocationTargetException e) {
-			throw e.getTargetException();
-		}
 	}
 
 	@Test
-	void testGetName() throws Throwable {
+	void testGetName() throws IllegalAccessException, InvocationTargetException {
 		//
 		final String name = "pom.xml";
-		// s
-		Assert.assertEquals(name, getName(Path.of(name).toFile()));
 		//
-	}
-
-	private static String getName(final File instance) throws Throwable {
-		try {
-			final Object obj = invoke(METHOD_GET_NAME, null, instance);
-			if (obj == null) {
-				return null;
-			} else if (obj instanceof String) {
-				return (String) obj;
-			} // if
-			throw new Throwable(Objects.toString(getClass(obj)));
-		} catch (final InvocationTargetException e) {
-			throw e.getTargetException();
-		}
+		Assert.assertEquals(name, invoke(METHOD_GET_NAME, null, Path.of(name).toFile()));
+		//
 	}
 
 	@Test
@@ -699,14 +668,14 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testIsStatic() throws Throwable {
+	void testIsStatic() throws IllegalAccessException, InvocationTargetException, NoSuchFieldException {
 		//
 		Assert.assertEquals(Boolean.TRUE, invoke(METHOD_IS_STATIC, null, Boolean.class.getDeclaredField("TRUE")));
 		//
 	}
 
 	@Test
-	void testIsXlsx() throws Throwable {
+	void testIsXlsx() throws IllegalAccessException, InvocationTargetException {
 		//
 		final Decoder decoder = Base64.getDecoder();
 		//
@@ -717,7 +686,7 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testWrite() throws Throwable {
+	void testWrite() throws IOException, IllegalAccessException, InvocationTargetException {
 		//
 		try (final Writer writer = new OutputStreamWriter(new ProcessBuilder("date").start().getOutputStream())) {
 			//
@@ -728,14 +697,14 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testToURI() throws Throwable {
+	void testToURI() throws IllegalAccessException, InvocationTargetException {
 		//
 		Assert.assertNotNull(invoke(METHOD_TO_URI, null, Path.of(".").toFile()));
 		//
 	}
 
 	@Test
-	void testGetPage() throws Throwable {
+	void testGetPage() throws IllegalAccessException, InvocationTargetException {
 		//
 		final PDDocument pdDocument = new PDDocument();
 		//
@@ -750,14 +719,14 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testTestAndGet() throws Throwable {
+	void testTestAndGet() throws IllegalAccessException, InvocationTargetException {
 		//
 		Assert.assertNull(invoke(METHOD_TEST_AND_GET, null, Boolean.TRUE, null, null));
 		//
 	}
 
 	@Test
-	void testRemoveRow() throws Throwable {
+	void testRemoveRow() throws IllegalAccessException, InvocationTargetException {
 		//
 		final DefaultTableModel dtm = new DefaultTableModel();
 		//
@@ -770,7 +739,7 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testTestAndGetAsBoolean() throws Throwable {
+	void testTestAndGetAsBoolean() throws IllegalAccessException, InvocationTargetException {
 		//
 		Assert.assertEquals(Boolean.FALSE, invoke(METHOD_TEST_AND_GET_AS_BOOLEAN, null, Boolean.TRUE, null));
 		//
@@ -795,7 +764,7 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testReplace() throws Throwable {
+	void testReplace() throws IllegalAccessException, InvocationTargetException {
 		//
 		String string = "";
 		//
@@ -808,11 +777,28 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testAddRow() throws Throwable {
+	void testAddRow() throws IllegalAccessException, InvocationTargetException {
 		//
-		final DefaultTableModel dtm = new DefaultTableModel();
+		Assert.assertNull(invoke(METHOD_ADD_ROW, null, new DefaultTableModel(), null));
 		//
-		Assert.assertNull(invoke(METHOD_ADD_ROW, null, dtm, null));
+	}
+
+	@Test
+	void testGetParentFile() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNull(invoke(METHOD_GET_PARENT_FILE, null, Path.of(".").toFile()));
+		//
+	}
+
+	@Test
+	void testTestAndAccept() throws IllegalAccessException, InvocationTargetException {
+		//
+		final Predicate<?> alwaysTrue = Predicates.alwaysTrue();
+		//
+		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT, null, alwaysTrue, null, null));
+		//
+		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT, null, alwaysTrue, null,
+				Reflection.newProxy(Consumer.class, ih = ObjectUtils.getIfNull(ih, IH::new))));
 		//
 	}
 
