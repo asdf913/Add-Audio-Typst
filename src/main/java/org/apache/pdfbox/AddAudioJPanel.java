@@ -398,17 +398,24 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			final JFileChooser jfc = new JFileChooser(".");
 			//
+			File file = null;
+			//
+			if (exists(file = Path.of(getText(tfFileTemplate)).toFile()) && isFile(file)) {
+				//
+				jfc.setCurrentDirectory(file.getParentFile());
+				//
+			} // if
+				//
 			if (!GraphicsEnvironment.isHeadless() && !isTestMode()
 					&& jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-				//
-				final File file = jfc.getSelectedFile();
 				//
 				boolean isXlsx = false;
 				//
 				try {
 					//
 					setText(tfFileSpreadsheet,
-							(isXlsx = isXlsx(Files.readAllBytes(Path.of(file.toURI())))) ? getAbsolutePath(file)
+							(isXlsx = isXlsx(Files.readAllBytes(Path.of((file = jfc.getSelectedFile()).toURI()))))
+									? getAbsolutePath(file)
 									: null);
 					//
 				} catch (final IOException | SAXException | ParserConfigurationException e) {
@@ -435,6 +442,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 							TextPositionEntry textPositionEntry = null;
 							//
+							final File fileTemplate = Path.of(getText(tfFileTemplate)).toFile();
+							//
 							for (final Row row : sheet) {
 								//
 								if (row == null || (dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new)) == null
@@ -444,7 +453,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 									//
 								} // if
 									//
-								(textPositionEntry = new TextPositionEntry()).file = Path.of(getStringCellValue(cell2))
+								(textPositionEntry = new TextPositionEntry()).file = Path
+										.of(fileTemplate.getParentFile().getAbsolutePath(), getStringCellValue(cell2))
 										.toFile();
 								//
 								textPositionEntry.marker = getStringCellValue(row.getCell(0));
@@ -484,6 +494,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					Cell cell2 = null;
 					//
+					final File fileTemplate = Path.of(getText(tfFileTemplate)).toFile();
+					//
 					for (final Row row : sheet) {
 						//
 						if (row == null || (map = ObjectUtils.getIfNull(map, LinkedHashMap::new)) == null
@@ -493,8 +505,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 						} // if
 							//
-						(textPositionEntry = new TextPositionEntry()).file = Path.of(getStringCellValue(cell2))
-								.toFile();
+						(textPositionEntry = new TextPositionEntry()).file = Path
+								.of(fileTemplate.getParentFile().getAbsolutePath(), getStringCellValue(cell2)).toFile();
 						//
 						textPositionEntry.text = getStringCellValue(row.getCell(1));
 						//
@@ -634,7 +646,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							pdComplexFileSpecification
 									.setFile(Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1) + ".wav");
 							//
-							try (final InputStream is = Files.newInputStream(file.toPath())) {
+							try (final InputStream is = Files.newInputStream(file.getAbsoluteFile().toPath())) {
 								//
 								(pdEmbeddedFile = new PDEmbeddedFile(pdDocument, is)).setSubtype("audio/wav");
 								//
