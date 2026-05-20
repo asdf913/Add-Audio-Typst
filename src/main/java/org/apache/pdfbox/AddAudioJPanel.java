@@ -973,7 +973,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	}
 
-	public static void main(final String[] args) throws InvalidFormatException, IOException, InterruptedException {
+	public static void main(final String[] args) {
 		//
 		final JFrame jFrame = !GraphicsEnvironment.isHeadless() ? new JFrame() : null;
 		//
