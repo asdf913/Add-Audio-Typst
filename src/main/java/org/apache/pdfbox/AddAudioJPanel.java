@@ -36,7 +36,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.function.IntConsumer;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -52,6 +54,7 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 import javax.swing.text.JTextComponent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -456,12 +459,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 				} // try
 					//
-				for (int i = (dtm != null ? dtm.getRowCount() : 0) - 1; i >= 0; i--) {
-					//
-					dtm.removeRow(i);
-					//
-				} // for
-					//
+				forEach(IntStream.iterate(getRowCount(dtm) - 1, i -> i >= 0, i -> i - 1), i -> removeRow(dtm, i));
+				//
 				if (isXlsx) {
 					//
 					try (final Workbook wb = new XSSFWorkbook(file)) {
@@ -713,6 +712,37 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 			} // try
 				//
+		} // if
+			//
+	}
+
+	private static void forEach(final IntStream instance, final IntConsumer consumer) {
+		if (instance != null) {
+			instance.forEach(consumer);
+		}
+	}
+
+	private static int getRowCount(final TableModel instance) {
+		return instance != null ? instance.getRowCount() : 0;
+	}
+
+	private static void removeRow(final DefaultTableModel instance, final int row) {
+		//
+		if (instance == null) {
+			//
+			return;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "dataVector")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		if ((field == null || Narcissus.getField(instance, field) != null) && getRowCount(instance) > row) {
+			//
+			instance.removeRow(row);
+			//
 		} // if
 			//
 	}

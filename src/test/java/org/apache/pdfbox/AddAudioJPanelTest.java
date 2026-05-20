@@ -28,7 +28,9 @@ import java.util.function.Predicate;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 import javax.swing.text.JTextComponent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -63,7 +65,7 @@ class AddAudioJPanelTest {
 
 	private static Method METHOD_EXISTS, METHOD_GET_CLASS, METHOD_IS_FILE, METHOD_GET_NAME, METHOD_GET_ABSOLUTE_PATH,
 			METHOD_TEST_AND_APPLY, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX,
-			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET = null;
+			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -105,17 +107,26 @@ class AddAudioJPanelTest {
 		(METHOD_TEST_AND_GET = clz.getDeclaredMethod("testAndGet", Boolean.TYPE, FailableSupplier.class,
 				FailableSupplier.class)).setAccessible(true);
 		//
+		(METHOD_REMOVE_ROW = clz.getDeclaredMethod("removeRow", DefaultTableModel.class, Integer.TYPE))
+				.setAccessible(true);
+		//
 	}
 
 	private static class IH implements InvocationHandler {
 
-		private Integer length, modifiers;
+		private Integer length, modifiers, rowCount;
 
 		private Boolean test, add;
 
 		@Override
 		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 			//
+			if (Objects.equals(getReturnType(method), Void.TYPE)) {
+				//
+				return null;
+				//
+			} // if
+				//
 			final String name = getName(method);
 			//
 			if (proxy instanceof NodeList) {
@@ -180,6 +191,10 @@ class AddAudioJPanelTest {
 			} else if (proxy instanceof FailableSupplier && Objects.equals(name, "get")) {
 				//
 				return null;
+				//
+			} else if (proxy instanceof TableModel && Objects.equals(name, "getRowCount")) {
+				//
+				return rowCount;
 				//
 			} // if
 				//
@@ -399,7 +414,7 @@ class AddAudioJPanelTest {
 					//
 					if ((ih = ObjectUtils.getIfNull(ih, IH::new)) != null) {
 						//
-						ih.length = ih.modifiers = Integer.valueOf(0);
+						ih.length = ih.modifiers = ih.rowCount = Integer.valueOf(0);
 						//
 						ih.test = ih.add = Boolean.FALSE;
 						//
@@ -682,6 +697,19 @@ class AddAudioJPanelTest {
 	void testTestAndGet() throws Throwable {
 		//
 		Assert.assertNull(invoke(METHOD_TEST_AND_GET, null, Boolean.TRUE, null, null));
+		//
+	}
+
+	@Test
+	void testRemoveRow() throws Throwable {
+		//
+		final DefaultTableModel dtm = new DefaultTableModel();
+		//
+		Assert.assertNull(invoke(METHOD_REMOVE_ROW, null, dtm, 0));
+		//
+		dtm.addRow(new Object[] {});
+		//
+		Assert.assertNull(invoke(METHOD_REMOVE_ROW, null, dtm, 0));
 		//
 	}
 
