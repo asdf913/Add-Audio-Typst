@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EventObject;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -411,7 +412,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(final ActionEvent evt) {
 		//
-		final Object source = evt != null ? evt.getSource() : null;
+		final Object source = getSource(evt);
 		//
 		if (Objects.equals(source, btnFileTemplate)) {
 			//
@@ -714,6 +715,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static Object getSource(final EventObject instance) {
+		return instance != null ? instance.getSource() : null;
 	}
 
 	private static <T, E extends Throwable> T testAndGet(final boolean condition,
