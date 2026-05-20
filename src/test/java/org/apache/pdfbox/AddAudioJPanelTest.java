@@ -218,6 +218,10 @@ class AddAudioJPanelTest {
 				//
 				return getAsBoolean;
 				//
+			} else if (proxy instanceof Iterable && Objects.equals(name, "iterator")) {
+				//
+				return null;
+				//
 			} // if
 				//
 			throw new Throwable(name);

@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EventObject;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -469,7 +470,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						final Sheet sheet = testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0),
 								null);
 						//
-						if (sheet != null && sheet.iterator() != null) {
+						if (iterator(sheet) != null) {
 							//
 							Cell cell2 = null;
 							//
@@ -522,7 +523,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				final Sheet sheet = testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null);
 				//
-				if (sheet != null && sheet.iterator() != null) {
+				if (iterator(sheet) != null) {
 					//
 					Cell cell2 = null;
 					//
@@ -605,7 +606,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				TextStringBuilder tsb = null;
 				//
-				if (map != null && map.keySet() != null && map.keySet().iterator() != null) {
+				if (map != null && iterator(map.keySet()) != null) {
 					//
 					for (final String rowKey : map.keySet()) {
 						//
@@ -643,7 +644,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					pdPage = getPage(pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), 0);
 					//
-					if (map != null && map.entrySet() != null && map.entrySet().iterator() != null) {
+					if (map != null && iterator(map.entrySet()) != null) {
 						//
 						PDComplexFileSpecification pdComplexFileSpecification = null;
 						//
@@ -716,6 +717,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static <T> Iterator<T> iterator(final Iterable<T> instance) {
+		return instance != null ? instance.iterator() : null;
 	}
 
 	private static boolean testAndGetAsBoolean(final boolean condition, final BooleanSupplier supplier) {
@@ -1145,7 +1150,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		@Override
 		protected void writeString(final String string, final List<TextPosition> textPositions) throws IOException {
 			//
-			if (textPositions == null || textPositions.iterator() == null) {
+			if (iterator(textPositions) == null) {
 				//
 				return;
 				//
@@ -1156,7 +1161,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			for (final TextPosition textPosition : textPositions) {
 				//
 				if (textPosition == null || (map = ObjectUtils.getIfNull(map, LinkedHashMap::new)) == null
-						|| map.keySet() == null || map.keySet().iterator() == null) {
+						|| iterator(map.keySet()) == null) {
 					//
 					continue;
 					//
