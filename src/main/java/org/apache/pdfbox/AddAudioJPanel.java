@@ -465,7 +465,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					try (final Workbook wb = new XSSFWorkbook(file)) {
 						//
-						final Sheet sheet = wb.getNumberOfSheets() == 1 ? wb.getSheetAt(0) : null;
+						final Sheet sheet = testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0),
+								null);
 						//
 						if (sheet != null && sheet.iterator() != null) {
 							//
@@ -518,7 +519,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					testAndApply(Objects::nonNull, getText(tfFileSpreadsheet), File::new, null), XSSFWorkbook::new,
 					null)) {
 				//
-				final Sheet sheet = wb != null && wb.getNumberOfSheets() == 1 ? wb.getSheetAt(0) : null;
+				final Sheet sheet = testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null);
 				//
 				if (sheet != null && sheet.iterator() != null) {
 					//
@@ -714,6 +715,14 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static Sheet getSheetAt(final Workbook instance, final int index) {
+		return instance != null ? instance.getSheetAt(index) : null;
+	}
+
+	private static int getNumberOfSheets(final Workbook instance) {
+		return instance != null ? instance.getNumberOfSheets() : 0;
 	}
 
 	private static void forEach(final IntStream instance, final IntConsumer consumer) {

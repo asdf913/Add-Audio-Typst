@@ -45,6 +45,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.text.TextPosition;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
@@ -114,7 +115,7 @@ class AddAudioJPanelTest {
 
 	private static class IH implements InvocationHandler {
 
-		private Integer length, modifiers, rowCount;
+		private Integer length, modifiers, rowCount, numberOfSheets;
 
 		private Boolean test, add;
 
@@ -196,6 +197,18 @@ class AddAudioJPanelTest {
 				//
 				return rowCount;
 				//
+			} else if (proxy instanceof Workbook) {
+				//
+				if (Objects.equals(name, "getSheetAt")) {
+					//
+					return null;
+					//
+				} else if (Objects.equals(name, "getNumberOfSheets")) {
+					//
+					return numberOfSheets;
+					//
+				} // if
+					//
 			} // if
 				//
 			throw new Throwable(name);
@@ -412,14 +425,22 @@ class AddAudioJPanelTest {
 					//
 				} else if (parameterType.isInterface()) {
 					//
-					if ((ih = ObjectUtils.getIfNull(ih, IH::new)) != null) {
+					FieldUtils.getAllFieldsList(getClass(ih = ObjectUtils.getIfNull(ih, IH::new))).forEach(f -> {
 						//
-						ih.length = ih.modifiers = ih.rowCount = Integer.valueOf(0);
+						final Class<?> type = f != null ? f.getType() : null;
 						//
-						ih.test = ih.add = Boolean.FALSE;
-						//
-					} // if
-						//
+						if (Objects.equals(type, Integer.class)) {
+							//
+							Narcissus.setField(ih, f, Integer.valueOf(0));
+							//
+						} else if (Objects.equals(type, Boolean.class)) {
+							//
+							Narcissus.setField(ih, f, Boolean.FALSE);
+							//
+						} // if
+							//
+					});
+					//
 					add(collection, Reflection.newProxy(parameterType, ih));
 					//
 				} else {
