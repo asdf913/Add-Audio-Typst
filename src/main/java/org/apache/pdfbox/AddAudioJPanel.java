@@ -91,6 +91,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 2701307780245601666L;
 
+	private static final String TYPST = "typst";
+
 	@Target(ElementType.FIELD)
 	@Retention(RetentionPolicy.RUNTIME)
 	private @interface Note {
@@ -133,13 +135,13 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // try
 			//
-		add(new JLabel("typst"), "span %1$s".formatted(1));
+		add(new JLabel(TYPST), "span %1$s".formatted(1));
 		//
 		boolean installed = false;
 		//
 		try {
 			//
-			installed = exists("typst");
+			installed = exists(TYPST);
 			//
 		} catch (final IOException e) {
 			//
@@ -546,7 +548,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			try {
 				//
 				if (!isTestMode()
-						&& (process = new ProcessBuilder("typst", "compile",
+						&& (process = new ProcessBuilder(TYPST, "compile",
 								StringUtils.defaultString(getText(tfFileTemplate)), outputPdf).start()) != null
 						&& process.waitFor() == 0) {
 					//
@@ -577,7 +579,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			try (final BufferedWriter writer = testAndApply(Objects::nonNull,
 					testAndApply(Objects::nonNull,
 							getOutputStream(!isTestMode()
-									? process = new ProcessBuilder("typst", "compile", "-", outputPdf).start()
+									? process = new ProcessBuilder(TYPST, "compile", "-", outputPdf).start()
 									: null),
 							OutputStreamWriter::new, null),
 					BufferedWriter::new, null)) {
