@@ -581,7 +581,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					pdPage = getPage(pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), 0);
 					//
-					if (map != null && iterator(map.entrySet()) != null) {
+					if (iterator(entrySet(map)) != null) {
 						//
 						PDComplexFileSpecification pdComplexFileSpecification = null;
 						//
@@ -595,7 +595,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 						TextPositionEntry textPositionEntry = null;
 						//
-						for (final Entry<String, TextPositionEntry> entry : map.entrySet()) {
+						for (final Entry<String, TextPositionEntry> entry : entrySet(map)) {
 							//
 							if ((textPositionEntry = getValue(entry)) == null
 									|| (textPosition = textPositionEntry.textPosition) == null) {
@@ -743,6 +743,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private static <V> Collection<V> values(final Map<?, V> instance) {
 		return instance != null ? instance.values() : null;
+	}
+
+	private static <K, V> Collection<Entry<K, V>> entrySet(final Map<K, V> instance) {
+		return instance != null ? instance.entrySet() : null;
 	}
 
 	private static Cell getCell(final Row instance, final int cellnum) {
