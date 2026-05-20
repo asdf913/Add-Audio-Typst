@@ -233,16 +233,15 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		add(tfFilePdf = new JTextField(), growx);
 		//
-		new FailableStream<>(FieldUtils.getAllFieldsList(getClass()).stream()
-				.filter(f -> f != null && !Modifier.isStatic(f.getModifiers()))).forEach(f -> {
-					//
-					final Object object = Narcissus.getField(this, f);
-					//
-					setEditable(cast(JTextComponent.class, object), false);
-					//
-					addActionListener(cast(AbstractButton.class, object), this);
-					//
-				});
+		new FailableStream<>(FieldUtils.getAllFieldsList(getClass()).stream().filter(f -> !isStatic(f))).forEach(f -> {
+			//
+			final Object object = Narcissus.getField(this, f);
+			//
+			setEditable(cast(JTextComponent.class, object), false);
+			//
+			addActionListener(cast(AbstractButton.class, object), this);
+			//
+		});
 	}
 
 	private static void setEditable(final JTextComponent instance, final boolean editable) {
