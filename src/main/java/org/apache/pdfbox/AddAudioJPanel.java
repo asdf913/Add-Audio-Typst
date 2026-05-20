@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -24,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -586,7 +588,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				throw new RuntimeException(e);
 				//
 			} // try
-				// s
+				//
 			try (final BufferedWriter writer = testAndApply(Objects::nonNull,
 					testAndApply(Objects::nonNull,
 							getOutputStream(!isTestMode()
@@ -625,12 +627,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 				} // if
 					//
-				if (string != null) {
-					//
-					writer.write(string);
-					//
-				} // if
-					//
+				write(writer, string);
+				//
 			} catch (final IOException e) {
 				//
 				throw new RuntimeException(e);
@@ -718,6 +716,37 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static void write(final Writer instance, final String string) throws IOException {
+		//
+		if (instance == null) {
+			//
+			return;
+			//
+		} // if
+			//
+		if (Arrays.stream(getClass(instance).getDeclaredMethods())
+				.noneMatch(m -> m != null && Objects.equals(m.getName(), "write")
+						&& Arrays.equals(m.getParameterTypes(), new Class<?>[] { String.class }))) {
+			//
+			final Method method = testAndApply(x -> IterableUtils.size(x) == 1,
+					Arrays.stream(getClass(instance).getMethods())
+							.filter(m -> m != null && Objects.equals(m.getName(), "write")
+									&& Arrays.equals(m.getParameterTypes(), new Class<?>[] { String.class }))
+							.toList(),
+					x -> IterableUtils.get(x, 0), null);
+			//
+			if (method != null && Objects.equals(method.getDeclaringClass(), Writer.class) && string == null) {
+				//
+				return;
+				//
+			} // if
+				//s
+		} // if
+			//
+		instance.write(string);
+		//
 	}
 
 	private static <V> V getValue(final Entry<?, V> instance) {
