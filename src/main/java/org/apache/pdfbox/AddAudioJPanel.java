@@ -763,7 +763,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				return;
 				//
 			} // if
-				//s
+				//
 		} // if
 			//
 		instance.write(string);
