@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
 import java.util.function.IntConsumer;
@@ -533,8 +534,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					for (final Row row : sheet) {
 						//
-						if ((map = ObjectUtils.getIfNull(map, LinkedHashMap::new)) == null
-								|| (cell2 = getCell(row, 2)) == null) {
+						if ((cell2 = getCell(row, 2)) == null) {
 							//
 							continue;
 							//
@@ -545,7 +545,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 						textPositionEntry.text = getStringCellValue(getCell(row, 1));
 						//
-						map.put(textPositionEntry.marker = getStringCellValue(getCell(row, 0)), textPositionEntry);
+						put(map = ObjectUtils.getIfNull(map, LinkedHashMap::new),
+								textPositionEntry.marker = getStringCellValue(getCell(row, 0)), textPositionEntry);
 						//
 					} // for
 						//
@@ -605,8 +606,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				write(writer,
 						replace(testAndApply(AddAudioJPanel::isFile,
 								testAndApply(Objects::nonNull, getText(tfFileTemplate), File::new, null),
-								x -> Files.readString(Path.of(toURI(x))), null), map != null ? map.keySet() : null,
-								"\\u{25B6}"));
+								x -> Files.readString(Path.of(toURI(x))), null), keySet(map), "\\u{25B6}"));
 				//
 			} catch (final IOException e) {
 				//
@@ -693,6 +693,16 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static <K, V> void put(final Map<K, V> instance, final K key, final V value) {
+		if (instance != null) {
+			instance.put(key, value);
+		}
+	}
+
+	private static <K> Set<K> keySet(final Map<K, ?> instance) {
+		return instance != null ? instance.keySet() : null;
 	}
 
 	private static Cell getCell(final Row instance, final int cellnum) {
@@ -1199,20 +1209,20 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			for (final TextPosition textPosition : textPositions) {
 				//
-				if (textPosition == null || (map = ObjectUtils.getIfNull(map, LinkedHashMap::new)) == null
-						|| iterator(map.keySet()) == null) {
+				if (textPosition == null
+						|| iterator(keySet(map = ObjectUtils.getIfNull(map, LinkedHashMap::new))) == null) {
 					//
 					continue;
 					//
 				} // if
 					//
-				for (final String key : map.keySet()) {
+				for (final String key : keySet(map)) {
 					//
 					if (Objects.equals(textPosition.getUnicode(), key)) {
 						//
-						if ((textPositionEntry = map.get(key)) == null) {
+						if ((textPositionEntry = get(map, key)) == null) {
 							//
-							map.put(key, textPositionEntry = new TextPositionEntry());
+							put(map, key, textPositionEntry = new TextPositionEntry());
 							//
 						} // if
 						if (textPositionEntry != null) {
@@ -1228,6 +1238,11 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			} // for
 				//
 		}
+
+		private static <V> V get(final Map<?, V> instance, final Object key) {
+			return instance != null ? instance.get(key) : null;
+		}
+
 	}
 
 }

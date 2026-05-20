@@ -236,6 +236,10 @@ class AddAudioJPanelTest {
 				//
 				return null;
 				//
+			} else if (proxy instanceof Map && contains(List.of("keySet", "put"), name)) {
+				//
+				return null;
+				//
 			} // if
 				//
 			throw new Throwable(name);
@@ -829,7 +833,7 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	public void testGetTextLocation() throws Throwable {
+	void testGetTextLocation() throws Throwable {
 		//
 		final Class<?> clz = Class.forName("org.apache.pdfbox.AddAudioJPanel$GetTextLocation");
 		//
@@ -858,6 +862,9 @@ class AddAudioJPanelTest {
 		} // if
 			//
 		Assert.assertNull(Narcissus.invokeMethod(object, writeString, null, List.of(textPosition)));
+		//
+		Assert.assertNull(Narcissus.invokeStaticMethod(
+				clz != null ? clz.getDeclaredMethod("get", Map.class, Object.class) : null, null, null));
 		//
 	}
 
