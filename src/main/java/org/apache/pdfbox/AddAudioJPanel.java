@@ -61,6 +61,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.function.FailableBiFunction;
 import org.apache.commons.lang3.function.FailableFunction;
+import org.apache.commons.lang3.function.FailableSupplier;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.stream.Streams.FailableStream;
 import org.apache.commons.text.StringEscapeUtils;
@@ -591,9 +592,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 			try (final BufferedWriter writer = testAndApply(Objects::nonNull,
 					testAndApply(Objects::nonNull,
-							getOutputStream(!isTestMode()
-									? process = new ProcessBuilder(TYPST, "compile", "-", outputPdf).start()
-									: null),
+							getOutputStream(process = testAndGet(!isTestMode(),
+									() -> new ProcessBuilder(TYPST, "compile", "-", outputPdf).start(), null)),
 							OutputStreamWriter::new, null),
 					BufferedWriter::new, null)) {
 				//
@@ -714,6 +714,15 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static <T, E extends Throwable> T testAndGet(final boolean condition,
+			final FailableSupplier<T, E> supplierTrue, final FailableSupplier<T, E> supplierFalse) throws E {
+		return condition ? get(supplierTrue) : get(supplierFalse);
+	}
+
+	private static <T, E extends Throwable> T get(final FailableSupplier<T, E> instance) throws E {
+		return instance != null ? instance.get() : null;
 	}
 
 	private static PDPage getPage(final PDDocument instance, final int pageIndex) {

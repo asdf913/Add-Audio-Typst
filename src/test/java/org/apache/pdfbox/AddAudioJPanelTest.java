@@ -37,6 +37,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.function.FailableBiFunction;
 import org.apache.commons.lang3.function.FailableFunction;
+import org.apache.commons.lang3.function.FailableSupplier;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -62,7 +63,7 @@ class AddAudioJPanelTest {
 
 	private static Method METHOD_EXISTS, METHOD_GET_CLASS, METHOD_IS_FILE, METHOD_GET_NAME, METHOD_GET_ABSOLUTE_PATH,
 			METHOD_TEST_AND_APPLY, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX,
-			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE = null;
+			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -98,6 +99,11 @@ class AddAudioJPanelTest {
 		(METHOD_TO_URI = clz.getDeclaredMethod("toURI", File.class)).setAccessible(true);
 		//
 		(METHOD_GET_PAGE = clz.getDeclaredMethod("getPage", PDDocument.class, Integer.TYPE)).setAccessible(true);
+		//
+		(METHOD_GET_PAGE = clz.getDeclaredMethod("getPage", PDDocument.class, Integer.TYPE)).setAccessible(true);
+		//
+		(METHOD_TEST_AND_GET = clz.getDeclaredMethod("testAndGet", Boolean.TYPE, FailableSupplier.class,
+				FailableSupplier.class)).setAccessible(true);
 		//
 	}
 
@@ -168,6 +174,10 @@ class AddAudioJPanelTest {
 				return null;
 				//
 			} else if (proxy instanceof Entry && Objects.equals(name, "getValue")) {
+				//
+				return null;
+				//
+			} else if (proxy instanceof FailableSupplier && Objects.equals(name, "get")) {
 				//
 				return null;
 				//
@@ -665,6 +675,13 @@ class AddAudioJPanelTest {
 		pdDocument.addPage(pdPage);
 		//
 		Assert.assertEquals(pdPage, invoke(METHOD_GET_PAGE, null, pdDocument, 0));
+		//
+	}
+
+	@Test
+	void testTestAndGet() throws Throwable {
+		//
+		Assert.assertNull(invoke(METHOD_TEST_AND_GET, null, Boolean.TRUE, null, null));
 		//
 	}
 
