@@ -497,103 +497,99 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private static void actionPerformed(final AddAudioJPanel instance, final Object source) {
 		//
-		if (instance == null) {
+		if (instance == null || !Objects.equals(source, instance.btnExecute)) {
 			//
 			return;
 			//
 		} // if
 			//
-		if (Objects.equals(source, instance.btnExecute)) {
+		setText(instance.tfFilePdf, null);
+		//
+		Map<String, TextPositionEntry> map = null;
+		//
+		try (final Workbook wb = testAndApply(AddAudioJPanel::isFile,
+				testAndApply(Objects::nonNull, getText(instance.tfFileSpreadsheet), File::new, null), XSSFWorkbook::new,
+				null)) {
 			//
-			setText(instance.tfFilePdf, null);
+			map = createStringTextPositionEntryMap(
+					testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
+					toFile(testAndApply(Objects::nonNull, getText(instance.tfFileTemplate), Path::of, null)));
 			//
-			Map<String, TextPositionEntry> map = null;
+		} catch (final Exception e) {
 			//
-			try (final Workbook wb = testAndApply(AddAudioJPanel::isFile,
-					testAndApply(Objects::nonNull, getText(instance.tfFileSpreadsheet), File::new, null),
-					XSSFWorkbook::new, null)) {
-				//
-				map = createStringTextPositionEntryMap(
-						testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
-						toFile(testAndApply(Objects::nonNull, getText(instance.tfFileTemplate), Path::of, null)));
-				//
-			} catch (final Exception e) {
-				//
-				throw toRuntimeException(e);
-				//
-			} // try
-				//
-			final String outputPdf = String.join(".",
-					StringUtils.substringBeforeLast(getText(instance.tfFileTemplate), "."), "pdf");
+			throw toRuntimeException(e);
 			//
-			Process process = null;
+		} // try
 			//
-			PDDocument pdDocument = null;
+		final String outputPdf = String.join(".",
+				StringUtils.substringBeforeLast(getText(instance.tfFileTemplate), "."), "pdf");
+		//
+		Process process = null;
+		//
+		PDDocument pdDocument = null;
+		//
+		try {
 			//
-			try {
+			if (!isTestMode()
+					&& (process = new ProcessBuilder(TYPST, "compile",
+							StringUtils.defaultString(getText(instance.tfFileTemplate)), outputPdf).start()) != null
+					&& process.waitFor() == 0) {
+				// ;
 				//
-				if (!isTestMode()
-						&& (process = new ProcessBuilder(TYPST, "compile",
-								StringUtils.defaultString(getText(instance.tfFileTemplate)), outputPdf).start()) != null
-						&& process.waitFor() == 0) {
-					// ;
+				final GetTextLocation pdfTextStripper = new GetTextLocation(map);
+				//
+				pdfTextStripper.setStartPage(1);
+				//
+				if ((pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf)))) != null) {
 					//
-					final GetTextLocation pdfTextStripper = new GetTextLocation(map);
-					//
-					pdfTextStripper.setStartPage(1);
-					//
-					if ((pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf)))) != null) {
-						//
-						pdfTextStripper.setEndPage(pdDocument.getNumberOfPages());
-						//
-					} // if
-						//
-					pdfTextStripper.getText(pdDocument);
+					pdfTextStripper.setEndPage(pdDocument.getNumberOfPages());
 					//
 				} // if
 					//
-			} catch (final IOException | InterruptedException e) {
+				pdfTextStripper.getText(pdDocument);
 				//
-				throw new RuntimeException(e);
+			} // if
 				//
-			} // try
+		} catch (final IOException | InterruptedException e) {
+			//
+			throw new RuntimeException(e);
+			//
+		} // try
+			//
+		try (final BufferedWriter writer = testAndApply(Objects::nonNull,
+				testAndApply(Objects::nonNull,
+						getOutputStream(process = testAndGet(!isTestMode(),
+								() -> new ProcessBuilder(TYPST, "compile", "-", outputPdf).start(), null)),
+						OutputStreamWriter::new, null),
+				BufferedWriter::new, null)) {
+			//
+			write(writer,
+					replace(testAndApply(AddAudioJPanel::isFile,
+							testAndApply(Objects::nonNull, getText(instance.tfFileTemplate), File::new, null),
+							x -> Files.readString(Path.of(toURI(x))), null), keySet(map), "\\u{25B6}"));
+			//
+		} catch (final IOException e) {
+			//
+			throw new RuntimeException(e);
+			//
+		} // try
+			//
+		try {
+			//
+			if (process != null && process.waitFor() == 0 && addPDAnnotations(map,
+					pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), getPage(pdDocument, 0))) {
 				//
-			try (final BufferedWriter writer = testAndApply(Objects::nonNull,
-					testAndApply(Objects::nonNull,
-							getOutputStream(process = testAndGet(!isTestMode(),
-									() -> new ProcessBuilder(TYPST, "compile", "-", outputPdf).start(), null)),
-							OutputStreamWriter::new, null),
-					BufferedWriter::new, null)) {
+				save(pdDocument, toFile(Path.of(outputPdf)));
 				//
-				write(writer,
-						replace(testAndApply(AddAudioJPanel::isFile,
-								testAndApply(Objects::nonNull, getText(instance.tfFileTemplate), File::new, null),
-								x -> Files.readString(Path.of(toURI(x))), null), keySet(map), "\\u{25B6}"));
+				setText(instance.tfFilePdf, outputPdf);
 				//
-			} catch (final IOException e) {
+			} // if
 				//
-				throw new RuntimeException(e);
-				//
-			} // try
-				//
-			try {
-				//
-				if (process != null && process.waitFor() == 0 && addPDAnnotations(map,
-						pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), getPage(pdDocument, 0))) {
-					//
-					save(pdDocument, toFile(Path.of(outputPdf)));
-					//
-					setText(instance.tfFilePdf, outputPdf);
-					//
-				} // if
-					//
-			} catch (final InterruptedException | IOException e) {
-				//
-				throw new RuntimeException(e);
-				//
-			} // try
-				//
-		} // if
+		} catch (final InterruptedException | IOException e) {
+			//
+			throw new RuntimeException(e);
+			//
+		} // try
 			//
 	}
 
