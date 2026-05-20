@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -49,7 +48,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.function.FailableBiFunction;
@@ -118,7 +116,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // try
 			//
-		add(new JLabel("typst"), String.format("span %1$s", 1));
+		add(new JLabel("typst"), "span %1$s".formatted(1));
 		//
 		boolean installed = false;
 		//
@@ -305,8 +303,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				start(testAndApply((a, b) -> b != null, whichOrWhere, command, ProcessBuilder::new, null)))) {
 			//
 			return testAndApply(Objects::nonNull,
-					StringUtils.trim(
-							testAndApply(Objects::nonNull, is, x -> IOUtils.toString(x, StandardCharsets.UTF_8), null)),
+					StringUtils.trim(testAndApply(Objects::nonNull, is,
+							x -> new String(x != null ? x.readAllBytes() : null, StandardCharsets.UTF_8), null)),
 					File::new, null);
 			//
 		} // try
@@ -446,8 +444,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 									//
 								} // if
 									//
-								(textPositionEntry = new TextPositionEntry()).file = new File(
-										getStringCellValue(cell2));
+								(textPositionEntry = new TextPositionEntry()).file = Path.of(getStringCellValue(cell2))
+										.toFile();
 								//
 								textPositionEntry.marker = getStringCellValue(row.getCell(0));
 								//
@@ -495,7 +493,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 						} // if
 							//
-						(textPositionEntry = new TextPositionEntry()).file = new File(getStringCellValue(cell2));
+						(textPositionEntry = new TextPositionEntry()).file = Path.of(getStringCellValue(cell2))
+								.toFile();
 						//
 						textPositionEntry.text = getStringCellValue(row.getCell(1));
 						//
@@ -550,7 +549,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				throw new RuntimeException(e);
 				//
 			} // try
-				//s
+				// s
 			try (final BufferedWriter writer = testAndApply(Objects::nonNull,
 					testAndApply(Objects::nonNull,
 							(!isTestMode() ? (process = new ProcessBuilder("typst", "compile", "-", outputPdf).start())
@@ -635,7 +634,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							pdComplexFileSpecification
 									.setFile(Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1) + ".wav");
 							//
-							try (final InputStream is = new FileInputStream(file)) {
+							try (final InputStream is = Files.newInputStream(file.toPath())) {
 								//
 								(pdEmbeddedFile = new PDEmbeddedFile(pdDocument, is)).setSubtype("audio/wav");
 								//
@@ -666,7 +665,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 						} // for
 							//
-						pdDocument.save(new File(outputPdf));
+						pdDocument.save(Path.of(outputPdf).toFile());
 						//
 						setText(tfFilePdf, outputPdf);
 					} // if

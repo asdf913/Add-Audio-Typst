@@ -9,12 +9,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -414,9 +414,9 @@ class AddAudioJPanelTest {
 	@Test
 	void testExists() throws Throwable {
 		//
-		Assert.assertTrue(exists(new File(".")));
+		Assert.assertTrue(exists(Path.of(".").toFile()));
 		//
-		Assert.assertFalse(exists(new File("1")));
+		Assert.assertFalse(exists(Path.of("1").toFile()));
 		//
 	}
 
@@ -449,9 +449,9 @@ class AddAudioJPanelTest {
 	@Test
 	void testIsFile() throws Throwable {
 		//
-		Assert.assertTrue(isFile(new File("pom.xml")));
+		Assert.assertTrue(isFile(Path.of("pom.xml").toFile()));
 		//
-		Assert.assertFalse(isFile(new File(".")));
+		Assert.assertFalse(isFile(Path.of(".").toFile()));
 		//
 	}
 
@@ -471,8 +471,8 @@ class AddAudioJPanelTest {
 	void testGetName() throws Throwable {
 		//
 		final String name = "pom.xml";
-		//
-		Assert.assertEquals(name, getName(new File(name)));
+		// s
+		Assert.assertEquals(name, getName(Path.of(name).toFile()));
 		//
 	}
 
@@ -493,7 +493,7 @@ class AddAudioJPanelTest {
 	@Test
 	void testGetAbsolutePath() throws Throwable {
 		//
-		Assert.assertNotNull(getAbsolutePath(new File("pom.xml")));
+		Assert.assertNotNull(getAbsolutePath(Path.of("pom.xml").toFile()));
 		//
 	}
 
@@ -591,11 +591,15 @@ class AddAudioJPanelTest {
 		//
 		Assert.assertNull(Narcissus.invokeMethod(object, writeString, null, null));
 		//
-		Assert.assertNull(Narcissus.invokeMethod(object, writeString, null, Collections.singletonList(null)));
+		final Collection<?> list = new ArrayList<>();
+		//
+		list.add(null);
+		//
+		Assert.assertNull(Narcissus.invokeMethod(object, writeString, null, null));
 		//
 		final Object textPosition = Narcissus.allocateInstance(TextPosition.class);
 		//
-		Assert.assertNull(Narcissus.invokeMethod(object, writeString, null, Collections.singletonList(textPosition)));
+		Assert.assertNull(Narcissus.invokeMethod(object, writeString, null, List.of(textPosition)));
 		//
 		final Map<?, ?> map = cast(Map.class, FieldUtils.readDeclaredField(object, "map", true));
 		//
@@ -605,7 +609,7 @@ class AddAudioJPanelTest {
 			//
 		} // if
 			//
-		Assert.assertNull(Narcissus.invokeMethod(object, writeString, null, Collections.singletonList(textPosition)));
+		Assert.assertNull(Narcissus.invokeMethod(object, writeString, null, List.of(textPosition)));
 		//
 	}
 
