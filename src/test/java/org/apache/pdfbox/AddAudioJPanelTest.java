@@ -75,7 +75,8 @@ class AddAudioJPanelTest {
 			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW,
 			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
 			METHOD_TEST_AND_ACCEPT, METHOD_AND, METHOD_TEST_AND_RUN, METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP,
-			METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH, METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE = null;
+			METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH, METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE,
+			METHOD_TO_RUNTIME_EXCEPTION = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -148,6 +149,9 @@ class AddAudioJPanelTest {
 		(METHOD_GET_ABSOLUTE_FILE = clz.getDeclaredMethod("getAbsoluteFile", File.class)).setAccessible(true);
 		//
 		(METHOD_SAVE = clz.getDeclaredMethod("save", PDDocument.class, File.class)).setAccessible(true);
+		//
+		(METHOD_TO_RUNTIME_EXCEPTION = clz.getDeclaredMethod("toRuntimeException", Throwable.class))
+				.setAccessible(true);
 		//
 	}
 
@@ -362,7 +366,9 @@ class AddAudioJPanelTest {
 				//
 			} // if
 				//
-			if (contains(Arrays.asList(Integer.TYPE, Boolean.TYPE, Float.TYPE), getReturnType(m))) {
+			if (contains(Arrays.asList(Integer.TYPE, Boolean.TYPE, Float.TYPE), getReturnType(m))
+					|| Boolean.logicalAnd(Objects.equals(getName(m), "toRuntimeException"),
+							Arrays.equals(parameterTypes, new Class<?>[] { Throwable.class }))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
@@ -543,7 +549,9 @@ class AddAudioJPanelTest {
 					|| Boolean.logicalAnd(Objects.equals(name, "getText"),
 							Arrays.equals(parameterTypes, new Class<?>[] { JTextComponent.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "newDocumentBuilder"),
-							Arrays.equals(parameterTypes, new Class<?>[] { DocumentBuilderFactory.class }))) {
+							Arrays.equals(parameterTypes, new Class<?>[] { DocumentBuilderFactory.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "toRuntimeException"),
+							Arrays.equals(parameterTypes, new Class<?>[] { Throwable.class }))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
@@ -925,6 +933,15 @@ class AddAudioJPanelTest {
 			//
 		} // if
 			//
+	}
+
+	@Test
+	void testToRuntmeException() throws IllegalAccessException, InvocationTargetException {
+		//
+		final RuntimeException runtimeException = new RuntimeException();
+		//
+		Assert.assertSame(runtimeException, invoke(METHOD_TO_RUNTIME_EXCEPTION, null, runtimeException));
+		//
 	}
 
 	@Test

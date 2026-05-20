@@ -476,7 +476,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 					} catch (final InvalidFormatException | IOException e) {
 						//
-						throw e instanceof RuntimeException re ? re : new RuntimeException(e);
+						throw toRuntimeException(e);
 						//
 					} // try
 				} // if
@@ -489,6 +489,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		actionPerformed(this, source);
 		//
+	}
+
+	private static RuntimeException toRuntimeException(final Throwable instance) {
+		return instance instanceof RuntimeException re ? re : new RuntimeException(instance);
 	}
 
 	private static void actionPerformed(final AddAudioJPanel instance, final Object source) {
@@ -515,7 +519,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 			} catch (final Exception e) {
 				//
-				throw e instanceof RuntimeException re ? re : new RuntimeException(e);
+				throw toRuntimeException(e);
 				//
 			} // try
 				//
