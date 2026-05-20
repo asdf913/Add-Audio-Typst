@@ -599,7 +599,7 @@ class AddAudioJPanelTest {
 		//
 		list.add(null);
 		//
-		Assert.assertNull(Narcissus.invokeMethod(object, writeString, null, null));
+		Assert.assertNull(Narcissus.invokeMethod(object, writeString, null, list));
 		//
 		final Object textPosition = Narcissus.allocateInstance(TextPosition.class);
 		//
