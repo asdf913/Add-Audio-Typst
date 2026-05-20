@@ -577,12 +577,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				if (process != null && process.waitFor() == 0 && addPDAnnotations(map,
 						pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), getPage(pdDocument, 0))) {
 					//
-					if (pdDocument != null) {
-						//
-						pdDocument.save(toFile(Path.of(outputPdf)));
-						//
-					} // if
-						//
+					save(pdDocument, toFile(Path.of(outputPdf)));
+					//
 					setText(instance.tfFilePdf, outputPdf);
 					//
 				} // if
@@ -595,6 +591,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static void save(final PDDocument instance, final File file) throws IOException {
+		if (instance != null && file != null && exists(file) && isFile(file) && file.getPath() != null) {
+			instance.save(file);
+		}
 	}
 
 	private static boolean addPDAnnotations(final Map<String, TextPositionEntry> map, final PDDocument pdDocument,

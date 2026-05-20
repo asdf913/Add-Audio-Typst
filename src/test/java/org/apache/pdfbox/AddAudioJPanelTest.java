@@ -75,7 +75,7 @@ class AddAudioJPanelTest {
 			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW,
 			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
 			METHOD_TEST_AND_ACCEPT, METHOD_AND, METHOD_TEST_AND_RUN, METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP,
-			METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH, METHOD_GET_ABSOLUTE_FILE = null;
+			METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH, METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -146,6 +146,8 @@ class AddAudioJPanelTest {
 		(METHOD_TO_PATH = clz.getDeclaredMethod("toPath", File.class)).setAccessible(true);
 		//
 		(METHOD_GET_ABSOLUTE_FILE = clz.getDeclaredMethod("getAbsoluteFile", File.class)).setAccessible(true);
+		//
+		(METHOD_SAVE = clz.getDeclaredMethod("save", PDDocument.class, File.class)).setAccessible(true);
 		//
 	}
 
@@ -894,6 +896,35 @@ class AddAudioJPanelTest {
 		//
 		Assert.assertNotNull(invoke(METHOD_GET_ABSOLUTE_FILE, null, Path.of(".").toFile()));
 		//
+	}
+
+	@Test
+	void testSave() throws IllegalAccessException, InvocationTargetException, IOException {
+		//
+		Assert.assertNull(invoke(METHOD_SAVE, null, null, null));
+		//
+		final PDDocument pdDocument = new PDDocument();
+		//
+		Assert.assertNull(invoke(METHOD_SAVE, null, pdDocument, null));
+		//
+		Assert.assertNull(invoke(METHOD_SAVE, null, pdDocument, Path.of(".").toFile()));
+		//
+		final File file = File.createTempFile(" ".repeat(3), null);
+		//
+		if (file != null) {
+			//
+			file.deleteOnExit();
+			//
+		} // if
+			//
+		Assert.assertNull(invoke(METHOD_SAVE, null, pdDocument, file));
+		//
+		if (file != null) {
+			//
+			file.delete();
+			//
+		} // if
+			//
 	}
 
 	@Test
