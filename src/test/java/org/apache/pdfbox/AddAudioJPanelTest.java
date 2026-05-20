@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
@@ -47,6 +48,9 @@ import org.w3c.dom.NodeList;
 import com.google.common.reflect.Reflection;
 
 import io.github.toolfactory.narcissus.Narcissus;
+import javassist.util.proxy.MethodHandler;
+import javassist.util.proxy.ProxyFactory;
+import javassist.util.proxy.ProxyObject;
 
 class AddAudioJPanelTest {
 
@@ -258,13 +262,15 @@ class AddAudioJPanelTest {
 		//
 		Class<?> parameterType = null;
 		//
-		Object result = null;
+		Object object, result = null;
 		//
 		String name, toString = null;
 		//
 		Object[] os = null;
 		//
 		Collection<Object> collection = null;
+		//
+		ProxyFactory proxyFactory = null;
 		//
 		for (int i = 0; ms != null && i < ms.length; i++) {
 			//
@@ -304,6 +310,36 @@ class AddAudioJPanelTest {
 				} else if (Objects.equals(parameterType, byte[].class)) {
 					//
 					add(collection, new byte[] { 0 });
+					//
+				} else if (Objects.equals(parameterType, Process.class)) {
+					//
+					(proxyFactory = new ProxyFactory()).setSuperclass(Process.class);
+					//
+					if ((object = newInstance(
+							getDeclaredConstructor(proxyFactory.createClass()))) instanceof ProxyObject) {
+						//
+						((ProxyObject) object).setHandler(new MethodHandler() {
+
+							@Override
+							public Object invoke(final Object self, final Method thisMethod, final Method proceed,
+									final Object[] args) throws Throwable {
+								//
+								final String name = getName(thisMethod);
+								//
+								if (self instanceof Process && Objects.equals(name, "getOutputStream")) {
+									//
+									return null;
+									//
+								} // if
+									//
+								throw new Throwable(name);
+								//
+							}
+						});
+						//
+					} // if
+						//
+					add(collection, object);
 					//
 				} else if (parameterType != null && parameterType.isArray()) {
 					//
@@ -369,6 +405,16 @@ class AddAudioJPanelTest {
 				//
 		} // for
 			//
+	}
+
+	private static <T> Constructor<T> getDeclaredConstructor(final Class<T> instance, final Class<?>... parameterTypes)
+			throws NoSuchMethodException {
+		return instance != null ? instance.getDeclaredConstructor(parameterTypes) : null;
+	}
+
+	private static <T> T newInstance(final Constructor<T> instance, final Object... args)
+			throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		return instance != null ? instance.newInstance(args) : null;
 	}
 
 	private static String getName(final Member instance) {

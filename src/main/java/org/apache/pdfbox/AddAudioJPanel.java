@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -575,8 +576,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				// s
 			try (final BufferedWriter writer = testAndApply(Objects::nonNull,
 					testAndApply(Objects::nonNull,
-							(!isTestMode() ? (process = new ProcessBuilder("typst", "compile", "-", outputPdf).start())
-									: null) != null ? process.getOutputStream() : null,
+							getOutputStream(!isTestMode()
+									? process = new ProcessBuilder("typst", "compile", "-", outputPdf).start()
+									: null),
 							OutputStreamWriter::new, null),
 					BufferedWriter::new, null)) {
 				//
@@ -703,6 +705,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static OutputStream getOutputStream(final Process instance) {
+		return instance != null ? instance.getOutputStream() : null;
 	}
 
 	private static File toFile(final Path instance) {
