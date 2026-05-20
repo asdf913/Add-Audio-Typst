@@ -514,40 +514,14 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			Map<String, TextPositionEntry> map = null;
 			//
-			TextPositionEntry textPositionEntry = null;
-			//
 			try (final Workbook wb = testAndApply(AddAudioJPanel::isFile,
 					testAndApply(Objects::nonNull, getText(tfFileSpreadsheet), File::new, null), XSSFWorkbook::new,
 					null)) {
 				//
-				final Sheet sheet = testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null);
+				map = createStringTextPositionEntryMap(
+						testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
+						toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)));
 				//
-				if (iterator(sheet) != null) {
-					//
-					Cell cell2 = null;
-					//
-					final File fileTemplate = toFile(Path.of(getText(tfFileTemplate)));
-					//
-					for (final Row row : sheet) {
-						//
-						if ((cell2 = getCell(row, 2)) == null) {
-							//
-							continue;
-							//
-						} // if
-							//
-						(textPositionEntry = new TextPositionEntry()).file = toFile(
-								Path.of(getParentFile(fileTemplate).getAbsolutePath(), getStringCellValue(cell2)));
-						//
-						textPositionEntry.text = getStringCellValue(getCell(row, 1));
-						//
-						put(map = ObjectUtils.getIfNull(map, LinkedHashMap::new),
-								textPositionEntry.marker = getStringCellValue(getCell(row, 0)), textPositionEntry);
-						//
-					} // for
-						//
-				} // if
-					//
 			} catch (final Exception e) {
 				//
 				throw e instanceof RuntimeException re ? re : new RuntimeException(e);
@@ -628,6 +602,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 						File file = null;
 						//
+						TextPositionEntry textPositionEntry = null;
+						//
 						for (final Entry<String, TextPositionEntry> entry : map.entrySet()) {
 							//
 							if ((textPositionEntry = getValue(entry)) == null
@@ -689,6 +665,53 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static Map<String, TextPositionEntry> createStringTextPositionEntryMap(final Iterable<Row> rows,
+			final File file) {
+		//
+		Map<String, TextPositionEntry> map = null;
+		//
+		if (iterator(rows) != null) {
+			//
+			TextPositionEntry textPositionEntry = null;
+			//
+			Cell cell2 = null;
+			//
+			String s1, s2 = null;
+			//
+			Path path = null;
+			//
+			for (final Row row : rows) {
+				//
+				if ((cell2 = getCell(row, 2)) == null) {
+					//
+					continue;
+					//
+				} // if
+					//
+				path = null;
+				//
+				if (Boolean.logicalAnd((s1 = getAbsolutePath(getParentFile(file))) != null,
+						(s2 = getStringCellValue(cell2)) != null)) {
+					//
+					path = Path.of(s1, s2);
+					//
+				} // if
+					//
+				(textPositionEntry = new TextPositionEntry()).file = toFile(path);
+				//
+				textPositionEntry.text = getStringCellValue(getCell(row, 1));
+				//
+				put(map = ObjectUtils.getIfNull(map, LinkedHashMap::new),
+						textPositionEntry.marker = getStringCellValue(getCell(row, 0)), textPositionEntry);
+				//
+			} // for
+				//
+		} // if
+			//
+		return map;
+		//
 	}
 
 	private static void testAndRun(final boolean condition, final Runnable runnable) {

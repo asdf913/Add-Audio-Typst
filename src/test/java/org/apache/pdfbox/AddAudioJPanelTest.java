@@ -73,7 +73,8 @@ class AddAudioJPanelTest {
 			METHOD_TEST_AND_APPLY, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX,
 			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW,
 			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
-			METHOD_TEST_AND_ACCEPT, METHOD_AND, METHOD_TEST_AND_RUN = null;
+			METHOD_TEST_AND_ACCEPT, METHOD_AND, METHOD_TEST_AND_RUN,
+			METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -135,6 +136,9 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_TEST_AND_RUN = clz.getDeclaredMethod("testAndRun", Boolean.TYPE, Runnable.class)).setAccessible(true);
 		//
+		(METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP = clz.getDeclaredMethod("createStringTextPositionEntryMap",
+				Iterable.class, File.class)).setAccessible(true);
+		//
 	}
 
 	private static class IH implements InvocationHandler {
@@ -142,6 +146,8 @@ class AddAudioJPanelTest {
 		private Integer length, modifiers, rowCount, numberOfSheets;
 
 		private Boolean test, add, getAsBoolean;
+
+		private Cell cell;
 
 		@Override
 		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
@@ -249,7 +255,7 @@ class AddAudioJPanelTest {
 				//
 			} else if (proxy instanceof Row && Objects.equals(name, "getCell")) {
 				//
-				return null;
+				return cell;
 				//
 			} else if (proxy instanceof Map && contains(List.of("keySet", "put"), name)) {
 				//
@@ -824,6 +830,23 @@ class AddAudioJPanelTest {
 		//
 		Assert.assertNull(invoke(METHOD_TEST_AND_RUN, null, Boolean.TRUE,
 				Reflection.newProxy(Runnable.class, ih = ObjectUtils.getIfNull(ih, IH::new))));
+		//
+	}
+
+	@Test
+	void testCreateStringTextPositionEntryMap() throws IllegalAccessException, InvocationTargetException {
+		//
+		final Row row = Reflection.newProxy(Row.class, ih = ObjectUtils.getIfNull(ih, IH::new));
+		//
+		Assert.assertNull(invoke(METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, null, List.of(row), null));
+		//
+		if (ih != null) {
+			//
+			ih.cell = Reflection.newProxy(Cell.class, ih);
+			//
+		} // if
+			//
+		Assert.assertNotNull(invoke(METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, null, List.of(row), null));
 		//
 	}
 
