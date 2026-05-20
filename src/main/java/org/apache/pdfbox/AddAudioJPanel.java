@@ -421,7 +421,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			final JFileChooser jfc = new JFileChooser(".");
 			//
-			if (!GraphicsEnvironment.isHeadless() && !isTestMode()
+			if (Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode())
 					&& jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 				//
 				setText(tfFileTemplate, getAbsolutePath(jfc.getSelectedFile()));
@@ -441,7 +441,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 			} // if
 				//
-			if (!GraphicsEnvironment.isHeadless() && !isTestMode()
+			if (Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode())
 					&& jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 				//
 				boolean isXlsx = false;
