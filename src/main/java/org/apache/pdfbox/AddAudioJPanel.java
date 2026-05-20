@@ -165,42 +165,37 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		final TableCellRenderer tcr = jTable.getDefaultRenderer(Object.class);
 		//
-		jTable.setDefaultRenderer(Object.class, new TableCellRenderer() {
-
-			@Override
-			public Component getTableCellRendererComponent(final JTable table, final Object value,
-					final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+		jTable.setDefaultRenderer(Object.class, (table, value, isSelected, hasFocus, row, column) -> {
+			//
+			final TextPositionEntry textPositionEntry = cast(TextPositionEntry.class,
+					dtm != null && dtm.getColumnCount() > 0 ? dtm.getValueAt(row, 0) : null);
+			//
+			final Component component = tcr != null
+					? tcr.getTableCellRendererComponent(jTable, value, isSelected, hasFocus, row, column)
+					: null;
+			//
+			final JLabel jLabel = cast(JLabel.class, component);
+			//
+			if (textPositionEntry != null) {
 				//
-				final TextPositionEntry textPositionEntry = cast(TextPositionEntry.class,
-						dtm != null && dtm.getColumnCount() > 0 ? dtm.getValueAt(row, 0) : null);
-				//
-				final Component component = tcr != null
-						? tcr.getTableCellRendererComponent(jTable, value, isSelected, hasFocus, row, column)
-						: null;
-				//
-				final JLabel jLabel = cast(JLabel.class, component);
-				//
-				if (textPositionEntry != null) {
+				if (column == 0) {
 					//
-					if (column == 0) {
-						//
-						setText(jLabel, textPositionEntry.marker);
-						//
-					} else if (column == 1) {
-						//
-						setText(jLabel, textPositionEntry.text);
-						//
-					} else if (column == 2) {
-						//
-						setText(jLabel, getName(textPositionEntry.file));
-						//
-					} // if
-						//
+					setText(jLabel, textPositionEntry.marker);
+					//
+				} else if (column == 1) {
+					//
+					setText(jLabel, textPositionEntry.text);
+					//
+				} else if (column == 2) {
+					//
+					setText(jLabel, getName(textPositionEntry.file));
+					//
 				} // if
 					//
-				return ObjectUtils.getIfNull(jLabel, component);
+			} // if
 				//
-			}
+			return ObjectUtils.getIfNull(jLabel, component);
+			//
 		});
 		//
 		add(new JLabel());
@@ -505,8 +500,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 						} // if
 							//
-						(textPositionEntry = new TextPositionEntry()).file = toFile(Path
-								.of(fileTemplate.getParentFile().getAbsolutePath(), getStringCellValue(cell2)));
+						(textPositionEntry = new TextPositionEntry()).file = toFile(
+								Path.of(fileTemplate.getParentFile().getAbsolutePath(), getStringCellValue(cell2)));
 						//
 						textPositionEntry.text = getStringCellValue(row.getCell(1));
 						//
