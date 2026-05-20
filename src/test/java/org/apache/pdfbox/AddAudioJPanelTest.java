@@ -257,7 +257,7 @@ class AddAudioJPanelTest {
 				//
 				return cell;
 				//
-			} else if (proxy instanceof Map && contains(List.of("keySet", "put"), name)) {
+			} else if (proxy instanceof Map && contains(List.of("keySet", "put", "values"), name)) {
 				//
 				return null;
 				//

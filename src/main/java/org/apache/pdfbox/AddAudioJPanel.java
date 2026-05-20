@@ -466,11 +466,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					try (final Workbook wb = new XSSFWorkbook(file)) {
 						//
-						final Map<String, TextPositionEntry> map = createStringTextPositionEntryMap(
+						forEach(values(createStringTextPositionEntryMap(
 								testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
-								toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)));
-						//
-						forEach(map != null ? map.values() : null,
+								toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)))),
 								x -> addRow(dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new),
 										new Object[] { x }));
 						//
@@ -723,6 +721,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private static <K> Set<K> keySet(final Map<K, ?> instance) {
 		return instance != null ? instance.keySet() : null;
+	}
+
+	private static <V> Collection<V> values(final Map<?, V> instance) {
+		return instance != null ? instance.values() : null;
 	}
 
 	private static Cell getCell(final Row instance, final int cellnum) {
