@@ -142,6 +142,10 @@ class AddAudioJPanelTest {
 				//
 				return null;
 				//
+			} else if (proxy instanceof Path && Objects.equals(name, "toFile")) {
+				//
+				return null;
+				//
 			} // if
 				//
 			throw new Throwable(name);

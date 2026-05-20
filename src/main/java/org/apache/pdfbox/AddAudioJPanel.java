@@ -400,7 +400,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			File file = null;
 			//
-			if (exists(file = Path.of(getText(tfFileTemplate)).toFile()) && isFile(file)) {
+			if (exists(file = toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)))
+					&& isFile(file)) {
 				//
 				jfc.setCurrentDirectory(file.getParentFile());
 				//
@@ -442,7 +443,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 							TextPositionEntry textPositionEntry = null;
 							//
-							final File fileTemplate = Path.of(getText(tfFileTemplate)).toFile();
+							final File fileTemplate = toFile(Path.of(getText(tfFileTemplate)));
 							//
 							for (final Row row : sheet) {
 								//
@@ -453,9 +454,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 									//
 								} // if
 									//
-								(textPositionEntry = new TextPositionEntry()).file = Path
-										.of(fileTemplate.getParentFile().getAbsolutePath(), getStringCellValue(cell2))
-										.toFile();
+								(textPositionEntry = new TextPositionEntry()).file = toFile(Path
+										.of(fileTemplate.getParentFile().getAbsolutePath(), getStringCellValue(cell2)));
 								//
 								textPositionEntry.marker = getStringCellValue(row.getCell(0));
 								//
@@ -494,7 +494,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					Cell cell2 = null;
 					//
-					final File fileTemplate = Path.of(getText(tfFileTemplate)).toFile();
+					final File fileTemplate = toFile(Path.of(getText(tfFileTemplate)));
 					//
 					for (final Row row : sheet) {
 						//
@@ -505,8 +505,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 						} // if
 							//
-						(textPositionEntry = new TextPositionEntry()).file = Path
-								.of(fileTemplate.getParentFile().getAbsolutePath(), getStringCellValue(cell2)).toFile();
+						(textPositionEntry = new TextPositionEntry()).file = toFile(Path
+								.of(fileTemplate.getParentFile().getAbsolutePath(), getStringCellValue(cell2)));
 						//
 						textPositionEntry.text = getStringCellValue(row.getCell(1));
 						//
@@ -677,7 +677,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 						} // for
 							//
-						pdDocument.save(Path.of(outputPdf).toFile());
+						pdDocument.save(toFile(Path.of(outputPdf)));
 						//
 						setText(tfFilePdf, outputPdf);
 					} // if
@@ -692,6 +692,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static File toFile(final Path instance) {
+		return instance != null ? instance.toFile() : null;
 	}
 
 	private static List<PDAnnotation> getAnnotations(final PDPage instance) throws IOException {
