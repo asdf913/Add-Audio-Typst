@@ -104,6 +104,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private static final String TYPST = "typst";
 
+	private static final String VALUE = "value";
+
 	@Target(ElementType.FIELD)
 	@Retention(RetentionPolicy.RUNTIME)
 	private @interface Note {
@@ -315,7 +317,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		try {
 			//
-			if (command != null && Narcissus.getObjectField(command, String.class.getDeclaredField("value")) == null) {
+			if (command != null && Narcissus.getObjectField(command, String.class.getDeclaredField(VALUE)) == null) {
 				//
 				return null;
 				//
@@ -703,7 +705,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(string)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "value")).toList(),
+						.filter(f -> f != null && Objects.equals(f.getName(), VALUE)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		if (field != null && Narcissus.getField(string, field) == null) {
@@ -1097,8 +1099,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		try {
 			//
-			if (Narcissus.getField(instance, Narcissus.findField(getClass(instance), "model")) == null || (text != null
-					&& Narcissus.getField(text, Narcissus.findField(getClass(text), "value")) == null)) {
+			if (Narcissus.getField(instance, Narcissus.findField(getClass(instance), "model")) == null
+					|| (text != null && Narcissus.getField(text, Narcissus.findField(getClass(text), VALUE)) == null)) {
 				//
 				return;
 				//
