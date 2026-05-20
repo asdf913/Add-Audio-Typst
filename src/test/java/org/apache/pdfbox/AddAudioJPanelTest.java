@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -633,12 +632,6 @@ class AddAudioJPanelTest {
 	@Test
 	void testWrite() throws Throwable {
 		//
-		try (final Writer writer = new StringWriter()) {
-			//
-//			Assert.assertNull(invoke(METHOD_WRITE, null, writer, null));
-			//
-		} // try
-			//
 		try (final Writer writer = new OutputStreamWriter(new ProcessBuilder("date").start().getOutputStream())) {
 			//
 			Assert.assertNull(invoke(METHOD_WRITE, null, writer, null));
