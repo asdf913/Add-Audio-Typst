@@ -38,6 +38,8 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.function.FailableBiFunction;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.text.TextPosition;
 import org.apache.poi.ss.usermodel.Cell;
 import org.testng.Assert;
@@ -60,7 +62,7 @@ class AddAudioJPanelTest {
 
 	private static Method METHOD_EXISTS, METHOD_GET_CLASS, METHOD_IS_FILE, METHOD_GET_NAME, METHOD_GET_ABSOLUTE_PATH,
 			METHOD_TEST_AND_APPLY, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX,
-			METHOD_WRITE, METHOD_TO_URI = null;
+			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -94,6 +96,8 @@ class AddAudioJPanelTest {
 		(METHOD_WRITE = clz.getDeclaredMethod("write", Writer.class, String.class)).setAccessible(true);
 		//
 		(METHOD_TO_URI = clz.getDeclaredMethod("toURI", File.class)).setAccessible(true);
+		//
+		(METHOD_GET_PAGE = clz.getDeclaredMethod("getPage", PDDocument.class, Integer.TYPE)).setAccessible(true);
 		//
 	}
 
@@ -646,6 +650,21 @@ class AddAudioJPanelTest {
 	void testToURI() throws Throwable {
 		//
 		Assert.assertNotNull(invoke(METHOD_TO_URI, null, Path.of(".").toFile()));
+		//
+	}
+
+	@Test
+	void testGetPage() throws Throwable {
+		//
+		final PDDocument pdDocument = new PDDocument();
+		//
+		Assert.assertNull(invoke(METHOD_GET_PAGE, null, pdDocument, 0));
+		//
+		final PDPage pdPage = new PDPage();
+		//
+		pdDocument.addPage(pdPage);
+		//
+		Assert.assertEquals(pdPage, invoke(METHOD_GET_PAGE, null, pdDocument, 0));
 		//
 	}
 

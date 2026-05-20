@@ -17,6 +17,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -566,9 +567,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 								StringUtils.defaultString(getText(tfFileTemplate)), outputPdf).start()) != null
 						&& process.waitFor() == 0) {
 					//
-					pdPage = (pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf)))) != null
-							? pdDocument.getPage(0)
-							: null;
+					pdPage = getPage(pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), 0);
 					//
 					final GetTextLocation pdfTextStripper = new GetTextLocation(map);
 					//
@@ -640,9 +639,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				if (process != null && process.waitFor() == 0) {
 					//
-					pdPage = (pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf)))) != null
-							? pdDocument.getPage(0)
-							: null;
+					pdPage = getPage(pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), 0);
 					//
 					if (map != null && map.entrySet() != null && map.entrySet().iterator() != null) {
 						//
@@ -717,6 +714,25 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static PDPage getPage(final PDDocument instance, final int pageIndex) {
+		//
+		if (instance == null) {
+			//
+			return null;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "document")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		return (field == null || Narcissus.getField(instance, field) != null) && instance.getNumberOfPages() > pageIndex
+				? instance.getPage(pageIndex)
+				: null;
+		//
 	}
 
 	private static URI toURI(final File instance) {
