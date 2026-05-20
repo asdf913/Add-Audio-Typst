@@ -25,6 +25,7 @@ import java.util.function.Predicate;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.JTextComponent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -147,6 +148,10 @@ class AddAudioJPanelTest {
 				return null;
 				//
 			} else if (proxy instanceof Path && Objects.equals(name, "toFile")) {
+				//
+				return null;
+				//
+			} else if (proxy instanceof TableCellRenderer && Objects.equals(name, "getTableCellRendererComponent")) {
 				//
 				return null;
 				//

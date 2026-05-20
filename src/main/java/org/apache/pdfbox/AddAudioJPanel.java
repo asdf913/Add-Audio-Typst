@@ -195,9 +195,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			final TextPositionEntry textPositionEntry = cast(TextPositionEntry.class,
 					dtm != null && dtm.getColumnCount() > 0 ? dtm.getValueAt(row, 0) : null);
 			//
-			final Component component = tcr != null
-					? tcr.getTableCellRendererComponent(jTable, value, isSelected, hasFocus, row, column)
-					: null;
+			final Component component = getTableCellRendererComponent(tcr, jTable, value, isSelected, hasFocus, row,
+					column);
 			//
 			final JLabel jLabel = cast(JLabel.class, component);
 			//
@@ -242,6 +241,13 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			addActionListener(cast(AbstractButton.class, object), this);
 			//
 		});
+	}
+
+	private static Component getTableCellRendererComponent(final TableCellRenderer instnace, final JTable table,
+			final Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+		return instnace != null
+				? instnace.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
+				: null;
 	}
 
 	private static void setEditable(final JTextComponent instance, final boolean editable) {
