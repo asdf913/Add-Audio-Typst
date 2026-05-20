@@ -440,7 +440,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			File file = null;
 			//
-			testAndAccept(x -> exists(x) && isFile(x),
+			testAndAccept(x -> and(x, AddAudioJPanel::exists, AddAudioJPanel::isFile),
 					file = toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)),
 					x -> jfc.setCurrentDirectory(getParentFile(x)));
 			//
@@ -691,6 +691,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static <T> boolean and(final T value, final Predicate<T> a, final Predicate<T> b) {
+		return test(a, value) && test(b, value);
 	}
 
 	private static File getParentFile(final File instance) {
