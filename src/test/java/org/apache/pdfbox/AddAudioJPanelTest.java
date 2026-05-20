@@ -311,6 +311,10 @@ class AddAudioJPanelTest {
 					//
 					add(collection, new byte[] { 0 });
 					//
+				} else if (Objects.equals(parameterType, AbstractButton.class)) {
+					//
+					add(collection, new JButton());
+					//
 				} else if (Objects.equals(parameterType, Process.class)) {
 					//
 					(proxyFactory = new ProxyFactory()).setSuperclass(Process.class);

@@ -246,15 +246,15 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 					} // if
 						//
-					final AbstractButton btn = cast(AbstractButton.class, object);
+					addActionListener(cast(AbstractButton.class, object), this);
 					//
-					if (btn != null) {
-						//
-						btn.addActionListener(this);
-						//
-					} // if
-						//
 				});
+	}
+
+	private static void addActionListener(final AbstractButton instance, final ActionListener actionListener) {
+		if (instance != null) {
+			instance.addActionListener(actionListener);
+		}
 	}
 
 	private static void setText(final JLabel instance, final String text) {
