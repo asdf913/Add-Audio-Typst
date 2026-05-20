@@ -482,8 +482,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 							for (final Row row : sheet) {
 								//
-								if (row == null || (dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new)) == null
-										|| (cell2 = row.getCell(2)) == null) {
+								if ((dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new)) == null
+										|| (cell2 = getCell(row, 2)) == null) {
 									//
 									continue;
 									//
@@ -492,9 +492,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 								(textPositionEntry = new TextPositionEntry()).file = toFile(Path
 										.of(fileTemplate.getParentFile().getAbsolutePath(), getStringCellValue(cell2)));
 								//
-								textPositionEntry.marker = getStringCellValue(row.getCell(0));
+								textPositionEntry.marker = getStringCellValue(getCell(row, 0));
 								//
-								textPositionEntry.text = getStringCellValue(row.getCell(1));
+								textPositionEntry.text = getStringCellValue(getCell(row, 1));
 								//
 								dtm.addRow(new Object[] { textPositionEntry });
 								//
@@ -533,8 +533,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					for (final Row row : sheet) {
 						//
-						if (row == null || (map = ObjectUtils.getIfNull(map, LinkedHashMap::new)) == null
-								|| (cell2 = row.getCell(2)) == null) {
+						if ((map = ObjectUtils.getIfNull(map, LinkedHashMap::new)) == null
+								|| (cell2 = getCell(row, 2)) == null) {
 							//
 							continue;
 							//
@@ -543,9 +543,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						(textPositionEntry = new TextPositionEntry()).file = toFile(
 								Path.of(fileTemplate.getParentFile().getAbsolutePath(), getStringCellValue(cell2)));
 						//
-						textPositionEntry.text = getStringCellValue(row.getCell(1));
+						textPositionEntry.text = getStringCellValue(getCell(row, 1));
 						//
-						map.put(textPositionEntry.marker = getStringCellValue(row.getCell(0)), textPositionEntry);
+						map.put(textPositionEntry.marker = getStringCellValue(getCell(row, 0)), textPositionEntry);
 						//
 					} // for
 						//
@@ -693,6 +693,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static Cell getCell(final Row instance, final int cellnum) {
+		return instance != null ? instance.getCell(cellnum) : null;
 	}
 
 	private static String replace(final String string, final Iterable<String> ss, final String replacement) {

@@ -46,6 +46,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.text.TextPosition;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -228,6 +229,10 @@ class AddAudioJPanelTest {
 				return getAsBoolean;
 				//
 			} else if (proxy instanceof Iterable && Objects.equals(name, "iterator")) {
+				//
+				return null;
+				//
+			} else if (proxy instanceof Row && Objects.equals(name, "getCell")) {
 				//
 				return null;
 				//
