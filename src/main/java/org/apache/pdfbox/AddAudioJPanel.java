@@ -432,6 +432,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							() -> jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION),
 					() -> setText(tfFileTemplate, getAbsolutePath(jfc.getSelectedFile())));
 			//
+			return;
+			//
 		} else if (Objects.equals(source, btnFileSpreadsheet)) {
 			//
 			final JFileChooser jfc = new JFileChooser(".");
@@ -481,19 +483,35 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 			} // if
 				//
-		} else if (Objects.equals(source, btnExecute)) {
+			return;
 			//
-			setText(tfFilePdf, null);
+		} // if
+			//
+		actionPerformed(this, source);
+		//
+	}
+
+	private static void actionPerformed(final AddAudioJPanel instance, final Object source) {
+		//
+		if (instance == null) {
+			//
+			return;
+			//
+		} // if
+			//
+		if (Objects.equals(source, instance.btnExecute)) {
+			//
+			setText(instance.tfFilePdf, null);
 			//
 			Map<String, TextPositionEntry> map = null;
 			//
 			try (final Workbook wb = testAndApply(AddAudioJPanel::isFile,
-					testAndApply(Objects::nonNull, getText(tfFileSpreadsheet), File::new, null), XSSFWorkbook::new,
-					null)) {
+					testAndApply(Objects::nonNull, getText(instance.tfFileSpreadsheet), File::new, null),
+					XSSFWorkbook::new, null)) {
 				//
 				map = createStringTextPositionEntryMap(
 						testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
-						toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)));
+						toFile(testAndApply(Objects::nonNull, getText(instance.tfFileTemplate), Path::of, null)));
 				//
 			} catch (final Exception e) {
 				//
@@ -501,8 +519,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 			} // try
 				//
-			final String outputPdf = String.join(".", StringUtils.substringBeforeLast(getText(tfFileTemplate), "."),
-					"pdf");
+			final String outputPdf = String.join(".",
+					StringUtils.substringBeforeLast(getText(instance.tfFileTemplate), "."), "pdf");
 			//
 			Process process = null;
 			//
@@ -514,7 +532,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				if (!isTestMode()
 						&& (process = new ProcessBuilder(TYPST, "compile",
-								StringUtils.defaultString(getText(tfFileTemplate)), outputPdf).start()) != null
+								StringUtils.defaultString(getText(instance.tfFileTemplate)), outputPdf).start()) != null
 						&& process.waitFor() == 0) {
 					//
 					pdPage = getPage(pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), 0);
@@ -548,7 +566,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				write(writer,
 						replace(testAndApply(AddAudioJPanel::isFile,
-								testAndApply(Objects::nonNull, getText(tfFileTemplate), File::new, null),
+								testAndApply(Objects::nonNull, getText(instance.tfFileTemplate), File::new, null),
 								x -> Files.readString(Path.of(toURI(x))), null), keySet(map), "\\u{25B6}"));
 				//
 			} catch (final IOException e) {
@@ -625,7 +643,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 						pdDocument.save(toFile(Path.of(outputPdf)));
 						//
-						setText(tfFilePdf, outputPdf);
+						setText(instance.tfFilePdf, outputPdf);
 					} // if
 						//
 				} // if
