@@ -466,37 +466,20 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					try (final Workbook wb = new XSSFWorkbook(file)) {
 						//
-						final Sheet sheet = testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0),
-								null);
+						final Map<String, TextPositionEntry> map = createStringTextPositionEntryMap(
+								testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
+								toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)));
 						//
-						if (iterator(sheet) != null) {
+						final Collection<TextPositionEntry> values = map != null ? map.values() : null;
+						//
+						if (values != null) {
 							//
-							Cell cell2 = null;
+							values.forEach(x -> {
+								//
+								addRow(dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new), new Object[] { x });
+								//
+							});
 							//
-							TextPositionEntry textPositionEntry = null;
-							//
-							final File fileTemplate = toFile(Path.of(getText(tfFileTemplate)));
-							//
-							for (final Row row : sheet) {
-								//
-								if ((cell2 = getCell(row, 2)) == null) {
-									//
-									continue;
-									//
-								} // if
-									//
-								(textPositionEntry = new TextPositionEntry()).file = toFile(Path
-										.of(getParentFile(fileTemplate).getAbsolutePath(), getStringCellValue(cell2)));
-								//
-								textPositionEntry.marker = getStringCellValue(getCell(row, 0));
-								//
-								textPositionEntry.text = getStringCellValue(getCell(row, 1));
-								//
-								addRow(dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new),
-										new Object[] { textPositionEntry });
-								//
-							} // for
-								//
 						} // if
 							//
 					} catch (final InvalidFormatException | IOException e) {
