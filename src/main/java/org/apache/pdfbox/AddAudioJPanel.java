@@ -483,8 +483,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 							for (final Row row : sheet) {
 								//
-								if ((dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new)) == null
-										|| (cell2 = getCell(row, 2)) == null) {
+								if ((cell2 = getCell(row, 2)) == null) {
 									//
 									continue;
 									//
@@ -497,7 +496,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 								//
 								textPositionEntry.text = getStringCellValue(getCell(row, 1));
 								//
-								dtm.addRow(new Object[] { textPositionEntry });
+								addRow(dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new),
+										new Object[] { textPositionEntry });
 								//
 							} // for
 								//
@@ -792,6 +792,27 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private static int getRowCount(final TableModel instance) {
 		return instance != null ? instance.getRowCount() : 0;
+	}
+
+	private static void addRow(final DefaultTableModel instance, final Object[] row) {
+		//
+		if (instance == null) {
+			//
+			return;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "dataVector")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		if ((field == null || Narcissus.getField(instance, field) != null)) {
+			//
+			instance.addRow(row);
+			//
+		} // if
+			//
 	}
 
 	private static void removeRow(final DefaultTableModel instance, final int row) {

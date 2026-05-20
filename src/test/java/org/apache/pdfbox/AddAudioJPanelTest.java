@@ -69,7 +69,7 @@ class AddAudioJPanelTest {
 	private static Method METHOD_EXISTS, METHOD_GET_CLASS, METHOD_IS_FILE, METHOD_GET_NAME, METHOD_GET_ABSOLUTE_PATH,
 			METHOD_TEST_AND_APPLY, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX,
 			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW,
-			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE = null;
+			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -119,6 +119,8 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_REPLACE = clz.getDeclaredMethod("replace", String.class, Iterable.class, String.class))
 				.setAccessible(true);
+		//
+		(METHOD_ADD_ROW = clz.getDeclaredMethod("addRow", DefaultTableModel.class, Object[].class)).setAccessible(true);
 		//
 	}
 
@@ -802,6 +804,15 @@ class AddAudioJPanelTest {
 		Assert.assertSame(string, invoke(METHOD_REPLACE, null, string, List.of(string), null));
 		//
 		Assert.assertEquals(string = "12", invoke(METHOD_REPLACE, null, string, List.of(string), string));
+		//
+	}
+
+	@Test
+	void testAddRow() throws Throwable {
+		//
+		final DefaultTableModel dtm = new DefaultTableModel();
+		//
+		Assert.assertNull(invoke(METHOD_ADD_ROW, null, dtm, null));
 		//
 	}
 
