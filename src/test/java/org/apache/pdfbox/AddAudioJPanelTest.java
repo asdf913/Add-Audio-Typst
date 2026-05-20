@@ -68,7 +68,7 @@ class AddAudioJPanelTest {
 	private static Method METHOD_EXISTS, METHOD_GET_CLASS, METHOD_IS_FILE, METHOD_GET_NAME, METHOD_GET_ABSOLUTE_PATH,
 			METHOD_TEST_AND_APPLY, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX,
 			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW,
-			METHOD_TEST_AND_GET_AS_BOOLEAN = null;
+			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -116,6 +116,9 @@ class AddAudioJPanelTest {
 		(METHOD_TEST_AND_GET_AS_BOOLEAN = clz.getDeclaredMethod("testAndGetAsBoolean", Boolean.TYPE,
 				BooleanSupplier.class)).setAccessible(true);
 		//
+		(METHOD_REPLACE = clz.getDeclaredMethod("replace", String.class, Iterable.class, String.class))
+				.setAccessible(true);
+		//
 	}
 
 	private static class IH implements InvocationHandler {
@@ -135,6 +138,12 @@ class AddAudioJPanelTest {
 				//
 			final String name = getName(method);
 			//
+			if (Objects.equals(name, "toString") && method != null && method.getParameterCount() == 0) {
+				//
+				return null;
+				//
+			} // if
+				//
 			if (proxy instanceof NodeList) {
 				//
 				if (Objects.equals(name, "getLength")) {
@@ -352,12 +361,14 @@ class AddAudioJPanelTest {
 			//
 			if ((m = ArrayUtils.get(ms, i)) == null || m.isSynthetic()
 					|| (parameterTypes = m.getParameterTypes()) == null
-					|| (Boolean.logicalAnd(Objects.equals(name = getName(m), "main"),
-							Arrays.equals(parameterTypes, new Class<?>[] { String[].class })))
-					|| (Boolean.logicalAnd(Objects.equals(name, "parse"),
-							Arrays.equals(parameterTypes, new Class<?>[] { DocumentBuilder.class, InputStream.class })))
-					|| (Boolean.logicalAnd(Objects.equals(name, "getInputStream"),
-							Arrays.equals(parameterTypes, new Class<?>[] { Process.class })))) {
+					|| Boolean.logicalAnd(Objects.equals(name = getName(m), "main"),
+							Arrays.equals(parameterTypes, new Class<?>[] { String[].class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "parse"),
+							Arrays.equals(parameterTypes, new Class<?>[] { DocumentBuilder.class, InputStream.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "getInputStream"),
+							Arrays.equals(parameterTypes, new Class<?>[] { Process.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "replace"), Arrays.equals(parameterTypes,
+							new Class<?>[] { String.class, CharSequence.class, CharSequence.class }))) {
 				//
 				continue;
 				//
@@ -769,6 +780,19 @@ class AddAudioJPanelTest {
 		} // if
 			//
 		Assert.assertEquals(Boolean.TRUE, invoke(METHOD_TEST_AND_GET_AS_BOOLEAN, null, Boolean.TRUE, booleanSupplier));
+		//
+	}
+
+	@Test
+	void testReplace() throws Throwable {
+		//
+		String string = "";
+		//
+		Assert.assertSame(string, invoke(METHOD_REPLACE, null, string, null, null));
+		//
+		Assert.assertSame(string, invoke(METHOD_REPLACE, null, string, List.of(string), null));
+		//
+		Assert.assertEquals(string = "12", invoke(METHOD_REPLACE, null, string, List.of(string), string));
 		//
 	}
 

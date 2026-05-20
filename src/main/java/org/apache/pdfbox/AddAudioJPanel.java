@@ -600,37 +600,11 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							OutputStreamWriter::new, null),
 					BufferedWriter::new, null)) {
 				//
-				String string = testAndApply(AddAudioJPanel::isFile,
-						testAndApply(Objects::nonNull, getText(tfFileTemplate), File::new, null),
-						x -> Files.readString(Path.of(toURI(x))), null);
-				//
-				TextStringBuilder tsb = null;
-				//
-				if (map != null && iterator(map.keySet()) != null) {
-					//
-					for (final String rowKey : map.keySet()) {
-						//
-						if ((tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)) == null) {
-							//
-							continue;
-							//
-						} // if
-							//
-						tsb.clear();
-						//
-						tsb.append(StringEscapeUtils.escapeJava(rowKey));
-						//
-						tsb.append('}');
-						//
-						tsb.insert(2, '{');
-						//
-						string = string.replace(tsb, "\\u{25B6}");
-						//
-					} // for
-						//
-				} // if
-					//
-				write(writer, string);
+				write(writer,
+						replace(testAndApply(AddAudioJPanel::isFile,
+								testAndApply(Objects::nonNull, getText(tfFileTemplate), File::new, null),
+								x -> Files.readString(Path.of(toURI(x))), null), map != null ? map.keySet() : null,
+								"\\u{25B6}"));
 				//
 			} catch (final IOException e) {
 				//
@@ -717,6 +691,65 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static String replace(final String string, final Iterable<String> ss, final String replacement) {
+		//
+		if (string == null) {
+			//
+			return null;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(string)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "value")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		if (field != null && Narcissus.getField(string, field) == null) {
+			//
+			return null;
+			//
+		} // if
+			//
+		String result = Objects.toString(new StringBuilder(string));
+		//
+		if (iterator(ss) != null) {
+			//
+			TextStringBuilder tsb = null;
+			//
+			for (final String s : ss) {
+				//
+				if ((tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)) == null) {
+					//
+					continue;
+					//
+				} // if
+					//
+				tsb.clear();
+				//
+				tsb.append(StringEscapeUtils.escapeJava(s));
+				//
+				tsb.append('}');
+				//
+				if (tsb.length() > 2) {
+					//
+					tsb.insert(2, '{');
+					//
+				} // if
+					//
+				result = replace(result, tsb, replacement);
+				//
+			} // for
+				//
+		} // if
+			//
+		return result;
+		//
+	}
+
+	private static String replace(final String instance, final CharSequence target, final CharSequence replacement) {
+		return instance != null && replacement != null ? instance.replace(target, replacement) : instance;
 	}
 
 	private static <T> Iterator<T> iterator(final Iterable<T> instance) {
