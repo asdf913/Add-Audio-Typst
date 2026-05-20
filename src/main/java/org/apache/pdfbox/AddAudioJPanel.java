@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.function.BooleanSupplier;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -421,8 +422,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			final JFileChooser jfc = new JFileChooser(".");
 			//
-			if (Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode())
-					&& jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			if (testAndGetAsBoolean(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
+					() -> jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)) {
 				//
 				setText(tfFileTemplate, getAbsolutePath(jfc.getSelectedFile()));
 				//
@@ -441,8 +442,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 			} // if
 				//
-			if (Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode())
-					&& jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			if (testAndGetAsBoolean(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
+					() -> jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)) {
 				//
 				boolean isXlsx = false;
 				//
@@ -715,6 +716,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static boolean testAndGetAsBoolean(final boolean condition, final BooleanSupplier supplier) {
+		return condition && supplier != null && supplier.getAsBoolean();
 	}
 
 	private static Sheet getSheetAt(final Workbook instance, final int index) {

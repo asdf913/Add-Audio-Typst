@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.BiPredicate;
+import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
 import javax.swing.AbstractButton;
@@ -66,7 +67,8 @@ class AddAudioJPanelTest {
 
 	private static Method METHOD_EXISTS, METHOD_GET_CLASS, METHOD_IS_FILE, METHOD_GET_NAME, METHOD_GET_ABSOLUTE_PATH,
 			METHOD_TEST_AND_APPLY, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX,
-			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW = null;
+			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW,
+			METHOD_TEST_AND_GET_AS_BOOLEAN = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -111,13 +113,16 @@ class AddAudioJPanelTest {
 		(METHOD_REMOVE_ROW = clz.getDeclaredMethod("removeRow", DefaultTableModel.class, Integer.TYPE))
 				.setAccessible(true);
 		//
+		(METHOD_TEST_AND_GET_AS_BOOLEAN = clz.getDeclaredMethod("testAndGetAsBoolean", Boolean.TYPE,
+				BooleanSupplier.class)).setAccessible(true);
+		//
 	}
 
 	private static class IH implements InvocationHandler {
 
 		private Integer length, modifiers, rowCount, numberOfSheets;
 
-		private Boolean test, add;
+		private Boolean test, add, getAsBoolean;
 
 		@Override
 		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
@@ -209,6 +214,10 @@ class AddAudioJPanelTest {
 					//
 				} // if
 					//
+			} else if (proxy instanceof BooleanSupplier && Objects.equals(name, "getAsBoolean")) {
+				//
+				return getAsBoolean;
+				//
 			} // if
 				//
 			throw new Throwable(name);
@@ -731,6 +740,31 @@ class AddAudioJPanelTest {
 		dtm.addRow(new Object[] {});
 		//
 		Assert.assertNull(invoke(METHOD_REMOVE_ROW, null, dtm, 0));
+		//
+	}
+
+	@Test
+	void testTestAndGetAsBoolean() throws Throwable {
+		//
+		Assert.assertEquals(Boolean.FALSE, invoke(METHOD_TEST_AND_GET_AS_BOOLEAN, null, Boolean.TRUE, null));
+		//
+		if ((ih = ObjectUtils.getIfNull(ih, IH::new)) != null) {
+			//
+			ih.getAsBoolean = Boolean.FALSE;
+			//
+		} // if
+			//
+		final BooleanSupplier booleanSupplier = Reflection.newProxy(BooleanSupplier.class, ih);
+		//
+		Assert.assertEquals(Boolean.FALSE, invoke(METHOD_TEST_AND_GET_AS_BOOLEAN, null, Boolean.TRUE, booleanSupplier));
+		//
+		if (ih != null) {
+			//
+			ih.getAsBoolean = Boolean.TRUE;
+			//
+		} // if
+			//
+		Assert.assertEquals(Boolean.TRUE, invoke(METHOD_TEST_AND_GET_AS_BOOLEAN, null, Boolean.TRUE, booleanSupplier));
 		//
 	}
 
