@@ -18,6 +18,7 @@ import java.util.Base64.Decoder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
@@ -152,6 +153,10 @@ class AddAudioJPanelTest {
 				return null;
 				//
 			} else if (proxy instanceof TableCellRenderer && Objects.equals(name, "getTableCellRendererComponent")) {
+				//
+				return null;
+				//
+			} else if (proxy instanceof Entry && Objects.equals(name, "getValue")) {
 				//
 				return null;
 				//

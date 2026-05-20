@@ -659,7 +659,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 						for (final Entry<String, TextPositionEntry> entry : map.entrySet()) {
 							//
-							if (entry == null || (textPositionEntry = entry.getValue()) == null
+							if ((textPositionEntry = getValue(entry)) == null
 									|| (textPosition = textPositionEntry.textPosition) == null) {
 								//
 								continue;
@@ -718,6 +718,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static <V> V getValue(final Entry<?, V> instance) {
+		return instance != null ? instance.getValue() : null;
 	}
 
 	private static OutputStream getOutputStream(final Process instance) {
