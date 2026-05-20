@@ -2,5 +2,6 @@
 /.project
 /.settings/
 /dependency-reduced-pom.xml
+/sample/sample.pdf
 /target/
 /test-output/
