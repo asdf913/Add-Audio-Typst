@@ -163,7 +163,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		add(tf, String.join(",", growx, wrap));
 		//
-		tf.setEditable(false);
+		setEditable(tf, false);
 		//
 		add(new JLabel("Template"));
 		//
@@ -238,17 +238,17 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					final Object object = Narcissus.getField(this, f);
 					//
-					final JTextComponent jtc = cast(JTextComponent.class, object);
+					setEditable(cast(JTextComponent.class, object), false);
 					//
-					if (jtc != null) {
-						//
-						jtc.setEditable(false);
-						//
-					} // if
-						//
 					addActionListener(cast(AbstractButton.class, object), this);
 					//
 				});
+	}
+
+	private static void setEditable(final JTextComponent instance, final boolean editable) {
+		if (instance != null) {
+			instance.setEditable(editable);
+		}
 	}
 
 	private static void addActionListener(final AbstractButton instance, final ActionListener actionListener) {

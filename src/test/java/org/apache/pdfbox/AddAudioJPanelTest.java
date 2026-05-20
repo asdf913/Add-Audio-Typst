@@ -207,6 +207,10 @@ class AddAudioJPanelTest {
 					//
 					add(collection, Integer.valueOf(0));
 					//
+				} else if (Objects.equals(parameterType, Boolean.TYPE)) {
+					//
+					add(collection, Boolean.FALSE);
+					//
 				} else if (Objects.equals(parameterType, byte[].class)) {
 					//
 					add(collection, new byte[] { 0 });
@@ -294,6 +298,10 @@ class AddAudioJPanelTest {
 				if (Objects.equals(parameterType = ArrayUtils.get(parameterTypes, j), Integer.TYPE)) {
 					//
 					add(collection, Integer.valueOf(0));
+					//
+				} else if (Objects.equals(parameterType, Boolean.TYPE)) {
+					//
+					add(collection, Boolean.FALSE);
 					//
 				} else if (Objects.equals(parameterType, Class.class)) {
 					//
