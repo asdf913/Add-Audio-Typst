@@ -195,12 +195,6 @@ class AddAudioJPanelTest {
 				//
 			} // if
 				//
-			if (!m.isAccessible()) {
-				//
-				m.setAccessible(true);
-				//
-			} // if
-				// s
 			clear(collection = ObjectUtils.getIfNull(collection, ArrayList::new));
 			//
 			for (int j = 0; j < parameterTypes.length; j++) {
@@ -227,12 +221,15 @@ class AddAudioJPanelTest {
 			//
 			if (Modifier.isStatic(m.getModifiers())) {
 				//
-				result = invoke(m, null, os);
+				result = Narcissus.invokeStaticMethod(m, os);
 				//
 			} else {
 				//
-				result = invoke(m, instance = ObjectUtils.getIfNull(instance,
-						() -> (AddAudioJPanel) Narcissus.allocateInstance(AddAudioJPanel.class)), os);
+				result = Narcissus
+						.invokeMethod(
+								instance = ObjectUtils.getIfNull(instance,
+										() -> (AddAudioJPanel) Narcissus.allocateInstance(AddAudioJPanel.class)),
+								m, os);
 				//
 			} // if
 				//
@@ -283,12 +280,6 @@ class AddAudioJPanelTest {
 							Arrays.equals(parameterTypes, new Class<?>[] { Process.class })))) {
 				//
 				continue;
-				//
-			} // if
-				//
-			if (!m.isAccessible()) {
-				//
-				m.setAccessible(true);
 				//
 			} // if
 				//
@@ -346,12 +337,15 @@ class AddAudioJPanelTest {
 			//
 			if (Modifier.isStatic(m.getModifiers())) {
 				//
-				result = invoke(m, null, os);
+				result = Narcissus.invokeStaticMethod(m, os);
 				//
 			} else {
 				//
-				result = invoke(m, instance = ObjectUtils.getIfNull(instance,
-						() -> (AddAudioJPanel) Narcissus.allocateInstance(AddAudioJPanel.class)), os);
+				result = Narcissus
+						.invokeMethod(
+								instance = ObjectUtils.getIfNull(instance,
+										() -> (AddAudioJPanel) Narcissus.allocateInstance(AddAudioJPanel.class)),
+								m, os);
 				//
 			} // if
 				//
