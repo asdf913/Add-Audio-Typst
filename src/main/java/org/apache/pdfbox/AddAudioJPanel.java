@@ -464,22 +464,18 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 				forEach(IntStream.iterate(getRowCount(dtm) - 1, i -> i >= 0, i -> i - 1), i -> removeRow(dtm, i));
 				//
-				if (isXlsx) {
+				try (final Workbook wb = isXlsx ? new XSSFWorkbook(file) : null) {
 					//
-					try (final Workbook wb = new XSSFWorkbook(file)) {
-						//
-						forEach(values(createStringTextPositionEntryMap(
-								testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
-								toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)))),
-								x -> addRow(dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new),
-										new Object[] { x }));
-						//
-					} catch (final InvalidFormatException | IOException e) {
-						//
-						throw toRuntimeException(e);
-						//
-					} // try
-				} // if
+					forEach(values(createStringTextPositionEntryMap(
+							testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
+							toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)))),
+							x -> addRow(dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new), new Object[] { x }));
+					//
+				} catch (final InvalidFormatException | IOException e) {
+					//
+					throw toRuntimeException(e);
+					//
+				} // try
 					//
 			} // if
 				//
