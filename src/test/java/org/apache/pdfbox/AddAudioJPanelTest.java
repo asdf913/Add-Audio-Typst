@@ -71,8 +71,8 @@ import javassist.util.proxy.ProxyObject;
 class AddAudioJPanelTest {
 
 	private static Method METHOD_EXISTS, METHOD_GET_CLASS, METHOD_IS_FILE, METHOD_GET_NAME, METHOD_GET_ABSOLUTE_PATH,
-			METHOD_TEST_AND_APPLY, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX,
-			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW,
+			METHOD_TEST_AND_APPLY4, METHOD_TEST_AND_APPLY5, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC,
+			METHOD_IS_XLSX, METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW,
 			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
 			METHOD_TEST_AND_ACCEPT, METHOD_AND, METHOD_TEST_AND_RUN, METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP,
 			METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH, METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE,
@@ -93,7 +93,10 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_GET_ABSOLUTE_PATH = clz.getDeclaredMethod("getAbsolutePath", File.class)).setAccessible(true);
 		//
-		(METHOD_TEST_AND_APPLY = clz.getDeclaredMethod("testAndApply", BiPredicate.class, Object.class, Object.class,
+		(METHOD_TEST_AND_APPLY4 = clz.getDeclaredMethod("testAndApply", Boolean.TYPE, Object.class,
+				FailableFunction.class, FailableFunction.class)).setAccessible(true);
+		//
+		(METHOD_TEST_AND_APPLY5 = clz.getDeclaredMethod("testAndApply", BiPredicate.class, Object.class, Object.class,
 				FailableBiFunction.class, FailableBiFunction.class)).setAccessible(true);
 		//
 		(METHOD_INVOKE = clz.getDeclaredMethod("invoke", Method.class, Object.class, Object[].class))
@@ -672,11 +675,18 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testTestAndApply() throws Throwable {
+	void testTestAndApply() throws IllegalAccessException, InvocationTargetException {
 		//
-		final BiPredicate<?, ?> biPredicate = (a, b) -> true;
+		Assert.assertNull(invoke(METHOD_TEST_AND_APPLY4, null, Boolean.TRUE, null, null, null));
 		//
-		Assert.assertNull(invoke(METHOD_TEST_AND_APPLY, null, biPredicate, null, null, null, null));
+		if ((ih = ObjectUtils.getIfNull(ih, IH::new)) != null) {
+			//
+			ih.test = Boolean.TRUE;
+			//
+		} // if
+			//
+		Assert.assertNull(invoke(METHOD_TEST_AND_APPLY5, null, Reflection.newProxy(BiPredicate.class, ih), null, null,
+				null, null));
 		//
 	}
 

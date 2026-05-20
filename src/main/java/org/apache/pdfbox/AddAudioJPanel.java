@@ -83,7 +83,6 @@ import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationFileAttachment;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -464,14 +463,14 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 				forEach(IntStream.iterate(getRowCount(dtm) - 1, i -> i >= 0, i -> i - 1), i -> removeRow(dtm, i));
 				//
-				try (final Workbook wb = isXlsx ? new XSSFWorkbook(file) : null) {
+				try (final Workbook wb = testAndApply(isXlsx, file, XSSFWorkbook::new, null)) {
 					//
 					forEach(values(createStringTextPositionEntryMap(
 							testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
 							toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)))),
 							x -> addRow(dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new), new Object[] { x }));
 					//
-				} catch (final InvalidFormatException | IOException e) {
+				} catch (final Exception e) {
 					//
 					throw toRuntimeException(e);
 					//
@@ -485,6 +484,11 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		actionPerformed(this, source);
 		//
+	}
+
+	private static <T, R, E extends Throwable> R testAndApply(final boolean condition, final T value,
+			final FailableFunction<T, R, E> functionTrue, final FailableFunction<T, R, E> functionFalse) throws E {
+		return condition ? apply(functionTrue, value) : apply(functionFalse, value);
 	}
 
 	private static RuntimeException toRuntimeException(final Throwable instance) {
