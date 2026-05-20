@@ -73,7 +73,7 @@ class AddAudioJPanelTest {
 			METHOD_TEST_AND_APPLY, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX,
 			METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW,
 			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
-			METHOD_TEST_AND_ACCEPT, METHOD_AND = null;
+			METHOD_TEST_AND_ACCEPT, METHOD_AND, METHOD_TEST_AND_RUN = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -132,6 +132,8 @@ class AddAudioJPanelTest {
 				.setAccessible(true);
 		//
 		(METHOD_AND = clz.getDeclaredMethod("and", Object.class, Predicate.class, Predicate.class)).setAccessible(true);
+		//
+		(METHOD_TEST_AND_RUN = clz.getDeclaredMethod("testAndRun", Boolean.TYPE, Runnable.class)).setAccessible(true);
 		//
 	}
 
@@ -812,6 +814,16 @@ class AddAudioJPanelTest {
 		Assert.assertEquals(Boolean.FALSE, invoke(METHOD_AND, null, null, alwaysTrue, null));
 		//
 		Assert.assertEquals(Boolean.TRUE, invoke(METHOD_AND, null, null, alwaysTrue, alwaysTrue));
+		//
+	}
+
+	@Test
+	void testTestAndRun() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNull(invoke(METHOD_TEST_AND_RUN, null, Boolean.TRUE, null));
+		//
+		Assert.assertNull(invoke(METHOD_TEST_AND_RUN, null, Boolean.TRUE,
+				Reflection.newProxy(Runnable.class, ih = ObjectUtils.getIfNull(ih, IH::new))));
 		//
 	}
 

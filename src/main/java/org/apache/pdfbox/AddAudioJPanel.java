@@ -427,13 +427,11 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			final JFileChooser jfc = new JFileChooser(".");
 			//
-			if (testAndGetAsBoolean(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
-					() -> jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)) {
-				//
-				setText(tfFileTemplate, getAbsolutePath(jfc.getSelectedFile()));
-				//
-			} // if
-				//
+			testAndRun(
+					testAndGetAsBoolean(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
+							() -> jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION),
+					() -> setText(tfFileTemplate, getAbsolutePath(jfc.getSelectedFile())));
+			//
 		} else if (Objects.equals(source, btnFileSpreadsheet)) {
 			//
 			final JFileChooser jfc = new JFileChooser(".");
@@ -691,6 +689,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static void testAndRun(final boolean condition, final Runnable runnable) {
+		if (condition && runnable != null) {
+			runnable.run();
+		}
 	}
 
 	private static <T> boolean and(final T value, final Predicate<T> a, final Predicate<T> b) {
