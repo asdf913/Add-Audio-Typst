@@ -264,8 +264,6 @@ class AddAudioJPanelTest {
 		//
 		Object[] os = null;
 		//
-		AddAudioJPanel instance = null;
-		//
 		Collection<Object> collection = null;
 		//
 		for (int i = 0; ms != null && i < ms.length; i++) {
