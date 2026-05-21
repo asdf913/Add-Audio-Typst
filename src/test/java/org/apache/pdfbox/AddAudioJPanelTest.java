@@ -48,6 +48,7 @@ import org.apache.commons.lang3.function.FailableConsumer;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.commons.lang3.function.FailableSupplier;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.text.TextStringBuilder;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
@@ -82,7 +83,8 @@ class AddAudioJPanelTest {
 			METHOD_TEST_AND_ACCEPT3, METHOD_TEST_AND_ACCEPT4, METHOD_AND, METHOD_TEST_AND_RUN,
 			METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH,
 			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY,
-			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT = null;
+			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR, METHOD_APPEND_CHAR,
+			METHOD_APPEND_INT, METHOD_APPEND_STRING = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -177,6 +179,17 @@ class AddAudioJPanelTest {
 		(METHOD_GET_MEDIA_BOX = clz.getDeclaredMethod("getMediaBox", PDPage.class)).setAccessible(true);
 		//
 		(METHOD_GET_HEIGHT = clz.getDeclaredMethod("getHeight", PDRectangle.class)).setAccessible(true);
+		//
+		(METHOD_CLEAR = clz.getDeclaredMethod("clear", TextStringBuilder.class)).setAccessible(true);
+		//
+		(METHOD_APPEND_CHAR = clz.getDeclaredMethod("append", TextStringBuilder.class, Character.TYPE))
+				.setAccessible(true);
+		//
+		(METHOD_APPEND_INT = clz.getDeclaredMethod("append", TextStringBuilder.class, Integer.TYPE))
+				.setAccessible(true);
+		//
+		(METHOD_APPEND_STRING = clz.getDeclaredMethod("append", TextStringBuilder.class, String.class))
+				.setAccessible(true);
 		//
 	}
 
@@ -375,6 +388,10 @@ class AddAudioJPanelTest {
 					//
 					add(collection, Boolean.FALSE);
 					//
+				} else if (Objects.equals(parameterType, Character.TYPE)) {
+					//
+					add(collection, Character.valueOf(' '));
+					//
 				} else if (Objects.equals(parameterType, byte[].class)) {
 					//
 					add(collection, new byte[] { 0 });
@@ -452,8 +469,17 @@ class AddAudioJPanelTest {
 							Arrays.equals(parameterTypes, new Class<?>[] { DocumentBuilder.class, InputStream.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "getInputStream"),
 							Arrays.equals(parameterTypes, new Class<?>[] { Process.class }))
-					|| Boolean.logicalAnd(Objects.equals(name, "replace"), Arrays.equals(parameterTypes,
-							new Class<?>[] { String.class, CharSequence.class, CharSequence.class }))) {
+					|| Boolean.logicalAnd(Objects.equals(name, "replace"),
+							Arrays.equals(parameterTypes,
+									new Class<?>[] { String.class, CharSequence.class, CharSequence.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "append"),
+							Arrays.equals(parameterTypes, new Class<?>[] { TextStringBuilder.class, String.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "append"),
+							Arrays.equals(parameterTypes, new Class<?>[] { TextStringBuilder.class, Integer.TYPE }))
+					|| Boolean.logicalAnd(Objects.equals(name, "append"),
+							Arrays.equals(parameterTypes, new Class<?>[] { TextStringBuilder.class, Character.TYPE }))
+					|| Boolean.logicalAnd(Objects.equals(name, "clear"),
+							Arrays.equals(parameterTypes, new Class<?>[] { TextStringBuilder.class }))) {
 				//
 				continue;
 				//
@@ -470,6 +496,10 @@ class AddAudioJPanelTest {
 				} else if (Objects.equals(parameterType, Boolean.TYPE)) {
 					//
 					add(collection, Boolean.FALSE);
+					//
+				} else if (Objects.equals(parameterType, Character.TYPE)) {
+					//
+					add(collection, Character.valueOf(' '));
 					//
 				} else if (Objects.equals(parameterType, Class.class)) {
 					//
@@ -1040,6 +1070,27 @@ class AddAudioJPanelTest {
 		//
 		Assert.assertNotNull(invoke(METHOD_GET_HEIGHT, null, new PDRectangle()));
 		//
+	}
+
+	@Test
+	void testClear() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNotNull(invoke(METHOD_CLEAR, null, Narcissus.allocateInstance(TextStringBuilder.class)));
+		//
+	}
+
+	@Test
+	void testAppend() throws IllegalAccessException, InvocationTargetException {
+		//
+		final Object object = Narcissus.allocateInstance(TextStringBuilder.class);
+		//
+		Assert.assertNotNull(invoke(METHOD_APPEND_CHAR, null, object, Character.valueOf(' ')));
+		//
+		Assert.assertNotNull(invoke(METHOD_APPEND_INT, null, object, Integer.valueOf(0)));
+		//
+		Assert.assertNotNull(invoke(METHOD_APPEND_STRING, null, object, null));
+		//
+		Assert.assertNotNull(invoke(METHOD_APPEND_STRING, null, object, Narcissus.allocateInstance(String.class)));
 	}
 
 	@Test

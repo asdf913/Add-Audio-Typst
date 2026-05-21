@@ -789,30 +789,23 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 					} // if
 						//
-					if ((tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)) != null) {
-						//
-						tsb.clear();
-						//
-					} // if
-						//
-					tsb.append(Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1));
+					append(clear(tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)),
+							Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1));
 					//
 					mimeType = getMimeType(ci);
 					//
 					if (length(fileExtensions = getFileExtensions(ci)) == 1) {
 						//
-						tsb.append('.');
-						//
-						tsb.append(ArrayUtils.get(fileExtensions, 0));
+						append(append(tsb, '.'), ArrayUtils.get(fileExtensions, 0));
 						//
 					} else if (Boolean.logicalAnd(Objects.equals(mimeType, "audio/mpeg"),
 							Objects.equals(getMessage(ci), "Audio file with ID3 version 2.4, MP3 encoding"))) {
 						//
-						tsb.append(".mp3");
+						append(tsb, ".mp3");
 						//
 					} else {
 						//
-						tsb.append(".wav");
+						append(tsb, ".wav");
 						//
 					} // if
 						//
@@ -860,6 +853,74 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		} // if
 			//
 		return false;
+		//
+	}
+
+	private static TextStringBuilder append(final TextStringBuilder instance, final char c) {
+		//
+		if (instance == null) {
+			//
+			return instance;
+			//
+		} // if
+			//
+		final Field buffer = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "buffer")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		return buffer == null || Narcissus.getField(instance, buffer) != null ? instance.append(c) : instance;
+		//
+	}
+
+	private static TextStringBuilder append(final TextStringBuilder instance, final int i) {
+		//
+		if (instance == null) {
+			//
+			return instance;
+			//
+		} // if
+			//
+		final Field buffer = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "buffer")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		return buffer == null || Narcissus.getField(instance, buffer) != null ? instance.append(i) : instance;
+		//
+	}
+
+	private static TextStringBuilder append(final TextStringBuilder instance, final String string) {
+		//
+		if (instance == null || string == null) {
+			//
+			return instance;
+			//
+		} // if
+			//
+		final Field value = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(string)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "value")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		return value == null || Narcissus.getField(string, value) != null ? instance.append(string) : instance;
+		//
+	}
+
+	private static TextStringBuilder clear(final TextStringBuilder instance) {
+		//
+		if (instance == null) {
+			//
+			return instance;
+			//
+		} // if
+			//
+		final Field buffer = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "buffer")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		return buffer == null || Narcissus.getField(instance, buffer) != null ? instance.clear() : instance;
 		//
 	}
 
@@ -1092,19 +1153,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			for (final String s : ss) {
 				//
-				if ((tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)) == null) {
-					//
-					continue;
-					//
-				} // if
-					//
-				tsb.clear();
+				append(append(clear(tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)),
+						StringEscapeUtils.escapeJava(s)), '}');
 				//
-				tsb.append(StringEscapeUtils.escapeJava(s));
-				//
-				tsb.append('}');
-				//
-				if (tsb.length() > 2) {
+				if (tsb != null && tsb.length() > 2) {
 					//
 					tsb.insert(2, '{');
 					//
