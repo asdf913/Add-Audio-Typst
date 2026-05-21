@@ -750,8 +750,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null)) {
 					//
 					setSubtype(pdEmbeddedFile = testAndApply(Objects::nonNull, pdDocument,
-							x -> new PDEmbeddedFile(x, is), null),
-							Objects.toString(ci != null ? ci.getMimeType() : null, "audio/wav"));
+							x -> new PDEmbeddedFile(x, is), null), Objects.toString(getMimeType(ci), "audio/wav"));
 					//
 					pdComplexFileSpecification.setEmbeddedFile(pdEmbeddedFile);
 					//
@@ -785,6 +784,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		return false;
 		//
+	}
+
+	private static String getMimeType(final ContentInfo instance) {
+		return instance != null ? instance.getMimeType() : null;
 	}
 
 	private static void setSubtype(final PDEmbeddedFile instance, final String mimeType) {
