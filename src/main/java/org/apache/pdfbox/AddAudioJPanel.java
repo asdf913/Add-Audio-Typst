@@ -66,6 +66,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.function.FailableBiFunction;
@@ -97,6 +98,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.zeroturnaround.zip.ZipUtil;
+
+import com.j256.simplemagic.ContentInfo;
+import com.j256.simplemagic.ContentInfoUtil;
 
 import io.github.toolfactory.narcissus.Narcissus;
 import net.miginfocom.swing.MigLayout;
@@ -721,16 +725,34 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				(pdComplexFileSpecification = new PDComplexFileSpecification())
 						.setFile(getName(file = textPositionEntry.file));
 				//
-				pdComplexFileSpecification
-						.setFile(Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1) + ".wav");
+				final byte[] bs = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(file)), Files::readAllBytes,
+						null);
 				//
-				try (final InputStream is = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(file)),
-						Files::newInputStream, null)) {
+				final ContentInfo ci = testAndApply(Objects::nonNull, bs, new ContentInfoUtil()::findMatch, null);
+				//
+				final StringBuilder sb = new StringBuilder(
+						Integer.toString(Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1)));
+				//
+				if (ci != null && ci.getFileExtensions() != null && ci.getFileExtensions().length == 1) {
+					//
+					sb.append(".");
+					//
+					sb.append(ArrayUtils.get(ci.getFileExtensions(), 0));
+					//
+				} else {
+					//
+					sb.append(".wav");
+					//
+				} // if
+					//
+				pdComplexFileSpecification.setFile(Objects.toString(sb));
+				//
+				try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null)) {
 					//
 					if ((pdEmbeddedFile = testAndApply(Objects::nonNull, pdDocument, x -> new PDEmbeddedFile(x, is),
 							null)) != null) {
 						//
-						pdEmbeddedFile.setSubtype("audio/wav");
+						pdEmbeddedFile.setSubtype(Objects.toString(ci != null ? ci.getMimeType() : null, "audio/wav"));
 						//
 					} // if
 						//
