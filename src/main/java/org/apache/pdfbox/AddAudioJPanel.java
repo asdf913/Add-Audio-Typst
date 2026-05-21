@@ -1601,7 +1601,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 		private TextPosition textPosition;
 
-		private String marker, text;
+		@Note("Marker")
+		private String marker;
+
+		private String text;
 
 		private File file;
 
