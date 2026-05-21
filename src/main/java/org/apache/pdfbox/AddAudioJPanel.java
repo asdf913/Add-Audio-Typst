@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EventObject;
@@ -744,7 +745,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			TextPosition textPosition = null;
 			//
-			File file, tempFile = null;
+			File file = null;
+			//
+			Path path = null;
 			//
 			TextPositionEntry textPositionEntry = null;
 			//
@@ -776,17 +779,28 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							toPath(getAbsoluteFile(file)), Files::readAllBytes, null), new ContentInfoUtil()::findMatch,
 							null);
 					//
-					deleteOnExit(tempFile = File.createTempFile(RandomStringUtils.secure().nextAlphabetic(3), ".mp3"));
+					if (Objects.equals(getName(getClass(FileSystems.getDefault())), "sun.nio.fs.LinuxFileSystem")) {
+						//
+						path = Files.createTempFile(RandomStringUtils.secure().nextAlphabetic(3), ".mp3",
+								PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
+						//
+					} else {
+						//
+						path = Files.createTempFile(RandomStringUtils.secure().nextAlphabetic(3), ".mp3");
+						//
+					} // if
+						//
+					deleteOnExit(toFile(path));
 					//
 					if (mp3 && (absolutePath = getAbsolutePath(file)) != null
-							&& (pb = new ProcessBuilder(FFMPEG, "-y", "-i", absolutePath, getAbsolutePath(tempFile))
+							&& (pb = new ProcessBuilder(FFMPEG, "-y", "-i", absolutePath, getAbsolutePath(toFile(path)))
 									.inheritIO()) != null
 							&& pb.start().waitFor() == 0) {
 						//
-						bs = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(tempFile)), Files::readAllBytes,
+						bs = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(toFile(path))), Files::readAllBytes,
 								null);
 						//
-						delete(tempFile);
+						delete(toFile(path));
 						//
 						ci = testAndApply(Objects::nonNull, bs, new ContentInfoUtil()::findMatch, null);
 						//
@@ -838,7 +852,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 			} finally {
 				//
-				delete(tempFile);
+				delete(toFile(path));
 				//
 			} // try
 				//
