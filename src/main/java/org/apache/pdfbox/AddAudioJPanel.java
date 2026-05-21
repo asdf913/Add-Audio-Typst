@@ -115,6 +115,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private static final String VALUE = "value";
 
+	private static final String FFMPEG = "ffmpeg";
+
 	@Target(ElementType.FIELD)
 	@Retention(RetentionPolicy.RUNTIME)
 	private @interface Note {
@@ -192,11 +194,11 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		setEditable(tf, false);
 		//
-		add(new JLabel("ffmpeg"));
+		add(new JLabel(FFMPEG));
 		//
 		try {
 			//
-			ffmpegInstalled = exists("ffmpeg");
+			ffmpegInstalled = exists(FFMPEG);
 			//
 		} catch (final IOException e) {
 			//
@@ -773,7 +775,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					} // if
 						//
 					if (mp3 && (absolutePath = getAbsolutePath(file)) != null
-							&& (pb = new ProcessBuilder("ffmpeg", "-y", "-i", absolutePath, getAbsolutePath(tempFile))
+							&& (pb = new ProcessBuilder(FFMPEG, "-y", "-i", absolutePath, getAbsolutePath(tempFile))
 									.inheritIO()) != null
 							&& pb.start().waitFor() == 0) {
 						//
