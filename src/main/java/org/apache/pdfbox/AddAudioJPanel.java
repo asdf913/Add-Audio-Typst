@@ -71,6 +71,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.function.FailableBiFunction;
 import org.apache.commons.lang3.function.FailableConsumer;
 import org.apache.commons.lang3.function.FailableFunction;
@@ -756,9 +757,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				TextStringBuilder tsb = null;
 				//
-				String absolutePath, mimeType = null;
-				//
-				String[] fileExtensions = null;
+				String absolutePath, mimeTypeX = null;
 				//
 				for (final Entry<String, TextPositionEntry> entry : entrySet(map)) {
 					//
@@ -792,32 +791,17 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 					} // if
 						//
-					append(clear(tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)),
-							Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1));
-					//
-					mimeType = getMimeType(ci);
-					//
-					if (length(fileExtensions = getFileExtensions(ci)) == 1) {
-						//
-						append(append(tsb, '.'), ArrayUtils.get(fileExtensions, 0));
-						//
-					} else if (Boolean.logicalAnd(Objects.equals(mimeType, "audio/mpeg"),
-							Objects.equals(getMessage(ci), "Audio file with ID3 version 2.4, MP3 encoding"))) {
-						//
-						append(tsb, ".mp3");
-						//
-					} else {
-						//
-						append(tsb, ".wav");
-						//
-					} // if
-						//
-					pdComplexFileSpecification.setFile(Objects.toString(tsb));
+					pdComplexFileSpecification.setFile(Objects.toString(append(
+							append(append(clear(tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)),
+									Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1)), '.'),
+							Objects.toString(getFileExtension(ci), "wav"))));
 					//
 					try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null)) {
 						//
-						setSubtype(pdEmbeddedFile = testAndApply(Objects::nonNull, pdDocument,
-								x -> new PDEmbeddedFile(x, is), null), Objects.toString(mimeType, "audio/wav"));
+						setSubtype(
+								pdEmbeddedFile = testAndApply(Objects::nonNull, pdDocument,
+										x -> new PDEmbeddedFile(x, is), null),
+								Objects.toString(getMimeType(ci), "audio/wav"));
 						//
 						pdComplexFileSpecification.setEmbeddedFile(pdEmbeddedFile);
 						//
@@ -856,6 +840,46 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		} // if
 			//
 		return false;
+		//
+	}
+
+	private static String getFileExtension(final ContentInfo ci) {
+		//
+		final String[] fileExtensions = getFileExtensions(ci);
+		//
+		final String message = getMessage(ci);
+		//
+		if (length(fileExtensions) == 1) {
+			//
+			return ArrayUtils.get(fileExtensions, 0);
+			//
+		} else if (Boolean.logicalOr(
+				Boolean.logicalAnd(Objects.equals(getMimeType(ci), "audio/mpeg"),
+						Objects.equals(message, "Audio file with ID3 version 2.4, MP3 encoding")),
+				startsWith(Strings.CS, message, "MPEG ADTS, layer III"))) {
+			//
+			return "mp3";
+			//
+		} // if
+			//
+		return null;
+		//
+	}
+
+	private static boolean startsWith(final Strings instance, final String string, final String prefix) {
+		//
+		if (instance == null) {
+			//
+			return false;
+			//
+		} // if
+			//
+		final Field value = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(prefix)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "value")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		return (value == null || Narcissus.getField(prefix, value) != null) && instance.startsWith(string, prefix);
 		//
 	}
 

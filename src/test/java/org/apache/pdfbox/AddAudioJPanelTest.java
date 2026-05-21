@@ -43,6 +43,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.function.FailableBiFunction;
 import org.apache.commons.lang3.function.FailableConsumer;
 import org.apache.commons.lang3.function.FailableFunction;
@@ -68,6 +69,8 @@ import org.w3c.dom.NodeList;
 
 import com.google.common.base.Predicates;
 import com.google.common.reflect.Reflection;
+import com.j256.simplemagic.ContentInfo;
+import com.j256.simplemagic.ContentInfoUtil;
 
 import io.github.toolfactory.narcissus.Narcissus;
 import javassist.util.proxy.MethodHandler;
@@ -84,7 +87,7 @@ class AddAudioJPanelTest {
 			METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH,
 			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY,
 			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR, METHOD_APPEND_CHAR,
-			METHOD_APPEND_INT, METHOD_APPEND_STRING = null;
+			METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -190,6 +193,8 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_APPEND_STRING = clz.getDeclaredMethod("append", TextStringBuilder.class, String.class))
 				.setAccessible(true);
+		//
+		(METHOD_GET_FILE_EXTENSION = clz.getDeclaredMethod("getFileExtension", ContentInfo.class)).setAccessible(true);
 		//
 	}
 
@@ -520,6 +525,10 @@ class AddAudioJPanelTest {
 				} else if (Objects.equals(parameterType, AbstractButton.class)) {
 					//
 					add(collection, new JButton());
+					//
+				} else if (Objects.equals(parameterType, Strings.class)) {
+					//
+					add(collection, Strings.CS);
 					//
 				} else if (Objects.equals(parameterType, Process.class)
 						|| Objects.equals(parameterType, Writer.class)) {
@@ -1091,6 +1100,29 @@ class AddAudioJPanelTest {
 		Assert.assertNotNull(invoke(METHOD_APPEND_STRING, null, object, null));
 		//
 		Assert.assertNotNull(invoke(METHOD_APPEND_STRING, null, object, Narcissus.allocateInstance(String.class)));
+		//
+	}
+
+	@Test
+	void testGetFileExtension() throws IllegalAccessException, InvocationTargetException, IOException {
+		//
+		final Decoder decoder = Base64.getDecoder();
+		//
+		final ContentInfoUtil ciu = new ContentInfoUtil();
+		//
+		Assert.assertEquals(
+				invoke(METHOD_GET_FILE_EXTENSION, null,
+						ciu.findMatch(decode(decoder, "UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA="))),
+				"wav");
+		//
+		Assert.assertEquals(invoke(METHOD_GET_FILE_EXTENSION, null, ciu.findMatch(decode(decoder,
+				"/+MYxAAAAANIAAAAAExBTUUzLjk4LjIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"))),
+				"mp3");
+		//
+	}
+
+	private static byte[] decode(final Decoder instance, final String string) {
+		return instance != null ? instance.decode(string) : null;
 	}
 
 	@Test
