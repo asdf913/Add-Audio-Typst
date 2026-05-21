@@ -804,6 +804,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 										x -> new PDEmbeddedFile(x, is), null),
 								Objects.toString(getMimeType(ci), "audio/wav"));
 						//
+						if (bs != null) {
+							//
+							pdEmbeddedFile.setSize(bs.length);
+							//
+						} // if
+							//
 						pdComplexFileSpecification.setEmbeddedFile(pdEmbeddedFile);
 						//
 					} // try
