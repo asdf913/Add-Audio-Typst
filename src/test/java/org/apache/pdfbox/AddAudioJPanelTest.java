@@ -1,5 +1,6 @@
 package org.apache.pdfbox;
 
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -76,7 +77,7 @@ class AddAudioJPanelTest {
 			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
 			METHOD_TEST_AND_ACCEPT, METHOD_AND, METHOD_TEST_AND_RUN, METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP,
 			METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH, METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE,
-			METHOD_TO_RUNTIME_EXCEPTION = null;
+			METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -155,6 +156,8 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_TO_RUNTIME_EXCEPTION = clz.getDeclaredMethod("toRuntimeException", Throwable.class))
 				.setAccessible(true);
+		//
+		(METHOD_OPEN = clz.getDeclaredMethod("open", Desktop.class, File.class)).setAccessible(true);
 		//
 	}
 
@@ -951,6 +954,13 @@ class AddAudioJPanelTest {
 		final RuntimeException runtimeException = new RuntimeException();
 		//
 		Assert.assertSame(runtimeException, invoke(METHOD_TO_RUNTIME_EXCEPTION, null, runtimeException));
+		//
+	}
+
+	@Test
+	void testOpen() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNull(invoke(METHOD_OPEN, null, Narcissus.allocateInstance(Desktop.class), Path.of(".").toFile()));
 		//
 	}
 

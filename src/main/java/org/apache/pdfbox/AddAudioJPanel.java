@@ -500,22 +500,16 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			if (file != null && exists(file) && file.getParentFile() != null && file.getParentFile().isDirectory()) {
 				//
-				final Desktop desktop = testAndGet(!GraphicsEnvironment.isHeadless() && !isTestMode(),
-						Desktop::getDesktop, null);
-				//
-				if (desktop != null) {
+				try {
 					//
-					try {
-						//
-						desktop.open(file.getParentFile());
-						//
-					} catch (final IOException e) {
-						//
-						throw toRuntimeException(e);
-						//
-					} // try
-						//
-				} // if
+					open(testAndGet(!GraphicsEnvironment.isHeadless() && !isTestMode(), Desktop::getDesktop, null),
+							file.getParentFile());
+					//
+				} catch (final IOException e) {
+					//
+					throw toRuntimeException(e);
+					//
+				} // try
 					//
 			} // if
 				//
@@ -523,6 +517,27 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		actionPerformed(this, source);
 		//
+	}
+
+	private static void open(final Desktop instance, final File file) throws IOException {
+		//
+		if (instance == null) {
+			//
+			return;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "peer")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		if ((field == null || Narcissus.getField(instance, field) != null) && file != null && file.getPath() != null) {
+			//
+			instance.open(file);
+			//
+		} // if
+			//
 	}
 
 	private static <T, R, E extends Throwable> R testAndApply(final boolean condition, final T value,
