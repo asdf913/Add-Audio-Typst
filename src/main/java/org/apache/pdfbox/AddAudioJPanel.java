@@ -67,6 +67,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -786,12 +787,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						bs = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(tempFile)), Files::readAllBytes,
 								null);
 						//
-						if (tempFile != null) {
-							//
-							tempFile.delete();
-							//
-						} // if
-							//
+						delete(tempFile);
+						//
 						ci = testAndApply(Objects::nonNull, bs, new ContentInfoUtil()::findMatch, null);
 						//
 					} // if
@@ -858,12 +855,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 			} finally {
 				//
-				if (tempFile != null) {
-					//
-					tempFile.delete();
-					//
-				} // if
-					//
+				delete(tempFile);
+				//
 			} // try
 				//
 			return true;
@@ -872,6 +865,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		return false;
 		//
+	}
+
+	private static void delete(final File instance) {
+		if (instance != null) {
+			instance.delete();
+		}
 	}
 
 	private static String getMimeType(final ContentInfo instance) {
