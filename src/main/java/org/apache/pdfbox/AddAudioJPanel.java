@@ -140,7 +140,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 	@Note("Execute")
 	private AbstractButton btnExecute;
 
-	private AbstractButton btnBrowse, jcbMp3;
+	@Note("Browse")
+	private AbstractButton btnBrowse;
+
+	private AbstractButton jcbMp3;
 
 	private DefaultTableModel dtm = null;
 
