@@ -184,7 +184,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // try
 			//
-		JTextComponent tf = new JTextField(installed ? "Instlled" : "Not Installed");
+		JTextComponent tf = new JTextField(iif(installed, "Instlled", "Not Installed"));
 		//
 		final String growx = "growx";
 		//
@@ -206,7 +206,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // try
 			//
-		add(tf = new JTextField(ffmpegInstalled ? "Instlled" : "Not Installed"), wrap);
+		add(tf = new JTextField(iif(ffmpegInstalled, "Instlled", "Not Installed")), wrap);
 		//
 		setEditable(tf, false);
 		//
@@ -292,6 +292,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			addActionListener(cast(AbstractButton.class, object), this);
 			//
 		});
+	}
+
+	private static <T> T iif(final boolean condition, final T valueTrue, final T valueFalse) {
+		return condition ? valueTrue : valueFalse;
 	}
 
 	private static void setEnabled(final AbstractButton instance, final boolean enabled) {

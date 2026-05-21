@@ -81,7 +81,7 @@ class AddAudioJPanelTest {
 			METHOD_TEST_AND_ACCEPT3, METHOD_TEST_AND_ACCEPT4, METHOD_AND, METHOD_TEST_AND_RUN,
 			METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH,
 			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY,
-			METHOD_SET_SUB_TYPE = null;
+			METHOD_SET_SUB_TYPE, METHOD_IIF = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -170,6 +170,8 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_SET_SUB_TYPE = clz.getDeclaredMethod("setSubtype", PDEmbeddedFile.class, String.class))
 				.setAccessible(true);
+		//
+		(METHOD_IIF = clz.getDeclaredMethod("iif", Boolean.TYPE, Object.class, Object.class)).setAccessible(true);
 		//
 	}
 
@@ -583,7 +585,9 @@ class AddAudioJPanelTest {
 					|| Boolean.logicalAnd(Objects.equals(name, "newDocumentBuilder"),
 							Arrays.equals(parameterTypes, new Class<?>[] { DocumentBuilderFactory.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "toRuntimeException"),
-							Arrays.equals(parameterTypes, new Class<?>[] { Throwable.class }))) {
+							Arrays.equals(parameterTypes, new Class<?>[] { Throwable.class }))
+					|| Boolean.logicalAnd(Objects.equals(name, "iif"), Arrays.equals(parameterTypes,
+							new Class<?>[] { Boolean.TYPE, Object.class, Object.class }))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
@@ -1017,6 +1021,13 @@ class AddAudioJPanelTest {
 			//
 		} // try
 			//
+	}
+
+	@Test
+	void testIif() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNull(invoke(METHOD_IIF, null, Boolean.TRUE, null, null));
+		//
 	}
 
 	@Test
