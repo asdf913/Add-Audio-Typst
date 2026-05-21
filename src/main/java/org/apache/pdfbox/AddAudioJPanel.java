@@ -502,8 +502,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				try {
 					//
-					open(testAndGet(!GraphicsEnvironment.isHeadless() && !isTestMode(), Desktop::getDesktop, null),
-							file.getParentFile());
+					open(testAndGet(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
+							Desktop::getDesktop, null), file.getParentFile());
 					//
 				} catch (final IOException e) {
 					//
