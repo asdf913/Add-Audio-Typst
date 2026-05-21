@@ -153,7 +153,7 @@ class AddAudioJPanelTest {
 				Iterable.class, File.class)).setAccessible(true);
 		//
 		(METHOD_ADD_PD_ANNOTATIONS = clz.getDeclaredMethod("addPDAnnotations", Map.class, PDDocument.class,
-				PDPage.class)).setAccessible(true);
+				PDPage.class, Boolean.TYPE)).setAccessible(true);
 		//
 		(METHOD_TO_PATH = clz.getDeclaredMethod("toPath", File.class)).setAccessible(true);
 		//
@@ -923,7 +923,7 @@ class AddAudioJPanelTest {
 		//
 		map.put(null, null);
 		//
-		Assert.assertEquals(invoke(METHOD_ADD_PD_ANNOTATIONS, null, map, null, null), Boolean.TRUE);
+		Assert.assertEquals(invoke(METHOD_ADD_PD_ANNOTATIONS, null, map, null, null, Boolean.TRUE), Boolean.TRUE);
 		//
 		final Class<?> clz = Class.forName("org.apache.pdfbox.AddAudioJPanel$TextPositionEntry");
 		//
@@ -931,12 +931,12 @@ class AddAudioJPanelTest {
 		//
 		map.put(null, textPositionEntry);
 		//
-		Assert.assertEquals(invoke(METHOD_ADD_PD_ANNOTATIONS, null, map, null, null), Boolean.TRUE);
+		Assert.assertEquals(invoke(METHOD_ADD_PD_ANNOTATIONS, null, map, null, null, Boolean.TRUE), Boolean.TRUE);
 		//
 		FieldUtils.writeDeclaredField(textPositionEntry, "textPosition", Narcissus.allocateInstance(TextPosition.class),
 				true);
 		//
-		Assert.assertEquals(invoke(METHOD_ADD_PD_ANNOTATIONS, null, map, null, null), Boolean.TRUE);
+		Assert.assertEquals(invoke(METHOD_ADD_PD_ANNOTATIONS, null, map, null, null, Boolean.TRUE), Boolean.TRUE);
 		//
 	}
 

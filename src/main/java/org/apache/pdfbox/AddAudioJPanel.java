@@ -49,6 +49,7 @@ import java.util.zip.ZipInputStream;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -68,6 +69,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.function.FailableBiFunction;
 import org.apache.commons.lang3.function.FailableConsumer;
@@ -136,9 +138,11 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 	@Note("Execute")
 	private AbstractButton btnExecute;
 
-	private AbstractButton btnBrowse;
+	private AbstractButton btnBrowse, jcbMp3;
 
 	private DefaultTableModel dtm = null;
+
+	private boolean ffmpegInstalled = false;
 
 	private AddAudioJPanel() {
 		//
@@ -164,7 +168,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // try
 			//
-		add(new JLabel(TYPST), "span %1$s".formatted(1));
+		add(new JLabel(TYPST));
 		//
 		boolean installed = false;
 		//
@@ -178,25 +182,41 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // try
 			//
-		final JTextComponent tf = new JTextField(installed ? "Instlled" : "Not Installed");
+		JTextComponent tf = new JTextField(installed ? "Instlled" : "Not Installed");
 		//
 		final String growx = "growx";
 		//
 		final String wrap = "wrap";
 		//
-		add(tf, String.join(",", growx, wrap));
+		add(tf, String.join(",", growx));
+		//
+		setEditable(tf, false);
+		//
+		add(new JLabel("ffmpeg"));
+		//
+		try {
+			//
+			ffmpegInstalled = exists("ffmpeg");
+			//
+		} catch (final IOException e) {
+			//
+			throw new RuntimeException(e);
+			//
+		} // try
+			//
+		add(tf = new JTextField(ffmpegInstalled ? "Instlled" : "Not Installed"), wrap);
 		//
 		setEditable(tf, false);
 		//
 		add(new JLabel("Template"));
 		//
-		add(tfFileTemplate = new JTextField(), growx);
+		add(tfFileTemplate = new JTextField(), "%1$s,span %2$s".formatted(growx, 3));
 		//
 		add(btnFileTemplate = new JButton("Select"), wrap);
 		//
 		add(new JLabel("Spreadsheet"));
 		//
-		add(tfFileSpreadsheet = new JTextField(), growx);
+		add(tfFileSpreadsheet = new JTextField(), "%1$s,span %2$s".formatted(growx, 3));
 		//
 		add(btnFileSpreadsheet = new JButton("Select"), wrap);
 		//
@@ -209,7 +229,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			}
 		});
 		//
-		add(new JScrollPane(jTable), wrap);
+		add(new JScrollPane(jTable), "%1$s,span %2$s".formatted(wrap, 3));
 		//
 		final TableCellRenderer tcr = jTable.getDefaultRenderer(Object.class);
 		//
@@ -245,15 +265,17 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		});
 		//
+		add(new JLabel("MP3"));
+		//
+		add(jcbMp3 = new JCheckBox(), wrap);
+		//
 		add(new JLabel());
 		//
-		add(btnExecute = new JButton("Execute"), wrap);
-		//
-		setEnabled(btnExecute, installed);
+		add(btnExecute = new JButton("Execute"), "%1$s,span %2$s".formatted(wrap, 2));
 		//
 		add(new JLabel("PDF"));
 		//
-		add(tfFilePdf = new JTextField(), growx);
+		add(tfFilePdf = new JTextField(), "%1$s,span %2$s".formatted(growx, 3));
 		//
 		add(btnBrowse = new JButton("Browse"), wrap);
 		//
@@ -665,8 +687,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		try {
 			//
-			if (process != null && process.waitFor() == 0 && addPDAnnotations(map,
-					pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), getPage(pdDocument, 0))) {
+			if (process != null && process.waitFor() == 0
+					&& addPDAnnotations(map, pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))),
+							getPage(pdDocument, 0),
+							instance.ffmpegInstalled && instance.jcbMp3 != null && instance.jcbMp3.isSelected())) {
 				//
 				final File file = toFile(Path.of(outputPdf));
 				//
@@ -697,7 +721,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 	}
 
 	private static boolean addPDAnnotations(final Map<String, TextPositionEntry> map, final PDDocument pdDocument,
-			final PDPage pdPage) throws IOException {
+			final PDPage pdPage, final boolean mp3) throws IOException, InterruptedException {
 		//
 		if (iterator(entrySet(map)) != null) {
 			//
@@ -709,74 +733,133 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			TextPosition textPosition = null;
 			//
-			File file = null;
+			File file, tempFile = null;
 			//
 			TextPositionEntry textPositionEntry = null;
 			//
-			for (final Entry<String, TextPositionEntry> entry : entrySet(map)) {
+			try {
 				//
-				if ((textPositionEntry = getValue(entry)) == null
-						|| (textPosition = textPositionEntry.textPosition) == null) {
+				byte[] bs = null;
+				//
+				ContentInfo ci = null;
+				//
+				ProcessBuilder pb = null;
+				//
+				TextStringBuilder tsb = null;
+				//
+				String absolutePath, mimeType = null;
+				//
+				for (final Entry<String, TextPositionEntry> entry : entrySet(map)) {
 					//
-					continue;
+					if ((textPositionEntry = getValue(entry)) == null
+							|| (textPosition = textPositionEntry.textPosition) == null) {
+						//
+						continue;
+						//
+					} // if
+						//
+					(pdComplexFileSpecification = new PDComplexFileSpecification())
+							.setFile(getName(file = textPositionEntry.file));
+					//
+					ci = testAndApply(Objects::nonNull, bs = testAndApply(Objects::nonNull,
+							toPath(getAbsoluteFile(file)), Files::readAllBytes, null), new ContentInfoUtil()::findMatch,
+							null);
+					//
+					if ((tempFile = File.createTempFile(RandomStringUtils.secure().nextAlphabetic(3),
+							".mp3")) != null) {
+						//
+						tempFile.deleteOnExit();
+						//
+					} // if
+						//
+					if (mp3 && (absolutePath = getAbsolutePath(file)) != null) {
+						//
+						if ((pb = new ProcessBuilder("ffmpeg", "-y", "-i", absolutePath, getAbsolutePath(tempFile))
+								.inheritIO()) != null && pb.start().waitFor() == 0) {
+							//
+							bs = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(tempFile)), Files::readAllBytes,
+									null);
+							//
+							if (tempFile != null) {
+								//
+								tempFile.delete();
+								//
+							} // if
+								//
+							ci = testAndApply(Objects::nonNull, bs, new ContentInfoUtil()::findMatch, null);
+							//
+						} // if
+					} // if
+						//
+					if ((tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)) != null) {
+						//
+						tsb.clear();
+						//
+					} // if
+						//
+					tsb.append(Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1));
+					//
+					mimeType = getMimeType(ci);
+					//
+					if (ci != null && ci.getFileExtensions() != null && ci.getFileExtensions().length == 1) {
+						//
+						tsb.append('.');
+						//
+						tsb.append(ArrayUtils.get(ci.getFileExtensions(), 0));
+						//
+					} else if (Objects.equals(mimeType, "audio/mpeg") && Objects.equals(
+							ci != null ? ci.getMessage() : null, "Audio file with ID3 version 2.4, MP3 encoding")) {
+						//
+						tsb.append(".mp3");
+						//
+					} else {
+						//
+						tsb.append(".wav");
+						//
+					} // if
+						//
+					pdComplexFileSpecification.setFile(Objects.toString(tsb));
+					//
+					try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null)) {
+						//
+						setSubtype(pdEmbeddedFile = testAndApply(Objects::nonNull, pdDocument,
+								x -> new PDEmbeddedFile(x, is), null), Objects.toString(mimeType, "audio/wav"));
+						//
+						pdComplexFileSpecification.setEmbeddedFile(pdEmbeddedFile);
+						//
+					} // try
+						//
+					(pdAnnotationFileAttachment = new PDAnnotationFileAttachment()).setFile(pdComplexFileSpecification);
+					//
+					pdAnnotationFileAttachment.setRectangle(new PDRectangle(textPosition.getX(),
+							(pdPage != null ? pdPage.getMediaBox().getHeight() : 0) - textPosition.getY(),
+							getWidth(textPosition), textPosition.getHeight()));
+					//
+					pdAnnotationFileAttachment.setContents(textPositionEntry.text);
+					//
+					pdAnnotationFileAttachment.setConstantOpacity(0);
+					//
+					// 2. Mark as Locked (Bit 8) - prevents the annotation from being moved or
+					// resized
+					//
+					// flags |= (1 << 7);
+					//
+					pdAnnotationFileAttachment
+							.setAnnotationFlags(pdAnnotationFileAttachment.getAnnotationFlags() | (1 << 7));
+					//
+					add(getAnnotations(pdPage), pdAnnotationFileAttachment);
+					//
+				} // for
+					//
+			} finally {
+				//
+				if (tempFile != null) {
+					//
+					tempFile.delete();
 					//
 				} // if
 					//
-				(pdComplexFileSpecification = new PDComplexFileSpecification())
-						.setFile(getName(file = textPositionEntry.file));
-				//
-				final byte[] bs = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(file)), Files::readAllBytes,
-						null);
-				//
-				final ContentInfo ci = testAndApply(Objects::nonNull, bs, new ContentInfoUtil()::findMatch, null);
-				//
-				final StringBuilder sb = new StringBuilder(
-						Integer.toString(Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1)));
-				//
-				if (ci != null && ci.getFileExtensions() != null && ci.getFileExtensions().length == 1) {
-					//
-					sb.append(".");
-					//
-					sb.append(ArrayUtils.get(ci.getFileExtensions(), 0));
-					//
-				} else {
-					//
-					sb.append(".wav");
-					//
-				} // if
-					//
-				pdComplexFileSpecification.setFile(Objects.toString(sb));
-				//
-				try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null)) {
-					//
-					setSubtype(pdEmbeddedFile = testAndApply(Objects::nonNull, pdDocument,
-							x -> new PDEmbeddedFile(x, is), null), Objects.toString(getMimeType(ci), "audio/wav"));
-					//
-					pdComplexFileSpecification.setEmbeddedFile(pdEmbeddedFile);
-					//
-				} // try
-					//
-				(pdAnnotationFileAttachment = new PDAnnotationFileAttachment()).setFile(pdComplexFileSpecification);
-				//
-				pdAnnotationFileAttachment.setRectangle(new PDRectangle(textPosition.getX(),
-						(pdPage != null ? pdPage.getMediaBox().getHeight() : 0) - textPosition.getY(),
-						getWidth(textPosition), textPosition.getHeight()));
-				//
-				pdAnnotationFileAttachment.setContents(textPositionEntry.text);
-				//
-				pdAnnotationFileAttachment.setConstantOpacity(0);
-				//
-				// 2. Mark as Locked (Bit 8) - prevents the annotation from being moved or
-				// resized
-				//
-				// flags |= (1 << 7);
-				//
-				pdAnnotationFileAttachment
-						.setAnnotationFlags(pdAnnotationFileAttachment.getAnnotationFlags() | (1 << 7));
-				//
-				add(getAnnotations(pdPage), pdAnnotationFileAttachment);
-				//
-			} // for
+			} // try
 				//
 			return true;
 			//
