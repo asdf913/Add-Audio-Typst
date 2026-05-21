@@ -759,7 +759,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				TextStringBuilder tsb = null;
 				//
-				String absolutePath, mimeTypeX = null;
+				String absolutePath = null;
 				//
 				for (final Entry<String, TextPositionEntry> entry : entrySet(map)) {
 					//
