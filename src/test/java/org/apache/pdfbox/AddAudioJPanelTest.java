@@ -182,20 +182,16 @@ class AddAudioJPanelTest {
 			//
 			final String name = getName(method);
 			//
-			if (proxy instanceof FailableConsumer) {
+			if (proxy instanceof FailableConsumer && Objects.equals(name, "accept")) {
 				//
-				if (Objects.equals(name, "accept")) {
+				if (throwable != null) {
 					//
-					if (throwable != null) {
-						//
-						throw throwable;
-						//
-					} // if
-						//
-					return null;
+					throw throwable;
 					//
 				} // if
 					//
+				return null;
+				//
 			} // if
 				//
 			if (Objects.equals(getReturnType(method), Void.TYPE)) {
