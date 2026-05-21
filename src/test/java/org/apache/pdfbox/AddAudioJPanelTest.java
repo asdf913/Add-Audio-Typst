@@ -977,7 +977,27 @@ class AddAudioJPanelTest {
 		//
 		FieldUtils.writeDeclaredField(instance, "btnExecute", btnExecute, true);
 		//
-		instance.actionPerformed(new ActionEvent(btnExecute, 0, null));
+		ActionEvent actionEvent = new ActionEvent(btnExecute, 0, null);
+		//
+		instance.actionPerformed(actionEvent);
+		//
+		// btnBrowse
+		//
+		final AbstractButton btnBrowse = new JButton();
+		//
+		FieldUtils.writeDeclaredField(instance, "btnBrowse", btnBrowse, true);
+		//
+		instance.actionPerformed(actionEvent);
+		//
+		instance.actionPerformed(actionEvent = new ActionEvent(btnBrowse, 0, null));
+		//
+		final JTextComponent tfFilePdf = new JTextField();
+		//
+		tfFilePdf.setText(Objects.toString(Path.of(".").toFile().getAbsolutePath()));
+		//
+		FieldUtils.writeDeclaredField(instance, "tfFilePdf", tfFilePdf, true);
+		//
+		instance.actionPerformed(actionEvent);
 		//
 	}
 

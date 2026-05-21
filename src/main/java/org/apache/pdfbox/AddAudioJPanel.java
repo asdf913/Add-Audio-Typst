@@ -2,6 +2,7 @@ package org.apache.pdfbox;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -127,7 +128,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 	@Note("Spreadsheet")
 	private AbstractButton btnFileSpreadsheet;
 
-	private AbstractButton btnExecute;
+	private AbstractButton btnExecute, btnBrowse;
 
 	private DefaultTableModel dtm = null;
 
@@ -245,6 +246,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		add(new JLabel("PDF"));
 		//
 		add(tfFilePdf = new JTextField(), growx);
+		//
+		add(btnBrowse = new JButton("Browse"), wrap);
+		//
+		btnBrowse.setEnabled(false);
 		//
 		new FailableStream<>(FieldUtils.getAllFieldsList(getClass()).stream().filter(f -> !isStatic(f))).forEach(f -> {
 			//
@@ -480,6 +485,31 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 			return;
 			//
+		} else if (Objects.equals(source, btnBrowse)) {
+			//
+			final File file = toFile(testAndApply(Objects::nonNull, getText(tfFilePdf), Path::of, null));
+			//
+			if (file != null && exists(file) && file.getParentFile() != null && file.getParentFile().isDirectory()) {
+				//
+				final Desktop desktop = testAndGet(!GraphicsEnvironment.isHeadless() && !isTestMode(),
+						Desktop::getDesktop, null);
+				//
+				if (desktop != null) {
+					//
+					try {
+						//
+						desktop.open(file.getParentFile());
+						//
+					} catch (final IOException e) {
+						//
+						throw toRuntimeException(e);
+						//
+					} // try
+						//
+				} // if
+					//
+			} // if
+				//
 		} // if
 			//
 		actionPerformed(this, source);
@@ -505,6 +535,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		setText(instance.tfFilePdf, null);
 		//
+		if (instance.btnBrowse != null) {
+			//
+			instance.btnBrowse.setEnabled(false);
+			//
+		} // if
+			//
 		Map<String, TextPositionEntry> map = null;
 		//
 		try (final Workbook wb = testAndApply(AddAudioJPanel::isFile,
@@ -579,8 +615,17 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			if (process != null && process.waitFor() == 0 && addPDAnnotations(map,
 					pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))), getPage(pdDocument, 0))) {
 				//
-				save(pdDocument, toFile(Path.of(outputPdf)));
+				final File file = toFile(Path.of(outputPdf));
 				//
+				save(pdDocument, file);
+				//
+				if (instance.btnBrowse != null && file != null && exists(file.getParentFile())
+						&& file.getParentFile() != null) {
+					//
+					instance.btnBrowse.setEnabled(file.getParentFile().isDirectory());
+					//
+				} // if
+					//
 				setText(instance.tfFilePdf, outputPdf);
 				//
 			} // if
