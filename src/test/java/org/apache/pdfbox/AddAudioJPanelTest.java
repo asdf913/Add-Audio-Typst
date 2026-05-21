@@ -87,7 +87,7 @@ class AddAudioJPanelTest {
 			METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH,
 			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY,
 			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR, METHOD_APPEND_CHAR,
-			METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION = null;
+			METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -146,7 +146,7 @@ class AddAudioJPanelTest {
 		(METHOD_GET_PARENT_FILE = clz.getDeclaredMethod("getParentFile", File.class)).setAccessible(true);
 		//
 		(METHOD_TEST_AND_ACCEPT3 = clz.getDeclaredMethod("testAndAccept", Predicate.class, Object.class,
-				Consumer.class)).setAccessible(true);
+				FailableConsumer.class)).setAccessible(true);
 		//
 		(METHOD_TEST_AND_ACCEPT4 = clz.getDeclaredMethod("testAndAccept", Predicate.class, Object.class,
 				FailableConsumer.class, Consumer.class)).setAccessible(true);
@@ -196,13 +196,15 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_GET_FILE_EXTENSION = clz.getDeclaredMethod("getFileExtension", ContentInfo.class)).setAccessible(true);
 		//
+		(METHOD_CONTAINS_KEY = clz.getDeclaredMethod("containsKey", Map.class, Object.class)).setAccessible(true);
+		//
 	}
 
 	private static class IH implements InvocationHandler {
 
 		private Integer length, modifiers, rowCount, numberOfSheets;
 
-		private Boolean test, add, getAsBoolean;
+		private Boolean test, add, getAsBoolean, containsKey;
 
 		private Cell cell;
 
@@ -328,10 +330,18 @@ class AddAudioJPanelTest {
 				//
 				return cell;
 				//
-			} else if (proxy instanceof Map && contains(List.of("keySet", "put", "values", "entrySet"), name)) {
+			} else if (proxy instanceof Map) {
 				//
-				return null;
-				//
+				if (contains(List.of("keySet", "put", "values", "entrySet", "get"), name)) {
+					//
+					return null;
+					//
+				} else if (Objects.equals(name, "containsKey")) {
+					//
+					return containsKey;
+					//
+				} // if
+					//
 			} // if
 				//
 			throw new Throwable(name);
@@ -912,8 +922,10 @@ class AddAudioJPanelTest {
 		//
 		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT3, null, alwaysTrue, null, null));
 		//
-		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT3, null, alwaysTrue, null,
-				Reflection.newProxy(Consumer.class, ih = ObjectUtils.getIfNull(ih, IH::new))));
+		final FailableConsumer<?, ?> failableConsumer = Reflection.newProxy(FailableConsumer.class,
+				ih = ObjectUtils.getIfNull(ih, IH::new));
+		//
+		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT3, null, alwaysTrue, null, failableConsumer));
 		//
 		if (ih != null) {
 			//
@@ -921,8 +933,7 @@ class AddAudioJPanelTest {
 			//
 		} // if
 			//
-		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT4, null, alwaysTrue, null,
-				Reflection.newProxy(FailableConsumer.class, ih), null));
+		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT4, null, alwaysTrue, null, failableConsumer, null));
 		//
 	}
 
@@ -1129,6 +1140,15 @@ class AddAudioJPanelTest {
 	void testIif() throws IllegalAccessException, InvocationTargetException {
 		//
 		Assert.assertNull(invoke(METHOD_IIF, null, Boolean.TRUE, null, null));
+		//
+	}
+
+	@Test
+	void testContainsKey() throws IllegalAccessException, InvocationTargetException {
+		//
+		final String string = "";
+		//
+		Assert.assertEquals(invoke(METHOD_CONTAINS_KEY, null, Map.of(string, string), string), Boolean.TRUE);
 		//
 	}
 

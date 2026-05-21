@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
@@ -1135,7 +1136,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		return instance != null && instance.getPath() != null ? instance.getParentFile() : null;
 	}
 
-	private static <T> void testAndAccept(final Predicate<T> predicate, final T value, final Consumer<T> consumer) {
+	private static <T, E extends Throwable> void testAndAccept(final Predicate<T> predicate, final T value,
+			final FailableConsumer<T, E> consumer) throws E {
 		if (test(predicate, value)) {
 			accept(consumer, value);
 		}
@@ -1623,13 +1625,30 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	}
 
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws IOException {
 		//
 		final JFrame jFrame = !GraphicsEnvironment.isHeadless() ? new JFrame() : null;
 		//
 		if (jFrame != null) {
 			//
-			jFrame.add(new AddAudioJPanel());
+			final AddAudioJPanel instance = new AddAudioJPanel();
+			//
+			final Properties properties = new Properties();
+			//
+			try (final InputStream is = testAndApply(x -> exists(toFile(x)) && isFile(toFile(x)),
+					Path.of("setting.properties"), Files::newInputStream, null)) {
+				//
+				testAndAccept(Objects::nonNull, is, properties::load);
+				//
+			} // try
+				//
+			if (containsKey(properties, "mp3")) {
+				//
+				setSelected(instance.jcbMp3, Boolean.valueOf(Objects.toString(get(properties, "mp3"))));
+				//
+			} // if
+				//
+			jFrame.add(instance);
 			//
 			jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 			//
@@ -1643,6 +1662,20 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 		} // if
 			//
+	}
+
+	private static void setSelected(final AbstractButton instance, final boolean selected) {
+		if (instance != null) {
+			instance.setSelected(selected);
+		}
+	}
+
+	private static <V> V get(final Map<?, V> instance, final Object key) {
+		return instance != null ? instance.get(key) : null;
+	}
+
+	private static boolean containsKey(final Map<?, ?> instance, final Object key) {
+		return instance != null && instance.containsKey(key);
 	}
 
 	private static boolean isTestMode() {
