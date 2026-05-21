@@ -1104,7 +1104,7 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testGetFileExtension() throws IllegalAccessException, InvocationTargetException, IOException {
+	void testGetFileExtension() throws IllegalAccessException, InvocationTargetException {
 		//
 		final Decoder decoder = Base64.getDecoder();
 		//
