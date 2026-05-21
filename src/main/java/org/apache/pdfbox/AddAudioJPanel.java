@@ -779,18 +779,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							toPath(getAbsoluteFile(file)), Files::readAllBytes, null), new ContentInfoUtil()::findMatch,
 							null);
 					//
-					if (Objects.equals(getName(getClass(FileSystems.getDefault())), "sun.nio.fs.LinuxFileSystem")) {
-						//
-						path = Files.createTempFile(RandomStringUtils.secure().nextAlphabetic(3), ".mp3",
-								PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
-						//
-					} else {
-						//
-						path = Files.createTempFile(RandomStringUtils.secure().nextAlphabetic(3), ".mp3");
-						//
-					} // if
-						//
-					deleteOnExit(toFile(path));
+					deleteOnExit(toFile(path = Files.createTempFile(Path.of("."),
+							RandomStringUtils.secure().nextAlphabetic(3), ".mp3")));
 					//
 					if (mp3 && (absolutePath = getAbsolutePath(file)) != null
 							&& (pb = new ProcessBuilder(FFMPEG, "-y", "-i", absolutePath, getAbsolutePath(toFile(path)))
