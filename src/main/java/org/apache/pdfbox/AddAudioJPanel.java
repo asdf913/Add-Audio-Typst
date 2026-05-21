@@ -755,6 +755,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				String absolutePath, mimeType = null;
 				//
+				String[] fileExtensions = null;
+				//
 				for (final Entry<String, TextPositionEntry> entry : entrySet(map)) {
 					//
 					if ((textPositionEntry = getValue(entry)) == null
@@ -802,11 +804,11 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					mimeType = getMimeType(ci);
 					//
-					if (ci != null && ci.getFileExtensions() != null && ci.getFileExtensions().length == 1) {
+					if ((fileExtensions = getFileExtensions(ci)) != null && fileExtensions.length == 1) {
 						//
 						tsb.append('.');
 						//
-						tsb.append(ArrayUtils.get(ci.getFileExtensions(), 0));
+						tsb.append(ArrayUtils.get(fileExtensions, 0));
 						//
 					} else if (Boolean.logicalAnd(Objects.equals(mimeType, "audio/mpeg"),
 							Objects.equals(getMessage(ci), "Audio file with ID3 version 2.4, MP3 encoding"))) {
@@ -912,6 +914,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private static String getMessage(final ContentInfo instance) {
 		return instance != null ? instance.getMessage() : null;
+	}
+
+	private static String[] getFileExtensions(final ContentInfo instance) {
+		return instance != null ? instance.getFileExtensions() : null;
 	}
 
 	private static void setSubtype(final PDEmbeddedFile instance, final String mimeType) {
