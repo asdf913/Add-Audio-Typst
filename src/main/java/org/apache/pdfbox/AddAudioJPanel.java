@@ -772,23 +772,22 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 					} // if
 						//
-					if (mp3 && (absolutePath = getAbsolutePath(file)) != null) {
+					if (mp3 && (absolutePath = getAbsolutePath(file)) != null
+							&& (pb = new ProcessBuilder("ffmpeg", "-y", "-i", absolutePath, getAbsolutePath(tempFile))
+									.inheritIO()) != null
+							&& pb.start().waitFor() == 0) {
 						//
-						if ((pb = new ProcessBuilder("ffmpeg", "-y", "-i", absolutePath, getAbsolutePath(tempFile))
-								.inheritIO()) != null && pb.start().waitFor() == 0) {
+						bs = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(tempFile)), Files::readAllBytes,
+								null);
+						//
+						if (tempFile != null) {
 							//
-							bs = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(tempFile)), Files::readAllBytes,
-									null);
-							//
-							if (tempFile != null) {
-								//
-								tempFile.delete();
-								//
-							} // if
-								//
-							ci = testAndApply(Objects::nonNull, bs, new ContentInfoUtil()::findMatch, null);
+							tempFile.delete();
 							//
 						} // if
+							//
+						ci = testAndApply(Objects::nonNull, bs, new ContentInfoUtil()::findMatch, null);
+						//
 					} // if
 						//
 					if ((tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)) != null) {
