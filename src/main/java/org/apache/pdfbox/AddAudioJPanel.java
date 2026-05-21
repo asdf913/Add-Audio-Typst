@@ -868,7 +868,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 	}
 
 	private static void delete(final File instance) {
-		if (instance != null) {
+		if (instance != null && instance.getPath() != null) {
 			instance.delete();
 		}
 	}
