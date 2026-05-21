@@ -128,7 +128,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 	@Note("Spreadsheet")
 	private AbstractButton btnFileSpreadsheet;
 
-	private AbstractButton btnExecute, btnBrowse;
+	@Note("Execute")
+	private AbstractButton btnExecute;
+
+	private AbstractButton btnBrowse;
 
 	private DefaultTableModel dtm = null;
 
