@@ -1002,7 +1002,7 @@ class AddAudioJPanelTest {
 	@Test
 	void testIsDirectory() throws IllegalAccessException, InvocationTargetException {
 		//
-		Assert.assertNull(invoke(METHOD_IS_DIRECTORY, null, Path.of("pom.xml").toFile()));
+		Assert.assertEquals(Boolean.FALSE, invoke(METHOD_IS_DIRECTORY, null, Path.of("pom.xml").toFile()));
 		//
 	}
 
@@ -1013,7 +1013,7 @@ class AddAudioJPanelTest {
 			//
 			final PDEmbeddedFile pdEmbeddedFile = new PDEmbeddedFile(new PDDocument(), is);
 			//
-			Assert.assertEquals(Boolean.FALSE, invoke(METHOD_SET_SUB_TYPE, null, pdEmbeddedFile, null));
+			Assert.assertNull(invoke(METHOD_SET_SUB_TYPE, null, pdEmbeddedFile, null));
 			//
 		} // try
 			//
