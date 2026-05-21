@@ -50,6 +50,7 @@ import org.apache.commons.lang3.function.FailableSupplier;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.common.filespecification.PDEmbeddedFile;
 import org.apache.pdfbox.text.TextPosition;
 import org.apache.poi.ss.usermodel.Cell;
@@ -81,7 +82,7 @@ class AddAudioJPanelTest {
 			METHOD_TEST_AND_ACCEPT3, METHOD_TEST_AND_ACCEPT4, METHOD_AND, METHOD_TEST_AND_RUN,
 			METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH,
 			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY,
-			METHOD_SET_SUB_TYPE, METHOD_IIF = null;
+			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -172,6 +173,10 @@ class AddAudioJPanelTest {
 				.setAccessible(true);
 		//
 		(METHOD_IIF = clz.getDeclaredMethod("iif", Boolean.TYPE, Object.class, Object.class)).setAccessible(true);
+		//
+		(METHOD_GET_MEDIA_BOX = clz.getDeclaredMethod("getMediaBox", PDPage.class)).setAccessible(true);
+		//
+		(METHOD_GET_HEIGHT = clz.getDeclaredMethod("getHeight", PDRectangle.class)).setAccessible(true);
 		//
 	}
 
@@ -1021,6 +1026,20 @@ class AddAudioJPanelTest {
 			//
 		} // try
 			//
+	}
+
+	@Test
+	void testGetMediaBox() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNotNull(invoke(METHOD_GET_MEDIA_BOX, null, new PDPage()));
+		//
+	}
+
+	@Test
+	void testGetHeight() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNotNull(invoke(METHOD_GET_HEIGHT, null, new PDRectangle()));
+		//
 	}
 
 	@Test

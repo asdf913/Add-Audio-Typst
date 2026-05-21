@@ -67,7 +67,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -833,9 +832,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 					(pdAnnotationFileAttachment = new PDAnnotationFileAttachment()).setFile(pdComplexFileSpecification);
 					//
-					pdAnnotationFileAttachment.setRectangle(new PDRectangle(textPosition.getX(),
-							(pdPage != null ? pdPage.getMediaBox().getHeight() : 0) - textPosition.getY(),
-							getWidth(textPosition), textPosition.getHeight()));
+					pdAnnotationFileAttachment.setRectangle(
+							new PDRectangle(textPosition.getX(), getHeight(getMediaBox(pdPage)) - textPosition.getY(),
+									getWidth(textPosition), textPosition.getHeight()));
 					//
 					pdAnnotationFileAttachment.setContents(textPositionEntry.text);
 					//
@@ -864,6 +863,46 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		} // if
 			//
 		return false;
+		//
+	}
+
+	private static float getHeight(final PDRectangle instance) {
+		//
+		if (instance == null) {
+			//
+			return 0;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "rectArray")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		return field == null ||
+				Narcissus.getField(instance, field) != null
+				? instance.getHeight() 
+						: 0;
+		//
+	}
+
+	private static PDRectangle getMediaBox(final PDPage instance) {
+		//
+		if (instance == null) {
+			//
+			return null;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "page")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		return field == null 
+				|| Narcissus.getField(instance, field) != null
+				? instance.getMediaBox()
+						: null;
 		//
 	}
 
