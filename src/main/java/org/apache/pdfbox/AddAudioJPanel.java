@@ -118,6 +118,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private static final String FFMPEG = "ffmpeg";
 
+	private static final String BUFFER = "buffer";
+
 	@Target(ElementType.FIELD)
 	@Retention(RetentionPolicy.RUNTIME)
 	private @interface Note {
@@ -893,7 +895,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field buffer = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "buffer")).toList(),
+						.filter(f -> f != null && Objects.equals(f.getName(), BUFFER)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		return buffer == null || Narcissus.getField(instance, buffer) != null ? instance.append(c) : instance;
@@ -910,7 +912,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field buffer = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "buffer")).toList(),
+						.filter(f -> f != null && Objects.equals(f.getName(), BUFFER)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		return buffer == null || Narcissus.getField(instance, buffer) != null ? instance.append(i) : instance;
@@ -944,7 +946,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field buffer = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "buffer")).toList(),
+						.filter(f -> f != null && Objects.equals(f.getName(), BUFFER)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		return buffer == null || Narcissus.getField(instance, buffer) != null ? instance.clear() : instance;
