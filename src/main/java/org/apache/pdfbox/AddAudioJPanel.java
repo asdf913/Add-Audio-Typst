@@ -498,7 +498,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			final File file = toFile(testAndApply(Objects::nonNull, getText(tfFilePdf), Path::of, null));
 			//
-			if (exists(file) && isDirectory(getParentFile(file))) {
+			if (and(file, AddAudioJPanel::exists, x -> isDirectory(getParentFile(x)))) {
 				//
 				try {
 					//
