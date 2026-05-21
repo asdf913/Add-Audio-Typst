@@ -879,10 +879,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						.filter(f -> f != null && Objects.equals(f.getName(), "rectArray")).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
-		return field == null ||
-				Narcissus.getField(instance, field) != null
-				? instance.getHeight() 
-						: 0;
+		return field == null || Narcissus.getField(instance, field) != null ? instance.getHeight() : 0;
 		//
 	}
 
@@ -899,10 +896,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						.filter(f -> f != null && Objects.equals(f.getName(), "page")).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
-		return field == null 
-				|| Narcissus.getField(instance, field) != null
-				? instance.getMediaBox()
-						: null;
+		return field == null || Narcissus.getField(instance, field) != null ? instance.getMediaBox() : null;
 		//
 	}
 
