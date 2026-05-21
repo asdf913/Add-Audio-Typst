@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +50,7 @@ import org.apache.commons.lang3.function.FailableSupplier;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.filespecification.PDEmbeddedFile;
 import org.apache.pdfbox.text.TextPosition;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -78,7 +80,8 @@ class AddAudioJPanelTest {
 			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
 			METHOD_TEST_AND_ACCEPT3, METHOD_TEST_AND_ACCEPT4, METHOD_AND, METHOD_TEST_AND_RUN,
 			METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH,
-			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY = null;
+			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY,
+			METHOD_SET_SUB_TYPE = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -164,6 +167,9 @@ class AddAudioJPanelTest {
 		(METHOD_OPEN = clz.getDeclaredMethod("open", Desktop.class, File.class)).setAccessible(true);
 		//
 		(METHOD_IS_DIRECTORY = clz.getDeclaredMethod("isDirectory", File.class)).setAccessible(true);
+		//
+		(METHOD_SET_SUB_TYPE = clz.getDeclaredMethod("setSubtype", PDEmbeddedFile.class, String.class))
+				.setAccessible(true);
 		//
 	}
 
@@ -996,8 +1002,21 @@ class AddAudioJPanelTest {
 	@Test
 	void testIsDirectory() throws IllegalAccessException, InvocationTargetException {
 		//
-		Assert.assertEquals(Boolean.FALSE, invoke(METHOD_IS_DIRECTORY, null, Path.of("pom.xml").toFile()));
+		Assert.assertNull(invoke(METHOD_IS_DIRECTORY, null, Path.of("pom.xml").toFile()));
 		//
+	}
+
+	@Test
+	void testSetSubtype() throws IllegalAccessException, InvocationTargetException, IOException {
+		//
+		try (final InputStream is = Files.newInputStream(Path.of("pom.xml"))) {
+			//
+			final PDEmbeddedFile pdEmbeddedFile = new PDEmbeddedFile(new PDDocument(), is);
+			//
+			Assert.assertEquals(Boolean.FALSE, invoke(METHOD_SET_SUB_TYPE, null, pdEmbeddedFile, null));
+			//
+		} // try
+			//
 	}
 
 	@Test

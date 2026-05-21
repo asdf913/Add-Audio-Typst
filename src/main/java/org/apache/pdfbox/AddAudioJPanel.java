@@ -749,13 +749,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null)) {
 					//
-					if ((pdEmbeddedFile = testAndApply(Objects::nonNull, pdDocument, x -> new PDEmbeddedFile(x, is),
-							null)) != null) {
-						//
-						pdEmbeddedFile.setSubtype(Objects.toString(ci != null ? ci.getMimeType() : null, "audio/wav"));
-						//
-					} // if
-						//
+					setSubtype(pdEmbeddedFile = testAndApply(Objects::nonNull, pdDocument,
+							x -> new PDEmbeddedFile(x, is), null),
+							Objects.toString(ci != null ? ci.getMimeType() : null, "audio/wav"));
+					//
 					pdComplexFileSpecification.setEmbeddedFile(pdEmbeddedFile);
 					//
 				} // try
@@ -788,6 +785,26 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		return false;
 		//
+	}
+
+	private static void setSubtype(final PDEmbeddedFile instance, final String mimeType) {
+		//
+		if (instance == null) {
+			//
+			return;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "stream")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		if (field == null || Narcissus.getField(instance, field) != null) {
+			//
+			instance.setSubtype(mimeType);
+		} // if
+			//
 	}
 
 	private static float getWidth(final TextPosition instance) {
