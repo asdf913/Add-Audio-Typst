@@ -773,13 +773,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							toPath(getAbsoluteFile(file)), Files::readAllBytes, null), new ContentInfoUtil()::findMatch,
 							null);
 					//
-					if ((tempFile = File.createTempFile(RandomStringUtils.secure().nextAlphabetic(3),
-							".mp3")) != null) {
-						//
-						tempFile.deleteOnExit();
-						//
-					} // if
-						//
+					deleteOnExit(tempFile = File.createTempFile(RandomStringUtils.secure().nextAlphabetic(3), ".mp3"));
+					//
 					if (mp3 && (absolutePath = getAbsolutePath(file)) != null
 							&& (pb = new ProcessBuilder(FFMPEG, "-y", "-i", absolutePath, getAbsolutePath(tempFile))
 									.inheritIO()) != null
@@ -904,6 +899,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		return field == null || Narcissus.getField(instance, field) != null ? instance.getMediaBox() : null;
 		//
+	}
+
+	private static void deleteOnExit(final File instance) {
+		if (instance != null && instance.getPath() != null) {
+			instance.deleteOnExit();
+		}
 	}
 
 	private static void delete(final File instance) {
