@@ -244,7 +244,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		add(btnExecute = new JButton("Execute"), wrap);
 		//
-		btnExecute.setEnabled(installed);
+		setEnabled(btnExecute, installed);
 		//
 		add(new JLabel("PDF"));
 		//
@@ -252,7 +252,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		add(btnBrowse = new JButton("Browse"), wrap);
 		//
-		btnBrowse.setEnabled(false);
+		setEnabled(btnBrowse, false);
 		//
 		new FailableStream<>(FieldUtils.getAllFieldsList(getClass()).stream().filter(f -> !isStatic(f))).forEach(f -> {
 			//
@@ -263,6 +263,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			addActionListener(cast(AbstractButton.class, object), this);
 			//
 		});
+	}
+
+	private static void setEnabled(final AbstractButton instance, final boolean enabled) {
+		if (instance != null) {
+			instance.setEnabled(enabled);
+		}
 	}
 
 	private static Component getTableCellRendererComponent(final TableCellRenderer instnace, final JTable table,
@@ -538,12 +544,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		setText(instance.tfFilePdf, null);
 		//
-		if (instance.btnBrowse != null) {
-			//
-			instance.btnBrowse.setEnabled(false);
-			//
-		} // if
-			//
+		setEnabled(instance.btnBrowse, false);
+		//
 		Map<String, TextPositionEntry> map = null;
 		//
 		try (final Workbook wb = testAndApply(AddAudioJPanel::isFile,
@@ -622,10 +624,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				save(pdDocument, file);
 				//
-				if (instance.btnBrowse != null && file != null && exists(file.getParentFile())
-						&& file.getParentFile() != null) {
+				if (file != null && exists(file.getParentFile()) && file.getParentFile() != null) {
 					//
-					instance.btnBrowse.setEnabled(file.getParentFile().isDirectory());
+					setEnabled(instance.btnBrowse, file.getParentFile().isDirectory());
 					//
 				} // if
 					//
