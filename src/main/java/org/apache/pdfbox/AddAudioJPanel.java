@@ -657,7 +657,6 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					&& (process = new ProcessBuilder(TYPST, "compile",
 							StringUtils.defaultString(getText(instance.tfFileTemplate)), outputPdf).start()) != null
 					&& process.waitFor() == 0) {
-				// ;
 				//
 				final GetTextLocation pdfTextStripper = new GetTextLocation(map);
 				//
