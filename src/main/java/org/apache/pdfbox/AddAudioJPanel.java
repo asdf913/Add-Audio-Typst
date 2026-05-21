@@ -804,7 +804,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					mimeType = getMimeType(ci);
 					//
-					if ((fileExtensions = getFileExtensions(ci)) != null && fileExtensions.length == 1) {
+					if (length(fileExtensions = getFileExtensions(ci)) == 1) {
 						//
 						tsb.append('.');
 						//
@@ -866,6 +866,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		return false;
 		//
+	}
+
+	private static int length(final Object[] instance) {
+		return instance != null ? instance.length : 0;
 	}
 
 	private static float getHeight(final PDRectangle instance) {
