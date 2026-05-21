@@ -876,7 +876,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field value = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(prefix)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "value")).toList(),
+						.filter(f -> f != null && Objects.equals(f.getName(), VALUE)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		return (value == null || Narcissus.getField(prefix, value) != null) && instance.startsWith(string, prefix);
@@ -927,7 +927,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field value = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(string)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "value")).toList(),
+						.filter(f -> f != null && Objects.equals(f.getName(), VALUE)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		return value == null || Narcissus.getField(string, value) != null ? instance.append(string) : instance;
