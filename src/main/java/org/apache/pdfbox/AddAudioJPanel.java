@@ -278,6 +278,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		add(jcbMp3 = new JCheckBox(), wrap);
 		//
+		setEnabled(jcbMp3, ffmpegInstalled);
+		//
 		add(new JLabel());
 		//
 		add(btnExecute = new JButton("Execute"), "%1$s,span %2$s".formatted(wrap, 2));
