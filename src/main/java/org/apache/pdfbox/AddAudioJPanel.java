@@ -28,7 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EventObject;
