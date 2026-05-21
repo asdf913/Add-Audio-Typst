@@ -77,7 +77,7 @@ class AddAudioJPanelTest {
 			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
 			METHOD_TEST_AND_ACCEPT, METHOD_AND, METHOD_TEST_AND_RUN, METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP,
 			METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH, METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE,
-			METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN = null;
+			METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -158,6 +158,8 @@ class AddAudioJPanelTest {
 				.setAccessible(true);
 		//
 		(METHOD_OPEN = clz.getDeclaredMethod("open", Desktop.class, File.class)).setAccessible(true);
+		//
+		(METHOD_IS_DIRECTORY = clz.getDeclaredMethod("isDirectory", File.class)).setAccessible(true);
 		//
 	}
 
@@ -961,6 +963,13 @@ class AddAudioJPanelTest {
 	void testOpen() throws IllegalAccessException, InvocationTargetException {
 		//
 		Assert.assertNull(invoke(METHOD_OPEN, null, Narcissus.allocateInstance(Desktop.class), Path.of(".").toFile()));
+		//
+	}
+
+	@Test
+	void testIsDirectory() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertEquals(Boolean.FALSE, invoke(METHOD_IS_DIRECTORY, null, Path.of("pom.xml").toFile()));
 		//
 	}
 

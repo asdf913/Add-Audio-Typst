@@ -498,12 +498,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			final File file = toFile(testAndApply(Objects::nonNull, getText(tfFilePdf), Path::of, null));
 			//
-			if (file != null && exists(file) && file.getParentFile() != null && file.getParentFile().isDirectory()) {
+			if (exists(file) && isDirectory(getParentFile(file))) {
 				//
 				try {
 					//
 					open(testAndGet(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
-							Desktop::getDesktop, null), file.getParentFile());
+							Desktop::getDesktop, null), getParentFile(file));
 					//
 				} catch (final IOException e) {
 					//
@@ -517,6 +517,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		actionPerformed(this, source);
 		//
+	}
+
+	private static boolean isDirectory(final File instance) {
+		return instance != null && instance.getPath() != null && instance.isDirectory();
 	}
 
 	private static void open(final Desktop instance, final File file) throws IOException {
@@ -639,9 +643,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				save(pdDocument, file);
 				//
-				if (file != null && exists(file.getParentFile()) && file.getParentFile() != null) {
+				if (exists(getParentFile(file))) {
 					//
-					setEnabled(instance.btnBrowse, file.getParentFile().isDirectory());
+					setEnabled(instance.btnBrowse, isDirectory(getParentFile(file)));
 					//
 				} // if
 					//
