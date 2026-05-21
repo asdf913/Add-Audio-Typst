@@ -43,6 +43,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.function.FailableBiFunction;
+import org.apache.commons.lang3.function.FailableConsumer;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.commons.lang3.function.FailableSupplier;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -75,9 +76,9 @@ class AddAudioJPanelTest {
 			METHOD_TEST_AND_APPLY4, METHOD_TEST_AND_APPLY5, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC,
 			METHOD_IS_XLSX, METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET, METHOD_REMOVE_ROW,
 			METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
-			METHOD_TEST_AND_ACCEPT, METHOD_AND, METHOD_TEST_AND_RUN, METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP,
-			METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH, METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE,
-			METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY = null;
+			METHOD_TEST_AND_ACCEPT3, METHOD_TEST_AND_ACCEPT4, METHOD_AND, METHOD_TEST_AND_RUN,
+			METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH,
+			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -135,8 +136,11 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_GET_PARENT_FILE = clz.getDeclaredMethod("getParentFile", File.class)).setAccessible(true);
 		//
-		(METHOD_TEST_AND_ACCEPT = clz.getDeclaredMethod("testAndAccept", Predicate.class, Object.class, Consumer.class))
-				.setAccessible(true);
+		(METHOD_TEST_AND_ACCEPT3 = clz.getDeclaredMethod("testAndAccept", Predicate.class, Object.class,
+				Consumer.class)).setAccessible(true);
+		//
+		(METHOD_TEST_AND_ACCEPT4 = clz.getDeclaredMethod("testAndAccept", Predicate.class, Object.class,
+				FailableConsumer.class, Consumer.class)).setAccessible(true);
 		//
 		(METHOD_AND = clz.getDeclaredMethod("and", Object.class, Predicate.class, Predicate.class)).setAccessible(true);
 		//
@@ -171,17 +175,35 @@ class AddAudioJPanelTest {
 
 		private Cell cell;
 
+		private Throwable throwable;
+
 		@Override
 		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 			//
+			final String name = getName(method);
+			//
+			if (proxy instanceof FailableConsumer) {
+				//
+				if (Objects.equals(name, "accept")) {
+					//
+					if (throwable != null) {
+						//
+						throw throwable;
+						//
+					} // if
+						//
+					return null;
+					//
+				} // if
+					//
+			} // if
+				//
 			if (Objects.equals(getReturnType(method), Void.TYPE)) {
 				//
 				return null;
 				//
 			} // if
 				//
-			final String name = getName(method);
-			//
 			if (Objects.equals(name, "toString") && method != null && method.getParameterCount() == 0) {
 				//
 				return null;
@@ -838,10 +860,19 @@ class AddAudioJPanelTest {
 		//
 		final Predicate<?> alwaysTrue = Predicates.alwaysTrue();
 		//
-		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT, null, alwaysTrue, null, null));
+		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT3, null, alwaysTrue, null, null));
 		//
-		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT, null, alwaysTrue, null,
+		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT3, null, alwaysTrue, null,
 				Reflection.newProxy(Consumer.class, ih = ObjectUtils.getIfNull(ih, IH::new))));
+		//
+		if (ih != null) {
+			//
+			ih.throwable = new Throwable();
+			//
+		} // if
+			//
+		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT4, null, alwaysTrue, null,
+				Reflection.newProxy(FailableConsumer.class, ih), null));
 		//
 	}
 

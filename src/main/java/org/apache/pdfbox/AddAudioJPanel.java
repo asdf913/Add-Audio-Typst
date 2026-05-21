@@ -69,6 +69,7 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.function.FailableBiFunction;
+import org.apache.commons.lang3.function.FailableConsumer;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.commons.lang3.function.FailableSupplier;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -496,27 +497,51 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} else if (Objects.equals(source, btnBrowse)) {
 			//
-			final File file = toFile(testAndApply(Objects::nonNull, getText(tfFilePdf), Path::of, null));
+			testAndAccept(x -> and(x, AddAudioJPanel::exists, y -> isDirectory(getParentFile(y))),
+					toFile(testAndApply(Objects::nonNull, getText(tfFilePdf), Path::of, null)),
+					x -> open(testAndGet(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
+							Desktop::getDesktop, null), getParentFile(x)),
+					e -> {
+						throw toRuntimeException(e);
+					});
 			//
-			if (and(file, AddAudioJPanel::exists, x -> isDirectory(getParentFile(x)))) {
-				//
-				try {
-					//
-					open(testAndGet(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
-							Desktop::getDesktop, null), getParentFile(file));
-					//
-				} catch (final IOException e) {
-					//
-					throw toRuntimeException(e);
-					//
-				} // try
-					//
-			} // if
-				//
+			return;
+			//
 		} // if
 			//
 		actionPerformed(this, source);
 		//
+	}
+
+	private static <T, E extends Throwable> void testAndAccept(final Predicate<T> predicate, final T value,
+			final FailableConsumer<T, E> failableConsumer, final Consumer<Throwable> throwableConsumer) {
+		//
+		if (test(predicate, value)) {
+			//
+			try {
+				//
+				accept(failableConsumer, value);
+				//
+			} catch (final Throwable e) {
+				//
+				accept(throwableConsumer, e);
+				//
+			} // try
+				//
+		} // if
+			//
+	}
+
+	private static <T, E extends Throwable> void accept(final FailableConsumer<T, E> instance, final T value) throws E {
+		if (instance != null) {
+			instance.accept(value);
+		}
+	}
+
+	private static <T> void accept(final Consumer<T> instance, final T value) {
+		if (instance != null) {
+			instance.accept(value);
+		}
 	}
 
 	private static boolean isDirectory(final File instance) {
@@ -836,8 +861,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 	}
 
 	private static <T> void testAndAccept(final Predicate<T> predicate, final T value, final Consumer<T> consumer) {
-		if (predicate != null && predicate.test(value) && consumer != null) {
-			consumer.accept(value);
+		if (test(predicate, value)) {
+			accept(consumer, value);
 		}
 	}
 
