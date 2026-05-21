@@ -808,8 +808,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 						tsb.append(ArrayUtils.get(ci.getFileExtensions(), 0));
 						//
-					} else if (Objects.equals(mimeType, "audio/mpeg")
-							&& Objects.equals(getMessage(ci), "Audio file with ID3 version 2.4, MP3 encoding")) {
+					} else if (Boolean.logicalAnd(Objects.equals(mimeType, "audio/mpeg"),
+							Objects.equals(getMessage(ci), "Audio file with ID3 version 2.4, MP3 encoding"))) {
 						//
 						tsb.append(".mp3");
 						//
