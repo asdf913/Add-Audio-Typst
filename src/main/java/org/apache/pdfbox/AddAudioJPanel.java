@@ -830,12 +830,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 						} // if
 							//
-						if (lastModified != null
-								&& (calendar = ObjectUtils.getIfNull(calendar, Calendar::getInstance)) != null) {
+						if (lastModified != null) {
 							//
-							calendar.setTimeInMillis(lastModified);
+							setTimeInMillis(calendar = ObjectUtils.getIfNull(calendar, Calendar::getInstance),
+									lastModified);
 							//
-							pdEmbeddedFile.setModDate(calendar);
+							setModDate(pdEmbeddedFile, calendar);
 							//
 						} // if
 							//
@@ -877,6 +877,33 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		return false;
 		//
+	}
+
+	private static void setTimeInMillis(final Calendar instance, final long timeInMillis) {
+		if (instance != null) {
+			instance.setTimeInMillis(timeInMillis);
+		}
+	}
+
+	private static void setModDate(final PDEmbeddedFile instance, final Calendar modDate) {
+		//
+		if (instance == null) {
+			//
+			return;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "stream")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		if (field == null || Narcissus.getField(instance, field) != null) {
+			//
+			instance.setModDate(modDate);
+			//
+		} // if
+			//
 	}
 
 	private static String getFileExtension(final ContentInfo ci) {

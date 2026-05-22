@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Decoder;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -87,7 +88,8 @@ class AddAudioJPanelTest {
 			METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH,
 			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY,
 			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR, METHOD_APPEND_CHAR,
-			METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY = null;
+			METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY,
+			METHOD_SET_MOD_DATE = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -197,6 +199,9 @@ class AddAudioJPanelTest {
 		(METHOD_GET_FILE_EXTENSION = clz.getDeclaredMethod("getFileExtension", ContentInfo.class)).setAccessible(true);
 		//
 		(METHOD_CONTAINS_KEY = clz.getDeclaredMethod("containsKey", Map.class, Object.class)).setAccessible(true);
+		//
+		(METHOD_SET_MOD_DATE = clz.getDeclaredMethod("setModDate", PDEmbeddedFile.class, Calendar.class))
+				.setAccessible(true);
 		//
 	}
 
@@ -399,6 +404,10 @@ class AddAudioJPanelTest {
 					//
 					add(collection, Integer.valueOf(0));
 					//
+				} else if (Objects.equals(parameterType, Long.TYPE)) {
+					//
+					add(collection, Long.valueOf(0));
+					//
 				} else if (Objects.equals(parameterType, Boolean.TYPE)) {
 					//
 					add(collection, Boolean.FALSE);
@@ -437,7 +446,7 @@ class AddAudioJPanelTest {
 				//
 			} // if
 				//
-			if (contains(Arrays.asList(Integer.TYPE, Boolean.TYPE, Float.TYPE), getReturnType(m))
+			if (contains(Arrays.asList(Integer.TYPE, Boolean.TYPE, Float.TYPE, Long.TYPE), getReturnType(m))
 					|| Boolean.logicalAnd(Objects.equals(getName(m), "toRuntimeException"),
 							Arrays.equals(parameterTypes, new Class<?>[] { Throwable.class }))) {
 				//
@@ -508,6 +517,10 @@ class AddAudioJPanelTest {
 					//
 					add(collection, Integer.valueOf(0));
 					//
+				} else if (Objects.equals(parameterType, Long.TYPE)) {
+					//
+					add(collection, Long.valueOf(0));
+					//
 				} else if (Objects.equals(parameterType, Boolean.TYPE)) {
 					//
 					add(collection, Boolean.FALSE);
@@ -540,8 +553,8 @@ class AddAudioJPanelTest {
 					//
 					add(collection, Strings.CS);
 					//
-				} else if (Objects.equals(parameterType, Process.class)
-						|| Objects.equals(parameterType, Writer.class)) {
+				} else if (Objects.equals(parameterType, Process.class) || Objects.equals(parameterType, Writer.class)
+						|| Objects.equals(parameterType, Calendar.class)) {
 					//
 					(proxyFactory = new ProxyFactory()).setSuperclass(parameterType);
 					//
@@ -1149,6 +1162,13 @@ class AddAudioJPanelTest {
 		final String string = "";
 		//
 		Assert.assertEquals(invoke(METHOD_CONTAINS_KEY, null, Map.of(string, string), string), Boolean.TRUE);
+		//
+	}
+
+	@Test
+	void testSetModDate() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertNull(invoke(METHOD_SET_MOD_DATE, null, new PDEmbeddedFile(new PDDocument()), null));
 		//
 	}
 
