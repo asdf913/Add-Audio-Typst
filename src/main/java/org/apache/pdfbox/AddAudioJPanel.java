@@ -122,6 +122,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private static final String BUFFER = "buffer";
 
+	private static final String STREAM = "stream";
+
 	@Target(ElementType.FIELD)
 	@Retention(RetentionPolicy.RUNTIME)
 	private @interface Note {
@@ -886,7 +888,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "stream")).toList(),
+						.filter(f -> f != null && Objects.equals(f.getName(), STREAM)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		if (field == null || Narcissus.getField(instance, field) != null) {
@@ -913,7 +915,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "stream")).toList(),
+						.filter(f -> f != null && Objects.equals(f.getName(), STREAM)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		if (field == null || Narcissus.getField(instance, field) != null) {
@@ -1104,7 +1106,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "stream")).toList(),
+						.filter(f -> f != null && Objects.equals(f.getName(), STREAM)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		if (field == null || Narcissus.getField(instance, field) != null) {
