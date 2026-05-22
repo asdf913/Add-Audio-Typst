@@ -755,8 +755,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			if (process != null && process.waitFor() == 0
 					&& addPDAnnotations(map, pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))),
-							getPage(pdDocument, 0),
-							instance.ffmpegInstalled && instance.jcbMp3 != null && instance.jcbMp3.isSelected())) {
+							getPage(pdDocument, 0), instance.ffmpegInstalled && isSelected(instance.jcbMp3))) {
 				//
 				final File file = toFile(Path.of(outputPdf));
 				//
@@ -778,6 +777,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // try
 			//
+	}
+
+	private static boolean isSelected(final AbstractButton instance) {
+		return instance != null && instance.isSelected();
 	}
 
 	private static void save(final PDDocument instance, final File file) throws IOException {
