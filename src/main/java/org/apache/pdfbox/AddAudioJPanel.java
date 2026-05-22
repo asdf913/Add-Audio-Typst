@@ -29,6 +29,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.EventObject;
 import java.util.Iterator;
@@ -765,6 +766,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				String absolutePath = null;
 				//
+				Long lastModified = null;
+				//
+				Calendar calendar = null;
+				//
 				for (final Entry<String, TextPositionEntry> entry : entrySet(map)) {
 					//
 					if ((textPositionEntry = getValue(entry)) == null
@@ -781,6 +786,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							toPath(getAbsoluteFile(file)), Files::readAllBytes, null), new ContentInfoUtil()::findMatch,
 							null);
 					//
+					lastModified = getAbsoluteFile(file) != null ? Long.valueOf(getAbsoluteFile(file).lastModified())
+							: null;
+					//
 					deleteOnExit(toFile(path = Files.createTempFile(Path.of("."),
 							RandomStringUtils.secure().nextAlphabetic(3), ".mp3")));
 					//
@@ -791,6 +799,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 						bs = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(toFile(path))), Files::readAllBytes,
 								null);
+						//
+						lastModified = toFile(path) != null ? Long.valueOf(toFile(path).lastModified()) : null;
 						//
 						delete(toFile(path));
 						//
@@ -813,6 +823,15 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						if (bs != null) {
 							//
 							pdEmbeddedFile.setSize(bs.length);
+							//
+						} // if
+							//
+						if (lastModified != null
+								&& (calendar = ObjectUtils.getIfNull(calendar, Calendar::getInstance)) != null) {
+							//
+							calendar.setTimeInMillis(lastModified);
+							//
+							pdEmbeddedFile.setModDate(calendar);
 							//
 						} // if
 							//
