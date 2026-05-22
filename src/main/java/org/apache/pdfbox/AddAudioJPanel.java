@@ -41,7 +41,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
@@ -85,6 +84,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.function.FailableBiFunction;
+import org.apache.commons.lang3.function.FailableBiPredicate;
 import org.apache.commons.lang3.function.FailableConsumer;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.commons.lang3.function.FailableSupplier;
@@ -426,19 +426,20 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		return instance != null ? instance.readAllBytes() : null;
 	}
 
-	private static <T, U, R, E extends Throwable> R testAndApply(final BiPredicate<T, U> predicate, final T t,
-			final U u, final FailableBiFunction<T, U, R, E> functionTrue,
+	private static <T, U, R, E extends Throwable> R testAndApply(final FailableBiPredicate<T, U, E> predicate,
+			final T t, final U u, final FailableBiFunction<T, U, R, E> functionTrue,
 			final FailableBiFunction<T, U, R, E> functionFalse) throws E {
-		return test(predicate, t, u) ? apply(functionTrue, t, u) : apply(functionFalse, t, u);
+		return predicate != null && test(predicate, t, u) ? apply(functionTrue, t, u) : apply(functionFalse, t, u);
+	}
+
+	private static <T, U, E extends Throwable> boolean test(final FailableBiPredicate<T, U, E> instance, final T t,
+			final U u) throws E {
+		return instance != null && instance.test(t, u);
 	}
 
 	private static <T, R, U, E extends Throwable> R apply(final FailableBiFunction<T, U, R, E> instance, final T t,
 			final U u) throws E {
 		return instance != null ? instance.apply(t, u) : null;
-	}
-
-	private static <T, U> boolean test(final BiPredicate<T, U> instance, final T t, final U u) {
-		return instance != null && instance.test(t, u);
 	}
 
 	private static <T, R, E extends Throwable> R testAndApply(final Predicate<T> predicate, final T value,
@@ -535,7 +536,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					if (!isXlsx) {
 						//
-						setText(tfFileSpreadsheet, isXls(bs) ? getAbsolutePath(file) : null);
+						setText(tfFileSpreadsheet,
+								testAndApply((a, b) -> isXls(a), bs, file, (a, b) -> getAbsolutePath(b), null));
 						//
 					} // if
 						//
