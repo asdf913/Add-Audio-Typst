@@ -755,7 +755,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			if (process != null && process.waitFor() == 0
 					&& addPDAnnotations(map, pdDocument = Loader.loadPDF(Files.readAllBytes(Path.of(outputPdf))),
-							getPage(pdDocument, 0), instance.ffmpegInstalled && isSelected(instance.jcbMp3))) {
+							getPage(pdDocument, 0),
+							Boolean.logicalAnd(instance.ffmpegInstalled, isSelected(instance.jcbMp3)))) {
 				//
 				final File file = toFile(Path.of(outputPdf));
 				//
