@@ -83,11 +83,11 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-import org.apache.commons.lang3.function.FailableBiConsumer;
 import org.apache.commons.lang3.function.FailableBiFunction;
 import org.apache.commons.lang3.function.FailableBiPredicate;
 import org.apache.commons.lang3.function.FailableConsumer;
 import org.apache.commons.lang3.function.FailableFunction;
+import org.apache.commons.lang3.function.FailablePredicate;
 import org.apache.commons.lang3.function.FailableSupplier;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.stream.Streams.FailableStream;
@@ -529,12 +529,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				try {
 					//
 					setText(tfFileSpreadsheet,
-							(isXlsx(bs = Files.readAllBytes(Path.of(toURI(file = jfc.getSelectedFile())))))
-									? getAbsolutePath(file)
-									: null);
-					//
-					testAndAccept((a, b) -> !isXlsx(a), bs, file,
-							(a, b) -> setText(tfFileSpreadsheet, iif(isXls(a), getAbsolutePath(b), null)));
+							iif(or(bs = Files.readAllBytes(Path.of(toURI(file = jfc.getSelectedFile()))),
+									AddAudioJPanel::isXlsx, AddAudioJPanel::isXls), getAbsolutePath(file), null));
 					//
 				} catch (final Exception e) {
 					//
@@ -580,15 +576,14 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 	}
 
-	private static <T, U, E extends Throwable> void testAndAccept(final FailableBiPredicate<T, U, E> predicate,
-			final T t, final U u, final FailableBiConsumer<T, U, E> consumer) throws E {
-		//
-		if (test(predicate, t, u) && consumer != null) {
-			//
-			consumer.accept(t, u);
-			//
-		} // if
-			//
+	private static <T, E extends Throwable> boolean or(final T value, final FailablePredicate<T, E> a,
+			final FailablePredicate<T, E> b) throws E {
+		return test(a, value) || test(b, value);
+	}
+
+	private static <T, E extends Throwable> boolean test(final FailablePredicate<T, E> instance, final T value)
+			throws E {
+		return instance != null && instance.test(value);
 	}
 
 	private static FailableFunction<InputStream, Workbook, IOException> createInputStreamWorkbookFailableFunction(

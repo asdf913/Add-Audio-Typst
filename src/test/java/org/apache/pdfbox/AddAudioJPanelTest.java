@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
@@ -50,6 +51,7 @@ import org.apache.commons.lang3.function.FailableBiFunction;
 import org.apache.commons.lang3.function.FailableBiPredicate;
 import org.apache.commons.lang3.function.FailableConsumer;
 import org.apache.commons.lang3.function.FailableFunction;
+import org.apache.commons.lang3.function.FailablePredicate;
 import org.apache.commons.lang3.function.FailableSupplier;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.text.TextStringBuilder;
@@ -93,7 +95,7 @@ class AddAudioJPanelTest {
 			METHOD_IS_DIRECTORY, METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR,
 			METHOD_APPEND_CHAR, METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY,
 			METHOD_SET_MOD_DATE, METHOD_SET_SIZE, METHOD_CREATE_INPUT_STREAM_WORK_BOOK_FAILABLE_FUNCTION,
-			METHOD_IS_SELECTED = null;
+			METHOD_IS_SELECTED, METHOD_OR = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -156,9 +158,6 @@ class AddAudioJPanelTest {
 		(METHOD_TEST_AND_ACCEPT4_PREDICATE = clz.getDeclaredMethod("testAndAccept", Predicate.class, Object.class,
 				FailableConsumer.class, Consumer.class)).setAccessible(true);
 		//
-		(METHOD_TEST_AND_ACCEPT4_FAILABLE_BI_PREDICATE = clz.getDeclaredMethod("testAndAccept",
-				FailableBiPredicate.class, Object.class, Object.class, FailableBiConsumer.class)).setAccessible(true);
-		//
 		(METHOD_AND = clz.getDeclaredMethod("and", Object.class, Predicate.class, Predicate.class)).setAccessible(true);
 		//
 		(METHOD_TEST_AND_RUN = clz.getDeclaredMethod("testAndRun", Boolean.TYPE, Runnable.class)).setAccessible(true);
@@ -216,6 +215,9 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_IS_SELECTED = clz.getDeclaredMethod("isSelected", AbstractButton.class)).setAccessible(true);
 		//
+		(METHOD_OR = clz.getDeclaredMethod("or", Object.class, FailablePredicate.class, FailablePredicate.class))
+				.setAccessible(true);
+		//
 	}
 
 	private static class IH implements InvocationHandler {
@@ -270,7 +272,8 @@ class AddAudioJPanelTest {
 				} // if
 					//
 			} else if (Boolean.logicalAnd(Objects.equals(name, "test"),
-					Boolean.logicalOr(proxy instanceof Predicate, proxy instanceof FailableBiPredicate))) {
+					Stream.of(Predicate.class, FailableBiPredicate.class, FailablePredicate.class)
+							.anyMatch(x -> x != null && proxy != null && x.isAssignableFrom(proxy.getClass())))) {
 				//
 				return test;
 				//
@@ -1273,6 +1276,25 @@ class AddAudioJPanelTest {
 		ab.setSelected(true);
 		//
 		Assert.assertEquals(invoke(METHOD_IS_SELECTED, null, ab), Boolean.TRUE);
+		//
+	}
+
+	@Test
+	void testOr() throws IllegalAccessException, InvocationTargetException {
+		//
+		FailablePredicate<?, ?> failablePredicate1 = Objects::nonNull;
+		//
+		Assert.assertEquals(invoke(METHOD_OR, null, "", failablePredicate1, null), Boolean.TRUE);
+		//
+		if (ih != null) {
+			//
+			ih.test = Boolean.TRUE;
+			//
+		} // if
+			//
+		Assert.assertEquals(
+				invoke(METHOD_OR, null, null, failablePredicate1, Reflection.newProxy(FailablePredicate.class, ih)),
+				Boolean.TRUE);
 		//
 	}
 
