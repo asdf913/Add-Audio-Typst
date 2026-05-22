@@ -505,10 +505,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				boolean isXlsx = false;
 				//
+				byte[] bs = null;
+				//
 				try {
 					//
 					setText(tfFileSpreadsheet,
-							(isXlsx = isXlsx(Files.readAllBytes(Path.of(toURI(file = jfc.getSelectedFile())))))
+							(isXlsx = isXlsx(bs = Files.readAllBytes(Path.of(toURI(file = jfc.getSelectedFile())))))
 									? getAbsolutePath(file)
 									: null);
 					//
@@ -520,7 +522,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 				forEach(IntStream.iterate(getRowCount(dtm) - 1, i -> i >= 0, i -> i - 1), i -> removeRow(dtm, i));
 				//
-				try (final Workbook wb = testAndApply(isXlsx, file, XSSFWorkbook::new, null)) {
+				try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null);
+						final Workbook wb = testAndApply(isXlsx, is, XSSFWorkbook::new, null)) {
 					//
 					forEach(values(createStringTextPositionEntryMap(
 							testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
@@ -634,9 +637,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		Map<String, TextPositionEntry> map = null;
 		//
-		try (final Workbook wb = testAndApply(AddAudioJPanel::isFile,
-				testAndApply(Objects::nonNull, getText(instance.tfFileSpreadsheet), File::new, null), XSSFWorkbook::new,
-				null)) {
+		try (final InputStream is = testAndApply(AddAudioJPanel::isFile,
+				testAndApply(Objects::nonNull, getText(instance.tfFileSpreadsheet), File::new, null),
+				x -> Files.newInputStream(toPath(x)), null);
+				final Workbook wb = testAndApply(Objects::nonNull, is, XSSFWorkbook::new, null)) {
 			//
 			map = createStringTextPositionEntryMap(
 					testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
