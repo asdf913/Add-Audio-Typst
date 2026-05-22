@@ -742,136 +742,133 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 	private static boolean addPDAnnotations(final Map<String, TextPositionEntry> map, final PDDocument pdDocument,
 			final PDPage pdPage, final boolean mp3) throws IOException, InterruptedException {
 		//
-		if (iterator(entrySet(map)) != null) {
+		if (iterator(entrySet(map)) == null) {
 			//
-			PDComplexFileSpecification pdComplexFileSpecification = null;
-			//
-			PDEmbeddedFile pdEmbeddedFile = null;
-			//
-			PDAnnotationFileAttachment pdAnnotationFileAttachment = null;
-			//
-			TextPosition textPosition = null;
-			//
-			File file = null;
-			//
-			Path path = null;
-			//
-			TextPositionEntry textPositionEntry = null;
-			//
-			try {
-				//
-				byte[] bs = null;
-				//
-				ContentInfo ci = null;
-				//
-				ProcessBuilder pb = null;
-				//
-				TextStringBuilder tsb = null;
-				//
-				String absolutePath = null;
-				//
-				Long lastModified = null;
-				//
-				Calendar calendar = null;
-				//
-				for (final Entry<String, TextPositionEntry> entry : entrySet(map)) {
-					//
-					if ((textPosition = TextPositionEntry
-							.getTextPosition(textPositionEntry = getValue(entry))) == null) {
-						//
-						continue;
-						//
-					} // if
-						//
-					(pdComplexFileSpecification = new PDComplexFileSpecification())
-							.setFile(getName(file = textPositionEntry.file));
-					//
-					ci = testAndApply(Objects::nonNull, bs = testAndApply(Objects::nonNull,
-							toPath(getAbsoluteFile(file)), Files::readAllBytes, null), new ContentInfoUtil()::findMatch,
-							null);
-					//
-					lastModified = getAbsoluteFile(file) != null ? Long.valueOf(getAbsoluteFile(file).lastModified())
-							: null;
-					//
-					deleteOnExit(toFile(path = Files.createTempFile(Path.of("."),
-							RandomStringUtils.secure().nextAlphabetic(3), ".mp3")));
-					//
-					if (mp3 && (absolutePath = getAbsolutePath(file)) != null
-							&& (pb = new ProcessBuilder(FFMPEG, "-y", "-i", absolutePath, getAbsolutePath(toFile(path)))
-									.inheritIO()) != null
-							&& pb.start().waitFor() == 0) {
-						//
-						bs = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(toFile(path))), Files::readAllBytes,
-								null);
-						//
-						lastModified = toFile(path) != null ? Long.valueOf(toFile(path).lastModified()) : null;
-						//
-						ci = testAndApply(Objects::nonNull, bs, new ContentInfoUtil()::findMatch, null);
-						//
-					} // if
-						//
-					delete(toFile(path));
-					//
-					pdComplexFileSpecification.setFile(Objects.toString(append(
-							append(append(clear(tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)),
-									Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1)), '.'),
-							Objects.toString(getFileExtension(ci), "wav"))));
-					//
-					try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null)) {
-						//
-						setSubtype(
-								pdEmbeddedFile = testAndApply(Objects::nonNull, pdDocument,
-										x -> new PDEmbeddedFile(x, is), null),
-								Objects.toString(getMimeType(ci), "audio/wav"));
-						//
-						setSize(pdEmbeddedFile, length(bs));
-						//
-						if (lastModified != null) {
-							//
-							setTimeInMillis(calendar = ObjectUtils.getIfNull(calendar, Calendar::getInstance),
-									lastModified);
-							//
-							setModDate(pdEmbeddedFile, calendar);
-							//
-						} // if
-							//
-						pdComplexFileSpecification.setEmbeddedFile(pdEmbeddedFile);
-						//
-					} // try
-						//
-					(pdAnnotationFileAttachment = new PDAnnotationFileAttachment()).setFile(pdComplexFileSpecification);
-					//
-					pdAnnotationFileAttachment.setRectangle(
-							new PDRectangle(textPosition.getX(), getHeight(getMediaBox(pdPage)) - textPosition.getY(),
-									getWidth(textPosition), textPosition.getHeight()));
-					//
-					pdAnnotationFileAttachment.setContents(textPositionEntry.text);
-					//
-					pdAnnotationFileAttachment.setConstantOpacity(0);
-					//
-					// 2. Mark as Locked (Bit 8) - prevents the annotation from being moved or
-					// resized
-					//
-					// flags |= (1 << 7);
-					//
-					pdAnnotationFileAttachment
-							.setAnnotationFlags(pdAnnotationFileAttachment.getAnnotationFlags() | (1 << 7));
-					//
-					add(getAnnotations(pdPage), pdAnnotationFileAttachment);
-					//
-				} // for
-					//
-			} finally {
-				//
-				delete(toFile(path));
-				//
-			} // try
-				//
-			return true;
+			return false;
 			//
 		} // if
 			//
-		return false;
+		PDComplexFileSpecification pdComplexFileSpecification = null;
+		//
+		PDEmbeddedFile pdEmbeddedFile = null;
+		//
+		PDAnnotationFileAttachment pdAnnotationFileAttachment = null;
+		//
+		TextPosition textPosition = null;
+		//
+		File file = null;
+		//
+		Path path = null;
+		//
+		TextPositionEntry textPositionEntry = null;
+		//
+		try {
+			//
+			byte[] bs = null;
+			//
+			ContentInfo ci = null;
+			//
+			ProcessBuilder pb = null;
+			//
+			TextStringBuilder tsb = null;
+			//
+			String absolutePath = null;
+			//
+			Long lastModified = null;
+			//
+			Calendar calendar = null;
+			//
+			for (final Entry<String, TextPositionEntry> entry : entrySet(map)) {
+				//
+				if ((textPosition = TextPositionEntry.getTextPosition(textPositionEntry = getValue(entry))) == null) {
+					//
+					continue;
+					//
+				} // if
+					//
+				(pdComplexFileSpecification = new PDComplexFileSpecification())
+						.setFile(getName(file = textPositionEntry.file));
+				//
+				ci = testAndApply(Objects::nonNull,
+						bs = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(file)), Files::readAllBytes, null),
+						new ContentInfoUtil()::findMatch, null);
+				//
+				lastModified = getAbsoluteFile(file) != null ? Long.valueOf(getAbsoluteFile(file).lastModified())
+						: null;
+				//
+				deleteOnExit(toFile(path = Files.createTempFile(Path.of("."),
+						RandomStringUtils.secure().nextAlphabetic(3), ".mp3")));
+				//
+				if (mp3 && (absolutePath = getAbsolutePath(file)) != null
+						&& (pb = new ProcessBuilder(FFMPEG, "-y", "-i", absolutePath, getAbsolutePath(toFile(path)))
+								.inheritIO()) != null
+						&& pb.start().waitFor() == 0) {
+					//
+					bs = testAndApply(Objects::nonNull, toPath(getAbsoluteFile(toFile(path))), Files::readAllBytes,
+							null);
+					//
+					lastModified = toFile(path) != null ? Long.valueOf(toFile(path).lastModified()) : null;
+					//
+					ci = testAndApply(Objects::nonNull, bs, new ContentInfoUtil()::findMatch, null);
+					//
+				} // if
+					//
+				delete(toFile(path));
+				//
+				pdComplexFileSpecification.setFile(Objects.toString(append(
+						append(append(clear(tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)),
+								Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1)), '.'),
+						Objects.toString(getFileExtension(ci), "wav"))));
+				//
+				try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null)) {
+					//
+					setSubtype(pdEmbeddedFile = testAndApply(Objects::nonNull, pdDocument,
+							x -> new PDEmbeddedFile(x, is), null), Objects.toString(getMimeType(ci), "audio/wav"));
+					//
+					setSize(pdEmbeddedFile, length(bs));
+					//
+					if (lastModified != null) {
+						//
+						setTimeInMillis(calendar = ObjectUtils.getIfNull(calendar, Calendar::getInstance),
+								lastModified);
+						//
+						setModDate(pdEmbeddedFile, calendar);
+						//
+					} // if
+						//
+					pdComplexFileSpecification.setEmbeddedFile(pdEmbeddedFile);
+					//
+				} // try
+					//
+				(pdAnnotationFileAttachment = new PDAnnotationFileAttachment()).setFile(pdComplexFileSpecification);
+				//
+				pdAnnotationFileAttachment.setRectangle(
+						new PDRectangle(textPosition.getX(), getHeight(getMediaBox(pdPage)) - textPosition.getY(),
+								getWidth(textPosition), textPosition.getHeight()));
+				//
+				pdAnnotationFileAttachment.setContents(textPositionEntry.text);
+				//
+				pdAnnotationFileAttachment.setConstantOpacity(0);
+				//
+				// 2. Mark as Locked (Bit 8) - prevents the annotation from being moved or
+				// resized
+				//
+				// flags |= (1 << 7);
+				//
+				pdAnnotationFileAttachment
+						.setAnnotationFlags(pdAnnotationFileAttachment.getAnnotationFlags() | (1 << 7));
+				//
+				add(getAnnotations(pdPage), pdAnnotationFileAttachment);
+				//
+			} // for
+				//
+		} finally {
+			//
+			delete(toFile(path));
+			//
+		} // try
+			//
+		return true;
 		//
 	}
 
