@@ -522,7 +522,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			if (testAndGetAsBoolean(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
 					() -> jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)) {
 				//
-				boolean isXlsx = false, isXls = false;
+				boolean isXlsx = false;
 				//
 				byte[] bs = null;
 				//
@@ -535,7 +535,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 					if (!isXlsx) {
 						//
-						setText(tfFileSpreadsheet, (isXls = isXls(bs)) ? getAbsolutePath(file) : null);
+						setText(tfFileSpreadsheet, isXls(bs) ? getAbsolutePath(file) : null);
 						//
 					} // if
 						//
@@ -548,7 +548,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				forEach(IntStream.iterate(getRowCount(dtm) - 1, i -> i >= 0, i -> i - 1), i -> removeRow(dtm, i));
 				//
 				try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null);
-						final Workbook wb = isXlsx ? new XSSFWorkbook(is) : (isXls ? new HSSFWorkbook(is) : null)) {
+						final Workbook wb = apply(createInputStreamWorkbookFailableFunction(bs), is)) {
 					//
 					forEach(values(createStringTextPositionEntryMap(
 							testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
@@ -581,6 +581,22 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		actionPerformed(this, source);
 		//
+	}
+
+	private static FailableFunction<InputStream, Workbook, IOException> createInputStreamWorkbookFailableFunction(
+			final byte[] bs) throws IOException, SAXException, ParserConfigurationException {
+		//
+		if (isXlsx(bs)) {
+			//
+			return XSSFWorkbook::new;
+			//
+		} else if (isXls(bs)) {
+			//
+			return HSSFWorkbook::new;
+			//
+		} // if
+			//
+		return null;
 	}
 
 	private static <T, E extends Throwable> void testAndAccept(final Predicate<T> predicate, final T value,
@@ -671,7 +687,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		} // try
 			//
 		try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null);
-				final Workbook wb = isXlsx(bs) ? new XSSFWorkbook(is) : (isXls(bs) ? new HSSFWorkbook(is) : null)) {
+				final Workbook wb = apply(createInputStreamWorkbookFailableFunction(bs), is)) {
 			//
 			map = createStringTextPositionEntryMap(
 					testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
