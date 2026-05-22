@@ -608,11 +608,11 @@ class AddAudioJPanelTest {
 									//
 								final String name = getName(thisMethod);
 								//
-								if (self instanceof Process && Objects.equals(name, "getOutputStream")) {
-									//
-									return null;
-									//
-								} else if (self instanceof InputStream && Objects.equals(name, "readAllBytes")) {
+								if (Boolean.logicalOr(
+										Boolean.logicalAnd(self instanceof Process,
+												Objects.equals(name, "getOutputStream")),
+										Boolean.logicalAnd(self instanceof InputStream,
+												Objects.equals(name, "readAllBytes")))) {
 									//
 									return null;
 									//
