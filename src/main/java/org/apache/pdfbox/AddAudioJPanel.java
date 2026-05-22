@@ -1767,7 +1767,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 	}
 
-	public static boolean isXlsx(final byte[] bs) throws IOException, SAXException, ParserConfigurationException {
+	private static boolean isXlsx(final byte[] bs) throws IOException, SAXException, ParserConfigurationException {
 		//
 		boolean contentTypeXmlFound = false;
 		//
