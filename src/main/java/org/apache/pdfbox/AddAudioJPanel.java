@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -68,6 +69,15 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.bcel.classfile.ClassParser;
+import org.apache.bcel.classfile.ConstantPool;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.generic.ARETURN;
+import org.apache.bcel.generic.ConstantPoolGen;
+import org.apache.bcel.generic.Instruction;
+import org.apache.bcel.generic.InstructionList;
+import org.apache.bcel.generic.LDC;
+import org.apache.bcel.generic.MethodGen;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -91,6 +101,10 @@ import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationFileAttachment;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.DirectoryEntry;
+import org.apache.poi.poifs.filesystem.DirectoryNode;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -505,7 +519,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			if (testAndGetAsBoolean(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
 					() -> jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)) {
 				//
-				boolean isXlsx = false;
+				boolean isXlsx = false, isXls = false;
 				//
 				byte[] bs = null;
 				//
@@ -516,6 +530,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 									? getAbsolutePath(file)
 									: null);
 					//
+					if (!isXlsx) {
+						//
+						setText(tfFileSpreadsheet, (isXls = isXls(bs)) ? getAbsolutePath(file) : null);
+						//
+					} // if
+						//
 				} catch (final IOException | SAXException | ParserConfigurationException e) {
 					//
 					setText(tfFileSpreadsheet, null);
@@ -525,7 +545,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				forEach(IntStream.iterate(getRowCount(dtm) - 1, i -> i >= 0, i -> i - 1), i -> removeRow(dtm, i));
 				//
 				try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null);
-						final Workbook wb = testAndApply(isXlsx, is, XSSFWorkbook::new, null)) {
+						final Workbook wb = isXlsx ? new XSSFWorkbook(is) : (isXls ? new HSSFWorkbook(is) : null)) {
 					//
 					forEach(values(createStringTextPositionEntryMap(
 							testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
@@ -603,9 +623,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
-				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "peer")).toList(),
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1, FieldUtils
+				.getAllFieldsList(getClass(instance)).stream().filter(f -> Objects.equals(getName(f), "peer")).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		if ((field == null || Narcissus.getField(instance, field) != null) && file != null && file.getPath() != null) {
@@ -614,11 +633,6 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-	}
-
-	private static <T, R, E extends Throwable> R testAndApply(final boolean condition, final T value,
-			final FailableFunction<T, R, E> functionTrue, final FailableFunction<T, R, E> functionFalse) throws E {
-		return condition ? apply(functionTrue, value) : apply(functionFalse, value);
 	}
 
 	private static RuntimeException toRuntimeException(final Throwable instance) {
@@ -639,10 +653,22 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		Map<String, TextPositionEntry> map = null;
 		//
+		byte[] bs = null;
+		//
 		try (final InputStream is = testAndApply(AddAudioJPanel::isFile,
 				testAndApply(Objects::nonNull, getText(instance.tfFileSpreadsheet), File::new, null),
-				x -> Files.newInputStream(toPath(x)), null);
-				final Workbook wb = testAndApply(Objects::nonNull, is, XSSFWorkbook::new, null)) {
+				x -> Files.newInputStream(toPath(x)), null)) {
+			//
+			bs = is != null ? is.readAllBytes() : null;
+			//
+		} catch (final Exception e) {
+			//
+			throw toRuntimeException(e);
+			//
+		} // try
+			//
+		try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null);
+				final Workbook wb = isXlsx(bs) ? new XSSFWorkbook(is) : (isXls(bs) ? new HSSFWorkbook(is) : null)) {
 			//
 			map = createStringTextPositionEntryMap(
 					testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
@@ -886,9 +912,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
-				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), STREAM)).toList(),
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1, FieldUtils
+				.getAllFieldsList(getClass(instance)).stream().filter(f -> Objects.equals(getName(f), STREAM)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		if (field == null || Narcissus.getField(instance, field) != null) {
@@ -913,9 +938,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
-				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), STREAM)).toList(),
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1, FieldUtils
+				.getAllFieldsList(getClass(instance)).stream().filter(f -> Objects.equals(getName(f), STREAM)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		if (field == null || Narcissus.getField(instance, field) != null) {
@@ -957,10 +981,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-		final Field value = testAndApply(x -> IterableUtils.size(x) == 1,
-				FieldUtils.getAllFieldsList(getClass(prefix)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), VALUE)).toList(),
-				x -> IterableUtils.get(x, 0), null);
+		final Field value = testAndApply(x -> IterableUtils.size(x) == 1, FieldUtils.getAllFieldsList(getClass(prefix))
+				.stream().filter(f -> Objects.equals(getName(f), VALUE)).toList(), x -> IterableUtils.get(x, 0), null);
 		//
 		return (value == null || Narcissus.getField(prefix, value) != null) && instance.startsWith(string, prefix);
 		//
@@ -974,9 +996,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-		final Field buffer = testAndApply(x -> IterableUtils.size(x) == 1,
-				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), BUFFER)).toList(),
+		final Field buffer = testAndApply(x -> IterableUtils.size(x) == 1, FieldUtils
+				.getAllFieldsList(getClass(instance)).stream().filter(f -> Objects.equals(getName(f), BUFFER)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		return buffer == null || Narcissus.getField(instance, buffer) != null ? instance.append(c) : instance;
@@ -991,9 +1012,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-		final Field buffer = testAndApply(x -> IterableUtils.size(x) == 1,
-				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), BUFFER)).toList(),
+		final Field buffer = testAndApply(x -> IterableUtils.size(x) == 1, FieldUtils
+				.getAllFieldsList(getClass(instance)).stream().filter(f -> Objects.equals(getName(f), BUFFER)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		return buffer == null || Narcissus.getField(instance, buffer) != null ? instance.append(i) : instance;
@@ -1008,10 +1028,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-		final Field value = testAndApply(x -> IterableUtils.size(x) == 1,
-				FieldUtils.getAllFieldsList(getClass(string)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), VALUE)).toList(),
-				x -> IterableUtils.get(x, 0), null);
+		final Field value = testAndApply(x -> IterableUtils.size(x) == 1, FieldUtils.getAllFieldsList(getClass(string))
+				.stream().filter(f -> Objects.equals(getName(f), VALUE)).toList(), x -> IterableUtils.get(x, 0), null);
 		//
 		return value == null || Narcissus.getField(string, value) != null ? instance.append(string) : instance;
 		//
@@ -1025,9 +1043,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-		final Field buffer = testAndApply(x -> IterableUtils.size(x) == 1,
-				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), BUFFER)).toList(),
+		final Field buffer = testAndApply(x -> IterableUtils.size(x) == 1, FieldUtils
+				.getAllFieldsList(getClass(instance)).stream().filter(f -> Objects.equals(getName(f), BUFFER)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		return buffer == null || Narcissus.getField(instance, buffer) != null ? instance.clear() : instance;
@@ -1048,7 +1065,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "rectArray")).toList(),
+						.filter(f -> Objects.equals(getName(f), "rectArray")).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		return field == null || Narcissus.getField(instance, field) != null ? instance.getHeight() : 0;
@@ -1063,9 +1080,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
-				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "page")).toList(),
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1, FieldUtils
+				.getAllFieldsList(getClass(instance)).stream().filter(f -> Objects.equals(getName(f), "page")).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		return field == null || Narcissus.getField(instance, field) != null ? instance.getMediaBox() : null;
@@ -1104,9 +1120,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
-				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), STREAM)).toList(),
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1, FieldUtils
+				.getAllFieldsList(getClass(instance)).stream().filter(f -> Objects.equals(getName(f), STREAM)).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		if (field == null || Narcissus.getField(instance, field) != null) {
@@ -1126,7 +1141,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "textMatrix")).toList(),
+						.filter(f -> Objects.equals(getName(f), "textMatrix")).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		return field == null || Narcissus.getField(instance, field) != null ? instance.getWidth() : 0;
@@ -1245,10 +1260,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
-				FieldUtils.getAllFieldsList(getClass(string)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), VALUE)).toList(),
-				x -> IterableUtils.get(x, 0), null);
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1, FieldUtils.getAllFieldsList(getClass(string))
+				.stream().filter(f -> Objects.equals(getName(f), VALUE)).toList(), x -> IterableUtils.get(x, 0), null);
 		//
 		if (field != null && Narcissus.getField(string, field) == null) {
 			//
@@ -1323,7 +1336,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "dataVector")).toList(),
+						.filter(f -> Objects.equals(getName(f), "dataVector")).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		if ((field == null || Narcissus.getField(instance, field) != null)) {
@@ -1344,7 +1357,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "dataVector")).toList(),
+						.filter(f -> Objects.equals(getName(f), "dataVector")).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		if ((field == null || Narcissus.getField(instance, field) != null) && getRowCount(instance) > row) {
@@ -1378,7 +1391,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
 				FieldUtils.getAllFieldsList(getClass(instance)).stream()
-						.filter(f -> f != null && Objects.equals(f.getName(), "document")).toList(),
+						.filter(f -> Objects.equals(getName(f), "document")).toList(),
 				x -> IterableUtils.get(x, 0), null);
 		//
 		return (field == null || Narcissus.getField(instance, field) != null) && instance.getNumberOfPages() > pageIndex
@@ -1399,13 +1412,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-		if (Arrays.stream(getClass(instance).getDeclaredMethods())
-				.noneMatch(m -> m != null && Objects.equals(m.getName(), "write")
-						&& Arrays.equals(m.getParameterTypes(), new Class<?>[] { String.class }))) {
+		if (Arrays.stream(getClass(instance).getDeclaredMethods()).noneMatch(m -> Objects.equals(getName(m), "write")
+				&& Arrays.equals(m.getParameterTypes(), new Class<?>[] { String.class }))) {
 			//
 			final Method method = testAndApply(x -> IterableUtils.size(x) == 1,
 					Arrays.stream(getClass(instance).getMethods())
-							.filter(m -> m != null && Objects.equals(m.getName(), "write")
+							.filter(m -> Objects.equals(getName(m), "write")
 									&& Arrays.equals(m.getParameterTypes(), new Class<?>[] { String.class }))
 							.toList(),
 					x -> IterableUtils.get(x, 0), null);
@@ -1487,6 +1499,271 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		} // try
 			//
 		return instance.getText();
+		//
+	}
+
+	private static boolean isXls(final byte[] bs) throws IOException {
+		//
+		ContentInfo ci = null;
+		//
+		try (final InputStream is = new ByteArrayInputStream(bs)) {
+			//
+			ci = testAndApply(Objects::nonNull, is, x -> new ContentInfoUtil().findMatch(x), null);
+			//
+		} // try
+			//
+		if (!Objects.equals(getMessage(ci), "OLE 2 Compound Document")) {
+			//
+			return false;
+			//
+		} // if
+			//
+		DirectoryNode directoryNode = null;
+		//
+		try (final InputStream is = new ByteArrayInputStream(bs);
+				final POIFSFileSystem poifsFileSystem = new POIFSFileSystem(is)) {
+			//
+			directoryNode = poifsFileSystem.getRoot();
+			//
+		} // try
+			//
+		Class<?> clz = null;
+		//
+		try {
+			//
+			clz = Class.forName("org.apache.poi.hssf.usermodel.HSSFWorkbook");
+			//
+		} catch (final ClassNotFoundException e) {
+			//
+			throw toRuntimeException(e);
+			//
+		} // try
+			//
+		final List<Object> entryNames = getEntryNames(clz);
+		//
+		for (int i = 0; i < IterableUtils.size(entryNames); i++) {
+			//
+			if (hasEntryCaseInsensitive(directoryNode, Objects.toString(IterableUtils.get(entryNames, i)))) {
+				//
+				return true;
+				//
+			} // if
+				//
+		} // for
+			//
+		return false;
+		//
+	}
+
+	private static boolean hasEntryCaseInsensitive(final DirectoryEntry instance, final String name) {
+		//
+		if (instance == null) {
+			//
+			return false;
+			//
+		} // if
+			//
+		final Class<?> clz = getClass(instance);
+		//
+		final String className = getName(clz);
+		//
+		if (Objects.equals(className, "org.apache.poi.poifs.filesystem.DirectoryNode") && name != null) {
+			//
+			final List<Field> fs = FieldUtils.getAllFieldsList(clz).stream()
+					.filter(f -> Objects.equals(getName(f), "_byUCName")).toList();
+			//
+			if (IterableUtils.size(fs) > 1) {
+				//
+				throw new IllegalStateException();
+				//
+			} // if
+				//
+			if (Narcissus.getField(instance,
+					testAndApply(x -> IterableUtils.size(x) == 1, fs, x -> IterableUtils.get(x, 0), null)) == null) {
+				//
+				return false;
+				//
+			} // if
+				//
+		} else if (Objects.equals(className, "org.apache.poi.poifs.filesystem.FilteringDirectoryNode")) {
+			//
+			final List<Field> fs = FieldUtils.getAllFieldsList(clz).stream()
+					.filter(f -> Objects.equals(getName(f), "excludes")).toList();
+			//
+			if (IterableUtils.size(fs) > 1) {
+				//
+				throw new IllegalStateException();
+				//
+			} // if
+				//
+			if (Narcissus.getField(instance,
+					testAndApply(x -> IterableUtils.size(x) == 1, fs, x -> IterableUtils.get(x, 0), null)) == null) {
+				//
+				return false;
+				//
+			} // if
+				//
+		} // if
+			//
+		return instance.hasEntryCaseInsensitive(name);
+		//
+	}
+
+	private static String getName(final Member instance) {
+		return instance != null ? instance.getName() : null;
+	}
+
+	private static List<Object> getEntryNames(final Class<?> clz) throws IOException {
+		//
+		List<Object> entryNames = null;
+		//
+		try (final InputStream is = getResourceAsStream(clz,
+				"/%1$s.class".formatted(replace(getName(clz), ".", "/")))) {
+			//
+			JavaClass javaClass = null;
+			//
+			final Instruction[] instructions = getInstructions(getInstructionList(testAndApply(Objects::nonNull,
+					getMethod(
+							javaClass = parse(testAndApply(Objects::nonNull, is, x -> new ClassParser(x, null), null)),
+							getDeclaredMethod(clz, "getWorkbookDirEntryName", DirectoryNode.class)),
+					x -> new MethodGen(x, null, null), null)));
+			//
+			Instruction instruction = null;
+			//
+			ConstantPoolGen cpg = null;
+			//
+			final ConstantPool cp = getConstantPool(javaClass);
+			//
+			for (int i = 0; instructions != null && i < instructions.length; i++) {
+				//
+				if ((instruction = instructions[i]) == null) {
+					//
+					continue;
+					//
+				} // if
+					//
+				if (instruction instanceof ARETURN && i > 0 && instructions[i - 1] instanceof LDC ldc) {
+					//
+					if (cpg == null) {
+						//
+						cpg = ObjectUtils.getIfNull(cpg,
+								() -> testAndApply(Objects::nonNull, cp, ConstantPoolGen::new, null));
+						//
+					} // if
+						//
+					add(entryNames = ObjectUtils.getIfNull(entryNames, ArrayList::new), getValue(ldc, cpg));
+					//
+				} // if
+					//
+			} // for
+				//
+		} catch (final NoSuchMethodException e) {
+			//
+			throw toRuntimeException(e);
+			//
+		} // try
+			//
+		return entryNames;
+		//
+	}
+
+	private static Object getValue(final LDC instance, final ConstantPoolGen cpg) {
+		return instance != null && cpg != null && cpg.getSize() > 0 ? instance.getValue(cpg) : null;
+	}
+
+	private static JavaClass parse(final ClassParser instance) throws IOException {
+		//
+		if (instance == null) {
+			//
+			return null;
+			//
+		} // if
+			//
+		try {
+			//
+			if (FieldUtils.readField(instance, "dataInputStream", true) == null) {
+				//
+				return null;
+				//
+			} else if (Objects.equals(Boolean.TRUE, FieldUtils.readField(instance, "fileOwned", true))) {
+				//
+				final Object isZip = FieldUtils.readField(instance, "isZip", true);
+				//
+				if ((Objects.equals(Boolean.FALSE, isZip) && FieldUtils.readField(instance, "fileName", true) == null)
+						|| (Objects.equals(Boolean.TRUE, isZip)
+								&& FieldUtils.readField(instance, "zipFile", true) == null)) {
+					//
+					return null;
+					//
+				} // if
+					//
+			} // if
+				//
+		} catch (final IllegalAccessException e) {
+			//
+			throw new RuntimeException(e);
+			//
+		} // try
+			//
+		return instance.parse();
+		//
+	}
+
+	private static org.apache.bcel.classfile.Method getMethod(final JavaClass instance, final Method m) {
+		//
+		if (instance == null) {
+			//
+			return null;
+			//
+		} // if
+			//
+		try {
+			//
+			if (FieldUtils.readDeclaredField(instance, "methods", true) == null) {
+				//
+				return null;
+				//
+			} // if
+				//
+		} catch (final IllegalAccessException e) {
+			//
+			throw new RuntimeException(e);
+			//
+		} // try
+			//
+		return instance.getMethod(m);
+		//
+	}
+
+	private static InstructionList getInstructionList(final MethodGen instance) {
+		return instance != null ? instance.getInstructionList() : null;
+	}
+
+	private static Instruction[] getInstructions(final InstructionList instance) {
+		return instance != null ? instance.getInstructions() : null;
+	}
+
+	private static ConstantPool getConstantPool(final JavaClass instance) {
+		return instance != null ? instance.getConstantPool() : null;
+	}
+
+	private static Method getDeclaredMethod(final Class<?> clz, final String name, final Class<?>... parameterTypes)
+			throws NoSuchMethodException {
+		return clz != null ? clz.getDeclaredMethod(name, parameterTypes) : null;
+	}
+
+	private static InputStream getResourceAsStream(final Class<?> clz, final String name) {
+		//
+		if (clz == null) {
+			//
+			return null;
+			//
+		} // if
+			//
+		final Field value = testAndApply(x -> IterableUtils.size(x) == 1, FieldUtils.getAllFieldsList(getClass(name))
+				.stream().filter(f -> Objects.equals(getName(f), VALUE)).toList(), x -> IterableUtils.get(x, 0), null);
+		//
+		return value == null || Narcissus.getField(name, value) != null ? clz.getResourceAsStream(name) : null;
 		//
 	}
 
@@ -1596,7 +1873,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		try {
 			//
-			final Method method = ZipInputStream.class.getDeclaredMethod("getNextEntry");
+			final Method method = getDeclaredMethod(ZipInputStream.class, "getNextEntry");
 			//
 			try {
 				//
