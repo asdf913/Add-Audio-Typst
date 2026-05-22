@@ -806,12 +806,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 						lastModified = toFile(path) != null ? Long.valueOf(toFile(path).lastModified()) : null;
 						//
-						delete(toFile(path));
-						//
 						ci = testAndApply(Objects::nonNull, bs, new ContentInfoUtil()::findMatch, null);
 						//
 					} // if
 						//
+					delete(toFile(path));
+					//
 					pdComplexFileSpecification.setFile(Objects.toString(append(
 							append(append(clear(tsb = ObjectUtils.getIfNull(tsb, TextStringBuilder::new)),
 									Math.addExact(IterableUtils.size(getAnnotations(pdPage)), 1)), '.'),
