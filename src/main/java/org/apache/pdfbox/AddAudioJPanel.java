@@ -414,13 +414,16 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		try (final InputStream is = getInputStream(
 				start(testAndApply((a, b) -> b != null, whichOrWhere, command, ProcessBuilder::new, null)))) {
 			//
-			return testAndApply(Objects::nonNull,
-					StringUtils.trim(testAndApply(Objects::nonNull, is,
-							x -> new String(x != null ? x.readAllBytes() : null, StandardCharsets.UTF_8), null)),
+			return testAndApply(Objects::nonNull, StringUtils.trim(
+					testAndApply(Objects::nonNull, is, x -> new String(readAllBytes(x), StandardCharsets.UTF_8), null)),
 					File::new, null);
 			//
 		} // try
 			//
+	}
+
+	private static byte[] readAllBytes(final InputStream instance) throws IOException {
+		return instance != null ? instance.readAllBytes() : null;
 	}
 
 	private static <T, U, R, E extends Throwable> R testAndApply(final BiPredicate<T, U> predicate, final T t,
@@ -659,7 +662,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				testAndApply(Objects::nonNull, getText(instance.tfFileSpreadsheet), File::new, null),
 				x -> Files.newInputStream(toPath(x)), null)) {
 			//
-			bs = is != null ? is.readAllBytes() : null;
+			bs = readAllBytes(is);
 			//
 		} catch (final Exception e) {
 			//

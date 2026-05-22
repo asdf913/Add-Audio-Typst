@@ -583,7 +583,8 @@ class AddAudioJPanelTest {
 					add(collection, Strings.CS);
 					//
 				} else if (Objects.equals(parameterType, Process.class) || Objects.equals(parameterType, Writer.class)
-						|| Objects.equals(parameterType, Calendar.class)) {
+						|| Objects.equals(parameterType, Calendar.class)
+						|| Objects.equals(parameterType, InputStream.class)) {
 					//
 					(proxyFactory = new ProxyFactory()).setSuperclass(parameterType);
 					//
@@ -605,6 +606,10 @@ class AddAudioJPanelTest {
 								final String name = getName(thisMethod);
 								//
 								if (self instanceof Process && Objects.equals(name, "getOutputStream")) {
+									//
+									return null;
+									//
+								} else if (self instanceof InputStream && Objects.equals(name, "readAllBytes")) {
 									//
 									return null;
 									//
