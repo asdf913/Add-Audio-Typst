@@ -83,6 +83,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.apache.commons.lang3.function.FailableBiConsumer;
 import org.apache.commons.lang3.function.FailableBiFunction;
 import org.apache.commons.lang3.function.FailableBiPredicate;
 import org.apache.commons.lang3.function.FailableConsumer;
@@ -523,25 +524,19 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			if (testAndGetAsBoolean(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
 					() -> jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)) {
 				//
-				boolean isXlsx = false;
-				//
 				byte[] bs = null;
 				//
 				try {
 					//
 					setText(tfFileSpreadsheet,
-							(isXlsx = isXlsx(bs = Files.readAllBytes(Path.of(toURI(file = jfc.getSelectedFile())))))
+							(isXlsx(bs = Files.readAllBytes(Path.of(toURI(file = jfc.getSelectedFile())))))
 									? getAbsolutePath(file)
 									: null);
 					//
-					if (!isXlsx) {
-						//
-						setText(tfFileSpreadsheet,
-								testAndApply((a, b) -> isXls(a), bs, file, (a, b) -> getAbsolutePath(b), null));
-						//
-					} // if
-						//
-				} catch (final IOException | SAXException | ParserConfigurationException e) {
+					testAndAccept((a, b) -> !isXlsx(a), bs, file,
+							(a, b) -> setText(tfFileSpreadsheet, isXls(a) ? getAbsolutePath(b) : null));
+					//
+				} catch (final Exception e) {
 					//
 					setText(tfFileSpreadsheet, null);
 					//
@@ -583,6 +578,17 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		actionPerformed(this, source);
 		//
+	}
+
+	private static <T, U, E extends Throwable> void testAndAccept(final FailableBiPredicate<T, U, E> predicate,
+			final T t, final U u, final FailableBiConsumer<T, U, E> consumer) throws E {
+		//
+		if (test(predicate, t, u) && consumer != null) {
+			//
+			consumer.accept(t, u);
+			//
+		} // if
+			//
 	}
 
 	private static FailableFunction<InputStream, Workbook, IOException> createInputStreamWorkbookFailableFunction(

@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -46,6 +45,7 @@ import org.apache.bcel.generic.InstructionList;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Strings;
+import org.apache.commons.lang3.function.FailableBiConsumer;
 import org.apache.commons.lang3.function.FailableBiFunction;
 import org.apache.commons.lang3.function.FailableBiPredicate;
 import org.apache.commons.lang3.function.FailableConsumer;
@@ -87,11 +87,11 @@ class AddAudioJPanelTest {
 			METHOD_TEST_AND_APPLY4, METHOD_TEST_AND_APPLY5, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC,
 			METHOD_IS_XLSX, METHOD_IS_XLS, METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET,
 			METHOD_REMOVE_ROW, METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
-			METHOD_TEST_AND_ACCEPT3, METHOD_TEST_AND_ACCEPT4, METHOD_AND, METHOD_TEST_AND_RUN,
-			METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH,
-			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY,
-			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR, METHOD_APPEND_CHAR,
-			METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY,
+			METHOD_TEST_AND_ACCEPT3, METHOD_TEST_AND_ACCEPT4_PREDICATE, METHOD_TEST_AND_ACCEPT4_FAILABLE_BI_PREDICATE,
+			METHOD_AND, METHOD_TEST_AND_RUN, METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS,
+			METHOD_TO_PATH, METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN,
+			METHOD_IS_DIRECTORY, METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR,
+			METHOD_APPEND_CHAR, METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY,
 			METHOD_SET_MOD_DATE, METHOD_SET_SIZE, METHOD_CREATE_INPUT_STREAM_WORK_BOOK_FAILABLE_FUNCTION,
 			METHOD_IS_SELECTED = null;
 
@@ -153,8 +153,11 @@ class AddAudioJPanelTest {
 		(METHOD_TEST_AND_ACCEPT3 = clz.getDeclaredMethod("testAndAccept", Predicate.class, Object.class,
 				FailableConsumer.class)).setAccessible(true);
 		//
-		(METHOD_TEST_AND_ACCEPT4 = clz.getDeclaredMethod("testAndAccept", Predicate.class, Object.class,
+		(METHOD_TEST_AND_ACCEPT4_PREDICATE = clz.getDeclaredMethod("testAndAccept", Predicate.class, Object.class,
 				FailableConsumer.class, Consumer.class)).setAccessible(true);
+		//
+		(METHOD_TEST_AND_ACCEPT4_FAILABLE_BI_PREDICATE = clz.getDeclaredMethod("testAndAccept",
+				FailableBiPredicate.class, Object.class, Object.class, FailableBiConsumer.class)).setAccessible(true);
 		//
 		(METHOD_AND = clz.getDeclaredMethod("and", Object.class, Predicate.class, Predicate.class)).setAccessible(true);
 		//
@@ -998,7 +1001,21 @@ class AddAudioJPanelTest {
 			//
 		} // if
 			//
-		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT4, null, alwaysTrue, null, failableConsumer, null));
+		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT4_PREDICATE, null, alwaysTrue, null, failableConsumer, null));
+		//
+		if (ih != null) {
+			//
+			ih.test = Boolean.TRUE;
+			//
+		} // if
+			//
+		final FailableBiPredicate<?, ?, ?> failableBiConsumer = Reflection.newProxy(FailableBiPredicate.class, ih);
+		//
+		Assert.assertNull(
+				invoke(METHOD_TEST_AND_ACCEPT4_FAILABLE_BI_PREDICATE, null, failableBiConsumer, null, null, null));
+		//
+		Assert.assertNull(invoke(METHOD_TEST_AND_ACCEPT4_FAILABLE_BI_PREDICATE, null, failableBiConsumer, null, null,
+				Reflection.newProxy(FailableBiConsumer.class, ih)));
 		//
 	}
 
