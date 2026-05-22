@@ -89,7 +89,7 @@ class AddAudioJPanelTest {
 			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY,
 			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR, METHOD_APPEND_CHAR,
 			METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY,
-			METHOD_SET_MOD_DATE = null;
+			METHOD_SET_MOD_DATE, METHOD_SET_SIZE = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -202,6 +202,8 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_SET_MOD_DATE = clz.getDeclaredMethod("setModDate", PDEmbeddedFile.class, Calendar.class))
 				.setAccessible(true);
+		//
+		(METHOD_SET_SIZE = clz.getDeclaredMethod("setSize", PDEmbeddedFile.class, Integer.TYPE)).setAccessible(true);
 		//
 	}
 
@@ -1169,6 +1171,17 @@ class AddAudioJPanelTest {
 	void testSetModDate() throws IllegalAccessException, InvocationTargetException {
 		//
 		Assert.assertNull(invoke(METHOD_SET_MOD_DATE, null, new PDEmbeddedFile(new PDDocument()), null));
+		//
+	}
+
+	@Test
+	void testSetSize() throws IllegalAccessException, InvocationTargetException {
+		//
+		final PDEmbeddedFile pdEmbeddedFile = new PDEmbeddedFile(new PDDocument());
+		//
+		Assert.assertNull(invoke(METHOD_SET_SIZE, null, pdEmbeddedFile, Integer.MIN_VALUE));
+		//
+		Assert.assertNull(invoke(METHOD_SET_SIZE, null, pdEmbeddedFile, Integer.MAX_VALUE));
 		//
 	}
 

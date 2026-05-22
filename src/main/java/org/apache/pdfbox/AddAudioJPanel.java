@@ -824,12 +824,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 										x -> new PDEmbeddedFile(x, is), null),
 								Objects.toString(getMimeType(ci), "audio/wav"));
 						//
-						if (bs != null) {
-							//
-							pdEmbeddedFile.setSize(bs.length);
-							//
-						} // if
-							//
+						setSize(pdEmbeddedFile, length(bs));
+						//
 						if (lastModified != null) {
 							//
 							setTimeInMillis(calendar = ObjectUtils.getIfNull(calendar, Calendar::getInstance),
@@ -877,6 +873,31 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		return false;
 		//
+	}
+
+	private static int length(final byte[] instance) {
+		return instance != null ? instance.length : 0;
+	}
+
+	private static void setSize(final PDEmbeddedFile instance, final int size) {
+		//
+		if (instance == null) {
+			//
+			return;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> f != null && Objects.equals(f.getName(), "stream")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		if (field == null || Narcissus.getField(instance, field) != null) {
+			//
+			instance.setSize(size);
+			//
+		} // if
+			//
 	}
 
 	private static void setTimeInMillis(final Calendar instance, final long timeInMillis) {
