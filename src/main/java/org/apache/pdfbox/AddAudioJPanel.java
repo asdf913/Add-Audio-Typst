@@ -1506,7 +1506,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		ContentInfo ci = null;
 		//
-		try (final InputStream is = new ByteArrayInputStream(bs)) {
+		try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null)) {
 			//
 			ci = testAndApply(Objects::nonNull, is, x -> new ContentInfoUtil().findMatch(x), null);
 			//
