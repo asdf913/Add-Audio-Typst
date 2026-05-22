@@ -534,7 +534,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 									: null);
 					//
 					testAndAccept((a, b) -> !isXlsx(a), bs, file,
-							(a, b) -> setText(tfFileSpreadsheet, isXls(a) ? getAbsolutePath(b) : null));
+							(a, b) -> setText(tfFileSpreadsheet, iif(isXls(a), getAbsolutePath(b), null)));
 					//
 				} catch (final Exception e) {
 					//
