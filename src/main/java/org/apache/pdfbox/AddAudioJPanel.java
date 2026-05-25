@@ -62,6 +62,7 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.text.JTextComponent;
 import javax.xml.parsers.DocumentBuilder;
@@ -255,6 +256,14 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				return false;
 			}
 		});
+		//
+		final TableColumn tc = jTable.getColumn("Marker");
+		//
+		if(tc!=null) {
+			//
+			tc.setMaxWidth(43);
+			//
+		}//if
 		//
 		add(new JScrollPane(jTable), "%1$s,span %2$s".formatted(wrap, 3));
 		//
