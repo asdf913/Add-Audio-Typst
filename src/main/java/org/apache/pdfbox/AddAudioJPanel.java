@@ -552,8 +552,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 						try (final InputStream is = process != null ? process.getErrorStream() : null) {
 							//
-							final boolean compilationResult = StringUtils
-									.isEmpty(IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8));
+							final boolean compilationResult = StringUtils.isEmpty(testAndApply(Objects::nonNull, is,
+									x -> IOUtils.toString(x, StandardCharsets.UTF_8), null));
 							//
 							setText(tfFileTemplateValid, iif(compilationResult, "Valid", "Invalid"));
 							//
