@@ -539,7 +539,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 			} // if
 				//
-			if (exists(file) && isFile(file) && typstInstalled) {
+			if (and(file, AddAudioJPanel::exists, AddAudioJPanel::isFile) && typstInstalled) {
 				//
 				if (Objects.equals(getName(getClass(FileSystems.getDefault())), "sun.nio.fs.LinuxFileSystem")) {
 					//
