@@ -880,7 +880,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			final Stream<Sheet> stream = filter(
 					testAndApply(Objects::nonNull, wb != null ? wb.spliterator() : null,
 							x -> StreamSupport.stream(x, false), null),
-					x -> Objects.equals(x != null ? x.getSheetName() : null, Integer.toString(pageNumber + 1)));
+					x -> Objects.equals(getSheetName(x), Integer.toString(pageNumber + 1)));
 			//
 			map = createStringTextPositionEntryMap(
 					testAndApply(x -> IterableUtils.size(x) == 1, toList(stream), x -> IterableUtils.get(x, 0), null),
@@ -971,7 +971,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		return null;
 		//
+	}
 
+	private static String getSheetName(final Sheet instance) {
+		return instance != null ? instance.getSheetName() : null;
 	}
 
 	private static boolean isSelected(final AbstractButton instance) {
@@ -1454,7 +1457,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 				} // if
 					//
-				(textPositionEntry = new TextPositionEntry()).sheetName = sheet != null ? sheet.getSheetName() : null;
+				(textPositionEntry = new TextPositionEntry()).sheetName = getSheetName(sheet);
 				//
 				textPositionEntry.file = toFile(path);
 				//
