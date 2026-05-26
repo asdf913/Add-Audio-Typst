@@ -64,6 +64,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -545,6 +546,57 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)),
 					x -> jfc.setCurrentDirectory(getParentFile(x)));
 			//
+			jfc.setFileFilter(new FileFilter() {
+
+				@Override
+				public String getDescription() {
+					//
+					return "Typst Template File (*.typ)";
+					//
+				}
+
+				@Override
+				public boolean accept(final File file) {
+					//
+					if (isDirectory(file)) {
+						//
+						return true;
+						//
+					} // if
+						//
+					try {
+						//
+						final ContentInfo ci = testAndApply(f -> and(f, AddAudioJPanel::exists, AddAudioJPanel::isFile),
+								file, f -> new ContentInfoUtil().findMatch(f), null);
+						//
+						final String mimeType = getMimeType(ci);
+						//
+						final String message = getMessage(ci);
+						//
+						if ((mimeType != null && (List.of("audio/x-wav", "application/pdf", "application/xml",
+								"application/x-java-applet", "application/zip").contains(mimeType)
+								|| mimeType.startsWith("image/")))
+								|| (message != null && (List.of("OLE 2 Compound Document").contains(message)
+										|| message.startsWith("MPEG ADTS, layer III")))
+								|| or(Files.readAllBytes(toPath(file)), AddAudioJPanel::isXls, AddAudioJPanel::isXlsx)
+								|| !isValidTypstFile(file)) {
+							//
+							return false;
+							//
+						} // if
+							//
+					} catch (final Exception e) {
+						//
+						throw toRuntimeException(e);
+						//
+					} // try
+						//
+					return true;
+					//
+				}
+
+			});
+			//
 			File file = null;
 			//
 			if (testAndGetAsBoolean(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
@@ -628,6 +680,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
+
 		actionPerformed(this, source);
 		//
 	}
