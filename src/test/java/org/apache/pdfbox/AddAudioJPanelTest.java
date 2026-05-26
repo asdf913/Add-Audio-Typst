@@ -59,6 +59,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.text.TextStringBuilder;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageTree;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.common.filespecification.PDEmbeddedFile;
 import org.apache.pdfbox.text.TextPosition;
@@ -100,7 +101,7 @@ class AddAudioJPanelTest {
 			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR, METHOD_APPEND_CHAR,
 			METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY,
 			METHOD_SET_MOD_DATE, METHOD_SET_SIZE, METHOD_CREATE_INPUT_STREAM_WORK_BOOK_FAILABLE_FUNCTION,
-			METHOD_IS_SELECTED, METHOD_OR, METHOD_IS_VALID_TYPST_FILE = null;
+			METHOD_IS_SELECTED, METHOD_OR, METHOD_IS_VALID_TYPST_FILE, METHOD_GET_PAGES, METHOD_INDEX_OF = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -223,6 +224,10 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_IS_VALID_TYPST_FILE = clz.getDeclaredMethod("isValidTypstFile", File.class)).setAccessible(true);
 		//
+		(METHOD_GET_PAGES = clz.getDeclaredMethod("getPages", PDDocument.class)).setAccessible(true);
+		//
+		(METHOD_INDEX_OF = clz.getDeclaredMethod("indexOf", PDPageTree.class, PDPage.class)).setAccessible(true);
+		//
 	}
 
 	private static class IH implements InvocationHandler {
@@ -264,11 +269,30 @@ class AddAudioJPanelTest {
 				//
 				return null;
 				//
-
-			} else if (proxy instanceof Iterable && Objects.equals(name, "iterator")) {
+			} else if (proxy instanceof Iterable) {
 				//
-				return iterator;
+				if (Objects.equals(name, "iterator")) {
+					//
+					return iterator;
+					//
+				} else if (Objects.equals(name, "spliterator")) {
+					//
+					return null;
+					//
+				} // if
+					//
+			} else if (proxy instanceof Stream) {
 				//
+				if (Objects.equals(name, "filter")) {
+					//
+					return proxy;
+					//
+				} else if (Objects.equals(name, "toList")) {
+					//
+					return null;
+					//
+				} // if
+					//
 			} // if
 				//
 			if (proxy instanceof NodeList) {
@@ -719,8 +743,14 @@ class AddAudioJPanelTest {
 				//
 				Assert.assertNotNull(result, toString);
 				//
+			} else if (Boolean.logicalAnd(Objects.equals(name, "filter"),
+					Arrays.equals(parameterTypes, new Class<?>[] { Stream.class, Predicate.class })) && os != null
+					&& os.length > 0) {
+				//
+				Assert.assertSame(result, ArrayUtils.get(os, 0));
+				//
 			} else {
-				// s
+				//
 				Assert.assertNull(result, toString);
 				//
 			} // if
@@ -1325,6 +1355,32 @@ class AddAudioJPanelTest {
 		//
 		Assert.assertEquals(invoke(METHOD_IS_VALID_TYPST_FILE, null, new File("pom.xml")), Boolean.FALSE);
 		//
+	}
+
+	@Test
+	void testGetPages() throws IllegalAccessException, InvocationTargetException, IOException {
+		//
+		try (final PDDocument pdDocument = new PDDocument()) {
+			//
+			Assert.assertNotNull(invoke(METHOD_GET_PAGES, null, pdDocument));
+			//
+		} // try
+			//
+	}
+
+	@Test
+	void testIndexOf() throws IllegalAccessException, InvocationTargetException, IOException {
+		//
+		try (final PDDocument pdDocument = new PDDocument()) {
+			//
+			final PDPageTree pdPageTree = pdDocument.getPages();
+			//
+			Assert.assertEquals(invoke(METHOD_INDEX_OF, null, pdPageTree, null), Integer.valueOf(-1));
+			//
+			Assert.assertEquals(invoke(METHOD_INDEX_OF, null, pdPageTree, new PDPage()), Integer.valueOf(-1));
+			//
+		} // try
+			//
 	}
 
 	@Test
