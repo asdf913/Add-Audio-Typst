@@ -676,8 +676,6 @@ class AddAudioJPanelTest {
 			//
 			if (Modifier.isStatic(m.getModifiers())) {
 				//
-				System.err.println(m);
-				//
 				result = Narcissus.invokeStaticMethod(m, os);
 				//
 			} else {
