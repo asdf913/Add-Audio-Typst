@@ -576,11 +576,11 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						if (Boolean.logicalOr(
 								and(mimeType, Objects::nonNull,
 										x -> Boolean.logicalOr(
-												List.of("audio/x-wav", "application/pdf", "application/xml",
-														"application/x-java-applet", "application/zip").contains(x),
+												contains(List.of("audio/x-wav", "application/pdf", "application/xml",
+														"application/x-java-applet", "application/zip"), x),
 												startsWith(Strings.CS, x, "image/"))),
 								and(message, Objects::nonNull,
-										x -> Boolean.logicalOr(List.of("OLE 2 Compound Document").contains(x),
+										x -> Boolean.logicalOr(contains(List.of("OLE 2 Compound Document"), x),
 												startsWith(Strings.CS, x, "MPEG ADTS, layer III"))))
 								|| or(file, f -> or(Files.readAllBytes(toPath(f)), AddAudioJPanel::isXls,
 										AddAudioJPanel::isXlsx), f -> !isValidTypstFile(f))) {
@@ -686,6 +686,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		actionPerformed(this, source);
 		//
+	}
+
+	private static boolean contains(final Collection<?> instance, final Object item) {
+		return instance != null && instance.contains(item);
 	}
 
 	private static boolean isValidTypstFile(final File file) {

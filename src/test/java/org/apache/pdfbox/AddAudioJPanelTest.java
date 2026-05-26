@@ -234,7 +234,7 @@ class AddAudioJPanelTest {
 
 		private Integer length, modifiers, rowCount, numberOfSheets;
 
-		private Boolean test, add, getAsBoolean, containsKey, hasEntryCaseInsensitive;
+		private Boolean test, add, contains, getAsBoolean, containsKey, hasEntryCaseInsensitive;
 
 		private Cell cell;
 
@@ -313,10 +313,18 @@ class AddAudioJPanelTest {
 				//
 				return test;
 				//
-			} else if (proxy instanceof Collection && Objects.equals(name, "add")) {
+			} else if (proxy instanceof Collection) {
 				//
-				return add;
-				//
+				if (Objects.equals(name, "add")) {
+					//
+					return add;
+					//
+				} else if (Objects.equals(name, "contains")) {
+					//
+					return contains;
+					//
+				} // if
+					//
 			} else if (Boolean.logicalAnd(Objects.equals(name, "apply"),
 					Boolean.logicalOr(proxy instanceof FailableFunction, proxy instanceof FailableBiFunction))) {
 				//
