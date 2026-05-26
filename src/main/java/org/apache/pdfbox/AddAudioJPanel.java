@@ -271,20 +271,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					}
 				});
 		//
-		TableColumn tc = jTable.getColumn("Sheet");
+		setMaxWidth(jTable.getColumn("Sheet"), 34);
 		//
-		if (tc != null) {
-			//
-			tc.setMaxWidth(34);
-			//
-		} // if
-			//
-		if ((tc = jTable.getColumn("Marker")) != null) {
-			//
-			tc.setMaxWidth(43);
-			//
-		} // if
-			//
+		setMaxWidth(jTable.getColumn("Marker"), 43);
+		//
 		add(new JScrollPane(jTable), "%1$s,span %2$s".formatted(wrap, 3));
 		//
 		final TableCellRenderer tcr = jTable.getDefaultRenderer(Object.class);
@@ -352,6 +342,13 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			addActionListener(cast(AbstractButton.class, object), this);
 			//
 		});
+		//
+	}
+
+	private static void setMaxWidth(final TableColumn instance, final int maxWidth) {
+		if (instance != null) {
+			instance.setMaxWidth(maxWidth);
+		}
 	}
 
 	private static <T> T iif(final boolean condition, final T valueTrue, final T valueFalse) {
