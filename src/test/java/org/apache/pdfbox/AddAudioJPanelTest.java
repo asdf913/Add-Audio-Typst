@@ -92,25 +92,28 @@ import tools.jackson.databind.json.JsonMapper;
 
 class AddAudioJPanelTest {
 
-	private static Method METHOD_EXISTS, METHOD_GET_CLASS, METHOD_IS_FILE, METHOD_GET_NAME, METHOD_GET_ABSOLUTE_PATH,
-			METHOD_TEST_AND_APPLY4, METHOD_TEST_AND_APPLY5, METHOD_INVOKE, METHOD_ADD, METHOD_CAST, METHOD_IS_STATIC,
-			METHOD_IS_XLSX, METHOD_IS_XLS, METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET,
-			METHOD_REMOVE_ROW, METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
-			METHOD_TEST_AND_ACCEPT3, METHOD_TEST_AND_ACCEPT4_PREDICATE, METHOD_TEST_AND_ACCEPT4_FAILABLE_BI_PREDICATE,
-			METHOD_AND, METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH,
-			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY,
-			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR, METHOD_APPEND_CHAR,
-			METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY,
-			METHOD_SET_MOD_DATE, METHOD_SET_SIZE, METHOD_CREATE_INPUT_STREAM_WORK_BOOK_FAILABLE_FUNCTION,
-			METHOD_IS_SELECTED, METHOD_OR, METHOD_IS_VALID_TYPST_FILE, METHOD_GET_PAGES, METHOD_INDEX_OF,
-			METHOD_CREATE_TYPST_FILE_FILTER, METHOD_TO_FILE = null;
+	private static Method METHOD_EXISTS_FILE, METHOD_EXISTS_STRING, METHOD_GET_CLASS, METHOD_IS_FILE, METHOD_GET_NAME,
+			METHOD_GET_ABSOLUTE_PATH, METHOD_TEST_AND_APPLY4, METHOD_TEST_AND_APPLY5, METHOD_INVOKE, METHOD_ADD,
+			METHOD_CAST, METHOD_IS_STATIC, METHOD_IS_XLSX, METHOD_IS_XLS, METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE,
+			METHOD_TEST_AND_GET, METHOD_REMOVE_ROW, METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW,
+			METHOD_GET_PARENT_FILE, METHOD_TEST_AND_ACCEPT3, METHOD_TEST_AND_ACCEPT4_PREDICATE,
+			METHOD_TEST_AND_ACCEPT4_FAILABLE_BI_PREDICATE, METHOD_AND, METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP,
+			METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH, METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE,
+			METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY, METHOD_SET_SUB_TYPE, METHOD_IIF,
+			METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR, METHOD_APPEND_CHAR, METHOD_APPEND_INT,
+			METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY, METHOD_SET_MOD_DATE, METHOD_SET_SIZE,
+			METHOD_CREATE_INPUT_STREAM_WORK_BOOK_FAILABLE_FUNCTION, METHOD_IS_SELECTED, METHOD_OR,
+			METHOD_IS_VALID_TYPST_FILE, METHOD_GET_PAGES, METHOD_INDEX_OF, METHOD_CREATE_TYPST_FILE_FILTER,
+			METHOD_TO_FILE = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
 		//
 		final Class<?> clz = AddAudioJPanel.class;
 		//
-		(METHOD_EXISTS = clz.getDeclaredMethod("exists", File.class)).setAccessible(true);
+		(METHOD_EXISTS_FILE = clz.getDeclaredMethod("exists", File.class)).setAccessible(true);
+		//
+		(METHOD_EXISTS_STRING = clz.getDeclaredMethod("exists", String.class)).setAccessible(true);
 		//
 		(METHOD_GET_CLASS = clz.getDeclaredMethod("getClass", Object.class)).setAccessible(true);
 		//
@@ -824,9 +827,9 @@ class AddAudioJPanelTest {
 	@Test
 	void testExists() throws Throwable {
 		//
-		Assert.assertEquals(invoke(METHOD_EXISTS, null, toFile(Path.of("."))), Boolean.TRUE);
+		Assert.assertEquals(invoke(METHOD_EXISTS_FILE, null, toFile(Path.of("."))), Boolean.TRUE);
 		//
-		Assert.assertEquals(invoke(METHOD_EXISTS, null, toFile(Path.of("1"))), Boolean.FALSE);
+		Assert.assertEquals(invoke(METHOD_EXISTS_FILE, null, toFile(Path.of("1"))), Boolean.FALSE);
 		//
 	}
 
@@ -1428,8 +1431,20 @@ class AddAudioJPanelTest {
 			//
 		Assert.assertTrue(fileFilter.accept(toFile(Path.of("."))));
 		//
-		Assert.assertTrue(fileFilter.accept(toFile(Path.of("sample", "sample.typ"))));
+		Assert.assertEquals(fileFilter.accept(toFile(Path.of("sample", "sample.typ"))), exists("TYPST"));
 		//
+	}
+
+	private static boolean exists(final String command) throws Throwable {
+		try {
+			final Object obj = invoke(METHOD_EXISTS_STRING, null, command);
+			if (obj instanceof Boolean) {
+				return ((Boolean) obj).booleanValue();
+			} // if
+			throw new Throwable(Objects.toString(getClass(obj)));
+		} catch (final InvocationTargetException e) {
+			throw e.getTargetException();
+		}
 	}
 
 	@Test
