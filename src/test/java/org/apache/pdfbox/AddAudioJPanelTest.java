@@ -1431,7 +1431,7 @@ class AddAudioJPanelTest {
 			//
 		Assert.assertTrue(fileFilter.accept(toFile(Path.of("."))));
 		//
-		Assert.assertEquals(fileFilter.accept(toFile(Path.of("sample", "sample.typ"))), exists("TYPST"));
+		Assert.assertEquals(fileFilter.accept(toFile(Path.of("sample", "sample.typ"))), exists("typst"));
 		//
 	}
 
