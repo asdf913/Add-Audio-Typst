@@ -513,6 +513,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			final JFileChooser jfc = new JFileChooser(".");
 			//
+			testAndAccept(x -> and(x, AddAudioJPanel::exists, AddAudioJPanel::isFile),
+					toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)),
+					x -> jfc.setCurrentDirectory(getParentFile(x)));
+			//
 			testAndRun(
 					testAndGetAsBoolean(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
 							() -> jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION),
