@@ -620,12 +620,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			if (Boolean.logicalAnd(and(file, AddAudioJPanel::exists, AddAudioJPanel::isFile), exists(TYPST))) {
 				//
-				final ProcessBuilder pb = new ProcessBuilder(TYPST, COMPILE, getAbsolutePath(file),
+				final Process process = new ProcessBuilder(TYPST, COMPILE, getAbsolutePath(file),
 						iif(Objects.equals(getName(getClass(FileSystems.getDefault())), "sun.nio.fs.WindowsFileSystem"),
 								"nul", "/dev/null"),
-						"--format", "pdf");
-				//
-				final Process process = pb.start();
+						"--format", "pdf").start();
 				//
 				try (final InputStream is = getErrorStream(process)) {
 					//
