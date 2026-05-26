@@ -259,12 +259,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		final TableColumn tc = jTable.getColumn("Marker");
 		//
-		if(tc!=null) {
+		if (tc != null) {
 			//
 			tc.setMaxWidth(43);
 			//
-		}//if
-		//
+		} // if
+			//
 		add(new JScrollPane(jTable), "%1$s,span %2$s".formatted(wrap, 3));
 		//
 		final TableCellRenderer tcr = jTable.getDefaultRenderer(Object.class);
