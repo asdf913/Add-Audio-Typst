@@ -581,8 +581,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 								(message != null
 										&& Boolean.logicalOr(List.of("OLE 2 Compound Document").contains(message),
 												message.startsWith("MPEG ADTS, layer III"))))
-								|| or(Files.readAllBytes(toPath(file)), AddAudioJPanel::isXls, AddAudioJPanel::isXlsx)
-								|| !isValidTypstFile(file)) {
+								|| or(file, f -> or(Files.readAllBytes(toPath(f)), AddAudioJPanel::isXls,
+										AddAudioJPanel::isXlsx), f -> !isValidTypstFile(f))) {
 							//
 							return false;
 							//
