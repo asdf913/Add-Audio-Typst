@@ -541,35 +541,33 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 			if (Boolean.logicalAnd(and(file, AddAudioJPanel::exists, AddAudioJPanel::isFile), typstInstalled)) {
 				//
-				if (Objects.equals(getName(getClass(FileSystems.getDefault())), "sun.nio.fs.LinuxFileSystem")) {
+				final ProcessBuilder pb = new ProcessBuilder(TYPST, COMPILE, getAbsolutePath(file),
+						iif(Objects.equals(getName(getClass(FileSystems.getDefault())), "sun.nio.fs.WindowsFileSystem"),
+								"nul", "sun.nio.fs.LinuxFileSystem"),
+						"--format", "pdf");
+				//
+				try {
 					//
-					final ProcessBuilder pb = new ProcessBuilder(TYPST, COMPILE, getAbsolutePath(file), "/dev/null",
-							"--format", "pdf");
+					final Process process = pb.start();
 					//
-					try {
+					try (final InputStream is = getErrorStream(process)) {
 						//
-						final Process process = pb.start();
+						final boolean compilationResult = StringUtils.isEmpty(testAndApply(Objects::nonNull, is,
+								x -> IOUtils.toString(x, StandardCharsets.UTF_8), null));
 						//
-						try (final InputStream is = getErrorStream(process)) {
-							//
-							final boolean compilationResult = StringUtils.isEmpty(testAndApply(Objects::nonNull, is,
-									x -> IOUtils.toString(x, StandardCharsets.UTF_8), null));
-							//
-							setText(tfFileTemplateValid, iif(compilationResult, "Valid", "Invalid"));
-							//
-							setBackground(tfFileTemplateValid, iif(compilationResult, Color.GREEN, Color.RED));
-							//
-							pack(jFrame);
-							//
-						} // try
-							//
-					} catch (final IOException e) {
+						setText(tfFileTemplateValid, iif(compilationResult, "Valid", "Invalid"));
 						//
-						throw toRuntimeException(e);
+						setBackground(tfFileTemplateValid, iif(compilationResult, Color.GREEN, Color.RED));
 						//
-					}
-				} // if
+						pack(jFrame);
+						//
+					} // try
+						//
+				} catch (final IOException e) {
 					//
+					throw toRuntimeException(e);
+					//
+				}
 			} // if
 				//
 			return;
