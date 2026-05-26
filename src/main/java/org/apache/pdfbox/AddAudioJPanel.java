@@ -573,11 +573,13 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 						final String message = getMessage(ci);
 						//
-						if ((mimeType != null && (List.of("audio/x-wav", "application/pdf", "application/xml",
-								"application/x-java-applet", "application/zip").contains(mimeType)
-								|| mimeType.startsWith("image/")))
-								|| (message != null && (List.of("OLE 2 Compound Document").contains(message)
-										|| message.startsWith("MPEG ADTS, layer III")))
+						if ((mimeType != null && Boolean.logicalOr(
+								List.of("audio/x-wav", "application/pdf", "application/xml",
+										"application/x-java-applet", "application/zip").contains(mimeType),
+								mimeType.startsWith("image/")))
+								|| (message != null
+										&& Boolean.logicalOr(List.of("OLE 2 Compound Document").contains(message),
+												message.startsWith("MPEG ADTS, layer III")))
 								|| or(Files.readAllBytes(toPath(file)), AddAudioJPanel::isXls, AddAudioJPanel::isXlsx)
 								|| !isValidTypstFile(file)) {
 							//
@@ -680,7 +682,6 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
-
 		actionPerformed(this, source);
 		//
 	}
