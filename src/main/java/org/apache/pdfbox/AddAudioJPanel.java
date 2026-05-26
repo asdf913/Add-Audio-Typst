@@ -154,7 +154,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 	@Note("Spreadsheet")
 	private JTextComponent tfFileSpreadsheet;
 
-	private JTextComponent tfFilePdf, tfFileTemplateValid;
+	@Note("PDF")
+	private JTextComponent tfFilePdf;
+
+	private JTextComponent tfFileTemplateValid;
 
 	@Note("Template")
 	private AbstractButton btnFileTemplate;
@@ -172,7 +175,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private DefaultTableModel dtm = null;
 
-	private boolean typstInstalled, ffmpegInstalled = false;
+	@Note("TYPST")
+	private boolean typstInstalled = false;
+
+	private boolean ffmpegInstalled = false;
 
 	private JFrame jFrame = null;
 
