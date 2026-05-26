@@ -142,6 +142,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private static final String STREAM = "stream";
 
+	private static final String COMPILE = "compile";
+
 	@Target(ElementType.FIELD)
 	@Retention(RetentionPolicy.RUNTIME)
 	private @interface Note {
@@ -540,7 +542,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				if (Objects.equals(getName(getClass(FileSystems.getDefault())), "sun.nio.fs.LinuxFileSystem")) {
 					//
-					final ProcessBuilder pb = new ProcessBuilder(TYPST, "compile", getAbsolutePath(file), "/dev/null",
+					final ProcessBuilder pb = new ProcessBuilder(TYPST, COMPILE, getAbsolutePath(file), "/dev/null",
 							"--format", "pdf");
 					//
 					try {
@@ -780,7 +782,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		try {
 			//
 			if (!isTestMode() && instance.typstInstalled
-					&& (process = new ProcessBuilder(TYPST, "compile",
+					&& (process = new ProcessBuilder(TYPST, COMPILE,
 							StringUtils.defaultString(getText(instance.tfFileTemplate)), outputPdf).start()) != null
 					&& process.waitFor() == 0) {
 				//
@@ -807,7 +809,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		try (final BufferedWriter writer = testAndApply(Objects::nonNull,
 				testAndApply(Objects::nonNull,
 						getOutputStream(process = testAndGet(!isTestMode() && instance.typstInstalled,
-								() -> new ProcessBuilder(TYPST, "compile", "-", outputPdf).start(), null)),
+								() -> new ProcessBuilder(TYPST, COMPILE, "-", outputPdf).start(), null)),
 						OutputStreamWriter::new, null),
 				BufferedWriter::new, null)) {
 			//
