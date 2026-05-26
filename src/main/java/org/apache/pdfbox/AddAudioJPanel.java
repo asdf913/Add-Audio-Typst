@@ -781,7 +781,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		try {
 			//
-			if (!isTestMode() && instance.typstInstalled
+			if (Boolean.logicalAnd(!isTestMode(), instance.typstInstalled)
 					&& (process = new ProcessBuilder(TYPST, COMPILE,
 							StringUtils.defaultString(getText(instance.tfFileTemplate)), outputPdf).start()) != null
 					&& process.waitFor() == 0) {
