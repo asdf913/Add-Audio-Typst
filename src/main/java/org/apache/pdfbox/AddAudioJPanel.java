@@ -543,7 +543,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				final ProcessBuilder pb = new ProcessBuilder(TYPST, COMPILE, getAbsolutePath(file),
 						iif(Objects.equals(getName(getClass(FileSystems.getDefault())), "sun.nio.fs.WindowsFileSystem"),
-								"nul", "sun.nio.fs.LinuxFileSystem"),
+								"nul", "/dev/null"),
 						"--format", "pdf");
 				//
 				try {
