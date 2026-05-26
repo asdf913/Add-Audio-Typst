@@ -808,7 +808,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		try (final BufferedWriter writer = testAndApply(Objects::nonNull,
 				testAndApply(Objects::nonNull,
-						getOutputStream(process = testAndGet(!isTestMode() && instance.typstInstalled,
+						getOutputStream(process = testAndGet(Boolean.logicalAnd(!isTestMode(), instance.typstInstalled),
 								() -> new ProcessBuilder(TYPST, COMPILE, "-", outputPdf).start(), null)),
 						OutputStreamWriter::new, null),
 				BufferedWriter::new, null)) {
