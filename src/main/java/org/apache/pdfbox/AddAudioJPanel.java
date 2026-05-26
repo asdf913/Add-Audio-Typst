@@ -904,9 +904,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				final GetTextLocation pdfTextStripper = new GetTextLocation(map);
 				//
-				pdfTextStripper.setStartPage(pageNumber + 1);
+				pdfTextStripper.setStartPage(pageNumber);
 				//
-				pdfTextStripper.setEndPage(pageNumber + 2);
+				pdfTextStripper.setEndPage(pageNumber + 1);
 				//
 				pdfTextStripper.getText(pdDocument);
 				//
