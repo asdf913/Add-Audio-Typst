@@ -893,9 +893,11 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // try
 			//
+		final boolean typstInstalled = instance != null && instance.typstInstalled;
+		//
 		try {
 			//
-			if (Boolean.logicalAnd(!isTestMode(), instance != null && instance.typstInstalled)
+			if (Boolean.logicalAnd(!isTestMode(), typstInstalled)
 					&& (process = new ProcessBuilder(TYPST, COMPILE,
 							StringUtils.defaultString(getText(instance.tfFileTemplate)), outputPdf).start()) != null
 					&& process.waitFor() == 0) {
@@ -918,8 +920,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		try (final BufferedWriter writer = testAndApply(Objects::nonNull,
 				testAndApply(Objects::nonNull,
-						getOutputStream(process = testAndGet(
-								Boolean.logicalAnd(!isTestMode(), instance != null && instance.typstInstalled),
+						getOutputStream(process = testAndGet(Boolean.logicalAnd(!isTestMode(), typstInstalled),
 								() -> new ProcessBuilder(TYPST, COMPILE, "-", outputPdf).start(), null)),
 						OutputStreamWriter::new, null),
 				BufferedWriter::new, null)) {
