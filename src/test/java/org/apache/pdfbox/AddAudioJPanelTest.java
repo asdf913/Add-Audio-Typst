@@ -96,7 +96,7 @@ class AddAudioJPanelTest {
 			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR, METHOD_APPEND_CHAR,
 			METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY,
 			METHOD_SET_MOD_DATE, METHOD_SET_SIZE, METHOD_CREATE_INPUT_STREAM_WORK_BOOK_FAILABLE_FUNCTION,
-			METHOD_IS_SELECTED, METHOD_OR = null;
+			METHOD_IS_SELECTED, METHOD_OR, METHOD_IS_VALID_TYPST_FILE = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -216,6 +216,8 @@ class AddAudioJPanelTest {
 		//
 		(METHOD_OR = clz.getDeclaredMethod("or", Object.class, FailablePredicate.class, FailablePredicate.class))
 				.setAccessible(true);
+		//
+		(METHOD_IS_VALID_TYPST_FILE = clz.getDeclaredMethod("isValidTypstFile", File.class)).setAccessible(true);
 		//
 	}
 
@@ -1284,6 +1286,13 @@ class AddAudioJPanelTest {
 		Assert.assertEquals(
 				invoke(METHOD_OR, null, null, failablePredicate1, Reflection.newProxy(FailablePredicate.class, ih)),
 				Boolean.TRUE);
+		//
+	}
+
+	@Test
+	void testIsValidTypstFile() throws IllegalAccessException, InvocationTargetException {
+		//
+		Assert.assertEquals(invoke(METHOD_IS_VALID_TYPST_FILE, null, new File("pom.xml")), Boolean.FALSE);
 		//
 	}
 

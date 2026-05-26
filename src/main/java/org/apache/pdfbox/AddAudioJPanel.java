@@ -539,37 +539,14 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 			} // if
 				//
-			if (Boolean.logicalAnd(and(file, AddAudioJPanel::exists, AddAudioJPanel::isFile), typstInstalled)) {
-				//
-				final ProcessBuilder pb = new ProcessBuilder(TYPST, COMPILE, getAbsolutePath(file),
-						iif(Objects.equals(getName(getClass(FileSystems.getDefault())), "sun.nio.fs.WindowsFileSystem"),
-								"nul", "/dev/null"),
-						"--format", "pdf");
-				//
-				try {
-					//
-					final Process process = pb.start();
-					//
-					try (final InputStream is = getErrorStream(process)) {
-						//
-						final boolean compilationResult = StringUtils.isEmpty(testAndApply(Objects::nonNull, is,
-								x -> IOUtils.toString(x, StandardCharsets.UTF_8), null));
-						//
-						setText(tfFileTemplateValid, iif(compilationResult, "Valid", "Invalid"));
-						//
-						setBackground(tfFileTemplateValid, iif(compilationResult, Color.GREEN, Color.RED));
-						//
-						pack(jFrame);
-						//
-					} // try
-						//
-				} catch (final IOException e) {
-					//
-					throw toRuntimeException(e);
-					//
-				}
-			} // if
-				//
+			final boolean compilationResult = isValidTypstFile(file);
+			//
+			setText(tfFileTemplateValid, iif(compilationResult, "Valid", "Invalid"));
+			//
+			setBackground(tfFileTemplateValid, iif(compilationResult, Color.GREEN, Color.RED));
+			//
+			pack(jFrame);
+			//
 			return;
 			//
 		} else if (Objects.equals(source, btnFileSpreadsheet)) {
@@ -634,6 +611,38 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		} // if
 			//
 		actionPerformed(this, source);
+		//
+	}
+
+	private static boolean isValidTypstFile(final File file) {
+		//
+		try {
+			//
+			if (Boolean.logicalAnd(and(file, AddAudioJPanel::exists, AddAudioJPanel::isFile), exists(TYPST))) {
+				//
+				final ProcessBuilder pb = new ProcessBuilder(TYPST, COMPILE, getAbsolutePath(file),
+						iif(Objects.equals(getName(getClass(FileSystems.getDefault())), "sun.nio.fs.WindowsFileSystem"),
+								"nul", "/dev/null"),
+						"--format", "pdf");
+				//
+				final Process process = pb.start();
+				//
+				try (final InputStream is = getErrorStream(process)) {
+					//
+					return StringUtils.isEmpty(
+							testAndApply(Objects::nonNull, is, x -> IOUtils.toString(x, StandardCharsets.UTF_8), null));
+					//
+				} // try
+					//
+			} // if
+				//
+		} catch (final IOException e) {
+			//
+			throw toRuntimeException(e);
+			//
+		} // try
+			//
+		return false;
 		//
 	}
 
