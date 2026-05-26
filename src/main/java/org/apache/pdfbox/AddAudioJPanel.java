@@ -562,12 +562,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 								//
 							} // if
 								//
-							if (jFrame != null) {
-								//
-								jFrame.pack();
-								//
-							} // if
-								//
+							pack(jFrame);
+							//
 						} // try
 							//
 					} catch (final IOException e) {
@@ -644,6 +640,27 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		actionPerformed(this, source);
 		//
+	}
+
+	private static void pack(final JFrame instance) {
+		//
+		if (instance == null || GraphicsEnvironment.isHeadless()) {
+			//
+			return;
+			//
+		} // if
+			//
+		final Field field = testAndApply(x -> IterableUtils.size(x) == 1,
+				FieldUtils.getAllFieldsList(getClass(instance)).stream()
+						.filter(f -> Objects.equals(getName(f), "objectLock")).toList(),
+				x -> IterableUtils.get(x, 0), null);
+		//
+		if (field == null || Narcissus.getField(instance, field) != null) {
+			//
+			instance.pack();
+			//
+		} // if
+			//
 	}
 
 	private static <T, E extends Throwable> boolean or(final T value, final FailablePredicate<T, E> a,
@@ -2101,7 +2118,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 			//
-			jFrame.pack();
+			pack(jFrame);
 			//
 			if (!isTestMode()) {
 				//
