@@ -53,6 +53,7 @@ import java.util.zip.ZipInputStream;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -556,12 +557,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 							//
 							setText(tfFileTemplateValid, iif(compilationResult, "Valid", "Invalid"));
 							//
-							if (tfFileTemplateValid != null) {
-								//
-								tfFileTemplateValid.setBackground(iif(compilationResult, Color.GREEN, Color.RED));
-								//
-							} // if
-								//
+							setBackground(tfFileTemplateValid, iif(compilationResult, Color.GREEN, Color.RED));
+							//
 							pack(jFrame);
 							//
 						} // try
@@ -661,6 +658,12 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // if
 			//
+	}
+
+	private static void setBackground(final JComponent instance, final Color bg) {
+		if (instance != null) {
+			instance.setBackground(bg);
+		}
 	}
 
 	private static <T, E extends Throwable> boolean or(final T value, final FailablePredicate<T, E> a,

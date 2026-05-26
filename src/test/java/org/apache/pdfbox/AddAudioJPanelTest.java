@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -585,7 +586,7 @@ class AddAudioJPanelTest {
 					//
 					add(collection, new byte[] { 0 });
 					//
-				} else if (Objects.equals(parameterType, AbstractButton.class)) {
+				} else if (contains(List.of(JComponent.class, AbstractButton.class), parameterType)) {
 					//
 					add(collection, new JButton());
 					//
