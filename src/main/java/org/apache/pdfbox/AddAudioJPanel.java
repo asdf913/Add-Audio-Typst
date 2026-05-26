@@ -589,9 +589,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null);
 						final Workbook wb = apply(createInputStreamWorkbookFailableFunction(bs), is)) {
 					//
-					for (int i = 0; wb != null && i < IterableUtils.size(wb); i++) {
+					for (int i = 0; i < IterableUtils.size(wb); i++) {
 						//
-						forEach(values(createStringTextPositionEntryMap(wb.getSheetAt(i),
+						forEach(values(createStringTextPositionEntryMap(getSheetAt(wb, i),
 								toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)))),
 								x -> addRow(dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new),
 										new Object[] { x }));
