@@ -2092,7 +2092,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		@Note("Marker")
 		private String marker;
 
-		private String text, sheetName;
+		@Note("Text")
+		private String text;
+
+		private String sheetName;
 
 		private File file;
 
