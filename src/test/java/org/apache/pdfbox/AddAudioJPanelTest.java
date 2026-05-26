@@ -22,6 +22,7 @@ import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.bcel.generic.InstructionList;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Strings;
@@ -64,6 +67,7 @@ import org.apache.pdfbox.text.TextPosition;
 import org.apache.poi.poifs.filesystem.DirectoryEntry;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -74,6 +78,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.google.common.base.Predicates;
 import com.google.common.reflect.Reflection;
 import com.j256.simplemagic.ContentInfo;
@@ -83,6 +90,8 @@ import io.github.toolfactory.narcissus.Narcissus;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
 import javassist.util.proxy.ProxyObject;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 class AddAudioJPanelTest {
 
@@ -162,7 +171,7 @@ class AddAudioJPanelTest {
 		(METHOD_AND = clz.getDeclaredMethod("and", Object.class, Predicate.class, Predicate.class)).setAccessible(true);
 		//
 		(METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP = clz.getDeclaredMethod("createStringTextPositionEntryMap",
-				Iterable.class, File.class)).setAccessible(true);
+				Sheet.class, File.class)).setAccessible(true);
 		//
 		(METHOD_ADD_PD_ANNOTATIONS = clz.getDeclaredMethod("addPDAnnotations", Map.class, PDDocument.class,
 				PDPage.class, Boolean.TYPE)).setAccessible(true);
@@ -231,6 +240,10 @@ class AddAudioJPanelTest {
 
 		private Throwable throwable;
 
+		private Iterator<?> iterator;
+
+		private String stringCellValue;
+
 		@Override
 		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 			//
@@ -252,11 +265,14 @@ class AddAudioJPanelTest {
 				//
 				return null;
 				//
-			} // if
-				//
-			if (Objects.equals(name, "toString") && method != null && method.getParameterCount() == 0) {
+			} else if (Objects.equals(name, "toString") && method != null && method.getParameterCount() == 0) {
 				//
 				return null;
+				//
+
+			} else if (proxy instanceof Iterable && Objects.equals(name, "iterator")) {
+				//
+				return iterator;
 				//
 			} // if
 				//
@@ -302,7 +318,7 @@ class AddAudioJPanelTest {
 				//
 			} else if (proxy instanceof Cell && Objects.equals(name, "getStringCellValue")) {
 				//
-				return null;
+				return stringCellValue;
 				//
 			} else if (proxy instanceof NamedNodeMap && Objects.equals(name, "getNamedItem")) {
 				//
@@ -344,7 +360,7 @@ class AddAudioJPanelTest {
 				//
 				return getAsBoolean;
 				//
-			} else if (proxy instanceof Iterable && Objects.equals(name, "iterator")) {
+			} else if (proxy instanceof Sheet && Objects.equals(name, "getSheetName")) {
 				//
 				return null;
 				//
@@ -1035,18 +1051,40 @@ class AddAudioJPanelTest {
 	@Test
 	void testCreateStringTextPositionEntryMap() throws IllegalAccessException, InvocationTargetException {
 		//
-		final Row row = Reflection.newProxy(Row.class, ih = ObjectUtils.getIfNull(ih, IH::new));
+		final Sheet sheet = Reflection.newProxy(Sheet.class, ih = ObjectUtils.getIfNull(ih, IH::new));
 		//
-		Assert.assertNull(invoke(METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, null, List.of(row), null));
+		Assert.assertNull(invoke(METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, null, sheet, null));
+		//
+		final Row row = Reflection.newProxy(Row.class, ih);
 		//
 		if (ih != null) {
 			//
-			ih.cell = Reflection.newProxy(Cell.class, ih);
+			ih.iterator = iterator(List.of(row));
 			//
 		} // if
 			//
-		Assert.assertNotNull(invoke(METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, null, List.of(row), null));
+		Assert.assertNull(invoke(METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, null, sheet, null));
 		//
+		if (ih != null) {
+			//
+			ih.iterator = iterator(List.of(row));
+			//
+			ih.cell = Reflection.newProxy(Cell.class, ih);
+			//
+			ih.stringCellValue = "";
+			//
+		} // if
+			//
+		Assert.assertEquals(
+				JsonMapper.builder().changeDefaultVisibility(x -> x != null ? x.withFieldVisibility(Visibility.ANY) : x)
+						.build()
+						.writeValueAsString(invoke(METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, null, sheet, null)),
+				"{\"\":{\"file\":null,\"marker\":\"\",\"sheetName\":null,\"text\":\"\",\"textPosition\":null}}");
+		//
+	}
+
+	private static <T> Iterator<T> iterator(final Iterable<T> instance) {
+		return instance != null ? instance.iterator() : null;
 	}
 
 	@Test

@@ -263,16 +263,23 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		add(new JLabel());
 		//
-		final JTable jTable = new JTable(dtm = new DefaultTableModel(new Object[] { "Marker", "Text", "File" }, 0) {
-			@Override
-			public boolean isCellEditable(final int row, final int column) {
-				return false;
-			}
-		});
+		final JTable jTable = new JTable(
+				dtm = new DefaultTableModel(new Object[] { "Sheet", "Marker", "Text", "File" }, 0) {
+					@Override
+					public boolean isCellEditable(final int row, final int column) {
+						return false;
+					}
+				});
 		//
-		final TableColumn tc = jTable.getColumn("Marker");
+		TableColumn tc = jTable.getColumn("Sheet");
 		//
 		if (tc != null) {
+			//
+			tc.setMaxWidth(34);
+			//
+		} // if
+			//
+		if ((tc = jTable.getColumn("Marker")) != null) {
 			//
 			tc.setMaxWidth(43);
 			//
@@ -296,13 +303,17 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				//
 				if (column == 0) {
 					//
-					setText(jLabel, textPositionEntry.marker);
+					setText(jLabel, textPositionEntry.sheetName);
 					//
 				} else if (column == 1) {
 					//
-					setText(jLabel, textPositionEntry.text);
+					setText(jLabel, textPositionEntry.marker);
 					//
 				} else if (column == 2) {
+					//
+					setText(jLabel, textPositionEntry.text);
+					//
+				} else if (column == 3) {
 					//
 					setText(jLabel, getName(textPositionEntry.file));
 					//
@@ -581,11 +592,15 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 				try (final InputStream is = testAndApply(Objects::nonNull, bs, ByteArrayInputStream::new, null);
 						final Workbook wb = apply(createInputStreamWorkbookFailableFunction(bs), is)) {
 					//
-					forEach(values(createStringTextPositionEntryMap(
-							testAndApply(x -> getNumberOfSheets(x) == 1, wb, x -> getSheetAt(x, 0), null),
-							toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)))),
-							x -> addRow(dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new), new Object[] { x }));
-					//
+					for (int i = 0; wb != null && i < IterableUtils.size(wb); i++) {
+						//
+						forEach(values(createStringTextPositionEntryMap(wb.getSheetAt(i),
+								toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)))),
+								x -> addRow(dtm = ObjectUtils.getIfNull(dtm, DefaultTableModel::new),
+										new Object[] { x }));
+						//
+					} // for
+						//
 				} catch (final Exception e) {
 					//
 					throw toRuntimeException(e);
@@ -1286,12 +1301,11 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		}
 	}
 
-	private static Map<String, TextPositionEntry> createStringTextPositionEntryMap(final Iterable<Row> rows,
-			final File file) {
+	private static Map<String, TextPositionEntry> createStringTextPositionEntryMap(final Sheet sheet, final File file) {
 		//
 		Map<String, TextPositionEntry> map = null;
 		//
-		if (iterator(rows) != null) {
+		if (iterator(sheet) != null) {
 			//
 			TextPositionEntry textPositionEntry = null;
 			//
@@ -1301,7 +1315,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 			Path path = null;
 			//
-			for (final Row row : rows) {
+			for (final Row row : sheet) {
 				//
 				if ((cell2 = getCell(row, 2)) == null) {
 					//
@@ -1318,7 +1332,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					//
 				} // if
 					//
-				(textPositionEntry = new TextPositionEntry()).file = toFile(path);
+				(textPositionEntry = new TextPositionEntry()).sheetName = sheet != null ? sheet.getSheetName() : null;
+				//
+				textPositionEntry.file = toFile(path);
 				//
 				textPositionEntry.text = getStringCellValue(getCell(row, 1));
 				//
@@ -2076,7 +2092,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		@Note("Marker")
 		private String marker;
 
-		private String text;
+		private String text, sheetName;
 
 		private File file;
 
