@@ -1305,12 +1305,6 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 	}
 
-	private static void testAndRun(final boolean condition, final Runnable runnable) {
-		if (condition && runnable != null) {
-			runnable.run();
-		}
-	}
-
 	private static <T> boolean and(final T value, final Predicate<T> a, final Predicate<T> b) {
 		return test(a, value) && test(b, value);
 	}

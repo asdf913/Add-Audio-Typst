@@ -90,10 +90,10 @@ class AddAudioJPanelTest {
 			METHOD_IS_XLSX, METHOD_IS_XLS, METHOD_WRITE, METHOD_TO_URI, METHOD_GET_PAGE, METHOD_TEST_AND_GET,
 			METHOD_REMOVE_ROW, METHOD_TEST_AND_GET_AS_BOOLEAN, METHOD_REPLACE, METHOD_ADD_ROW, METHOD_GET_PARENT_FILE,
 			METHOD_TEST_AND_ACCEPT3, METHOD_TEST_AND_ACCEPT4_PREDICATE, METHOD_TEST_AND_ACCEPT4_FAILABLE_BI_PREDICATE,
-			METHOD_AND, METHOD_TEST_AND_RUN, METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS,
-			METHOD_TO_PATH, METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN,
-			METHOD_IS_DIRECTORY, METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR,
-			METHOD_APPEND_CHAR, METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY,
+			METHOD_AND, METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP, METHOD_ADD_PD_ANNOTATIONS, METHOD_TO_PATH,
+			METHOD_GET_ABSOLUTE_FILE, METHOD_SAVE, METHOD_TO_RUNTIME_EXCEPTION, METHOD_OPEN, METHOD_IS_DIRECTORY,
+			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR, METHOD_APPEND_CHAR,
+			METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY,
 			METHOD_SET_MOD_DATE, METHOD_SET_SIZE, METHOD_CREATE_INPUT_STREAM_WORK_BOOK_FAILABLE_FUNCTION,
 			METHOD_IS_SELECTED, METHOD_OR = null;
 
@@ -159,8 +159,6 @@ class AddAudioJPanelTest {
 				FailableConsumer.class, Consumer.class)).setAccessible(true);
 		//
 		(METHOD_AND = clz.getDeclaredMethod("and", Object.class, Predicate.class, Predicate.class)).setAccessible(true);
-		//
-		(METHOD_TEST_AND_RUN = clz.getDeclaredMethod("testAndRun", Boolean.TYPE, Runnable.class)).setAccessible(true);
 		//
 		(METHOD_CREATE_STRING_TEXT_POSITION_ENTRY_MAP = clz.getDeclaredMethod("createStringTextPositionEntryMap",
 				Iterable.class, File.class)).setAccessible(true);
@@ -1030,16 +1028,6 @@ class AddAudioJPanelTest {
 		Assert.assertEquals(invoke(METHOD_AND, null, null, alwaysTrue, null), Boolean.FALSE);
 		//
 		Assert.assertEquals(invoke(METHOD_AND, null, null, alwaysTrue, alwaysTrue), Boolean.TRUE);
-		//
-	}
-
-	@Test
-	void testTestAndRun() throws IllegalAccessException, InvocationTargetException {
-		//
-		Assert.assertNull(invoke(METHOD_TEST_AND_RUN, null, Boolean.TRUE, null));
-		//
-		Assert.assertNull(invoke(METHOD_TEST_AND_RUN, null, Boolean.TRUE,
-				Reflection.newProxy(Runnable.class, ih = ObjectUtils.getIfNull(ih, IH::new))));
 		//
 	}
 
