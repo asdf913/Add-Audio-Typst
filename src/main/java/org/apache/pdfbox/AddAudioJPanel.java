@@ -574,13 +574,14 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						final String message = getMessage(ci);
 						//
 						if (Boolean.logicalOr(
-								(mimeType != null && Boolean.logicalOr(
-										List.of("audio/x-wav", "application/pdf", "application/xml",
-												"application/x-java-applet", "application/zip").contains(mimeType),
-										mimeType.startsWith("image/"))),
-								(message != null
-										&& Boolean.logicalOr(List.of("OLE 2 Compound Document").contains(message),
-												message.startsWith("MPEG ADTS, layer III"))))
+								and(mimeType, Objects::nonNull,
+										x -> Boolean.logicalOr(
+												List.of("audio/x-wav", "application/pdf", "application/xml",
+														"application/x-java-applet", "application/zip").contains(x),
+												startsWith(Strings.CS, x, "image/"))),
+								and(message, Objects::nonNull,
+										x -> Boolean.logicalOr(List.of("OLE 2 Compound Document").contains(x),
+												startsWith(Strings.CS, x, "MPEG ADTS, layer III"))))
 								|| or(file, f -> or(Files.readAllBytes(toPath(f)), AddAudioJPanel::isXls,
 										AddAudioJPanel::isXlsx), f -> !isValidTypstFile(f))) {
 							//
