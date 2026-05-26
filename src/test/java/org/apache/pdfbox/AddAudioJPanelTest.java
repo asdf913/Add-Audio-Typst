@@ -45,8 +45,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.bcel.generic.InstructionList;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Strings;
@@ -79,8 +77,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.google.common.base.Predicates;
 import com.google.common.reflect.Reflection;
 import com.j256.simplemagic.ContentInfo;
@@ -90,7 +86,6 @@ import io.github.toolfactory.narcissus.Narcissus;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
 import javassist.util.proxy.ProxyObject;
-import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 class AddAudioJPanelTest {
