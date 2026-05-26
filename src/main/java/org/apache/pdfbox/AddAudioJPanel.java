@@ -1,5 +1,6 @@
 package org.apache.pdfbox;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
@@ -79,6 +80,7 @@ import org.apache.bcel.generic.InstructionList;
 import org.apache.bcel.generic.LDC;
 import org.apache.bcel.generic.MethodGen;
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -152,7 +154,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 	@Note("Spreadsheet")
 	private JTextComponent tfFileSpreadsheet;
 
-	private JTextComponent tfFilePdf;
+	private JTextComponent tfFilePdf, tfFileTemplateValid;
 
 	@Note("Template")
 	private AbstractButton btnFileTemplate;
@@ -170,7 +172,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 
 	private DefaultTableModel dtm = null;
 
-	private boolean ffmpegInstalled = false;
+	private boolean typstInstalled, ffmpegInstalled = false;
+
+	private JFrame jFrame = null;
 
 	private AddAudioJPanel() {
 		//
@@ -198,11 +202,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		add(new JLabel(TYPST));
 		//
-		boolean installed = false;
-		//
 		try {
 			//
-			installed = exists(TYPST);
+			typstInstalled = exists(TYPST);
 			//
 		} catch (final IOException e) {
 			//
@@ -210,7 +212,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		} // try
 			//
-		JTextComponent tf = new JTextField(iif(installed, "Instlled", "Not Installed"));
+		JTextComponent tf = new JTextField(iif(typstInstalled, "Instlled", "Not Installed"));
 		//
 		final String growx = "growx";
 		//
@@ -240,7 +242,9 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		add(tfFileTemplate = new JTextField(), "%1$s,span %2$s".formatted(growx, 3));
 		//
-		add(btnFileTemplate = new JButton("Select"), wrap);
+		add(btnFileTemplate = new JButton("Select"));
+		//
+		add(tfFileTemplateValid = new JTextField(), wrap);
 		//
 		add(new JLabel("Spreadsheet"));
 		//
@@ -517,11 +521,56 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)),
 					x -> jfc.setCurrentDirectory(getParentFile(x)));
 			//
-			testAndRun(
-					testAndGetAsBoolean(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
-							() -> jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION),
-					() -> setText(tfFileTemplate, getAbsolutePath(jfc.getSelectedFile())));
+			File file = null;
 			//
+			if (testAndGetAsBoolean(Boolean.logicalAnd(!GraphicsEnvironment.isHeadless(), !isTestMode()),
+					() -> jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)) {
+				//
+				setText(tfFileTemplate, getAbsolutePath(file = jfc.getSelectedFile()));
+				//
+			} // if
+				//
+			if (exists(file) && isFile(file) && typstInstalled) {
+				//
+				if (Objects.equals(getName(getClass(FileSystems.getDefault())), "sun.nio.fs.LinuxFileSystem")) {
+					//
+					final ProcessBuilder pb = new ProcessBuilder(TYPST, "compile", getAbsolutePath(file), "/dev/null",
+							"--format", "pdf");
+					//
+					try {
+						//
+						final Process process = pb.start();
+						//
+						try (final InputStream is = process != null ? process.getErrorStream() : null) {
+							//
+							final boolean compilationResult = StringUtils
+									.isEmpty(IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8));
+							//
+							setText(tfFileTemplateValid, iif(compilationResult, "Valid", "Invalid"));
+							//
+							if (tfFileTemplateValid != null) {
+								//
+								tfFileTemplateValid.setBackground(iif(compilationResult, Color.GREEN, Color.RED));
+								//
+							} // if
+								//
+							if (jFrame != null) {
+								//
+								jFrame.pack();
+								//
+							} // if
+								//
+						} // try
+							//
+					} catch (final IOException e) {
+						//
+						throw toRuntimeException(e);
+						//
+					}
+				} // if
+					//
+			} // if
+				//
 			return;
 			//
 		} else if (Objects.equals(source, btnFileSpreadsheet)) {
@@ -724,7 +773,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		//
 		try {
 			//
-			if (!isTestMode()
+			if (!isTestMode() && instance.typstInstalled
 					&& (process = new ProcessBuilder(TYPST, "compile",
 							StringUtils.defaultString(getText(instance.tfFileTemplate)), outputPdf).start()) != null
 					&& process.waitFor() == 0) {
@@ -751,7 +800,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		try (final BufferedWriter writer = testAndApply(Objects::nonNull,
 				testAndApply(Objects::nonNull,
-						getOutputStream(process = testAndGet(!isTestMode(),
+						getOutputStream(process = testAndGet(!isTestMode() && instance.typstInstalled,
 								() -> new ProcessBuilder(TYPST, "compile", "-", outputPdf).start(), null)),
 						OutputStreamWriter::new, null),
 				BufferedWriter::new, null)) {
@@ -2028,6 +2077,8 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		if (jFrame != null) {
 			//
 			final AddAudioJPanel instance = new AddAudioJPanel();
+			//
+			instance.jFrame = jFrame;
 			//
 			final Properties properties = new Properties();
 			//
