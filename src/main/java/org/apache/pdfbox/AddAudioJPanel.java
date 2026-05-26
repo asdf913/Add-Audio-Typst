@@ -546,60 +546,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 					toFile(testAndApply(Objects::nonNull, getText(tfFileTemplate), Path::of, null)),
 					x -> jfc.setCurrentDirectory(getParentFile(x)));
 			//
-			jfc.setFileFilter(new FileFilter() {
-
-				@Override
-				public String getDescription() {
-					//
-					return "Typst Template File (*.typ)";
-					//
-				}
-
-				@Override
-				public boolean accept(final File file) {
-					//
-					if (isDirectory(file)) {
-						//
-						return true;
-						//
-					} // if
-						//
-					try {
-						//
-						final ContentInfo ci = testAndApply(f -> and(f, AddAudioJPanel::exists, AddAudioJPanel::isFile),
-								file, f -> new ContentInfoUtil().findMatch(f), null);
-						//
-						final String mimeType = getMimeType(ci);
-						//
-						final String message = getMessage(ci);
-						//
-						if (Boolean.logicalOr(
-								and(mimeType, Objects::nonNull,
-										x -> Boolean.logicalOr(
-												contains(List.of("audio/x-wav", "application/pdf", "application/xml",
-														"application/x-java-applet", "application/zip"), x),
-												startsWith(Strings.CS, x, "image/"))),
-								and(message, Objects::nonNull,
-										x -> Boolean.logicalOr(contains(List.of("OLE 2 Compound Document"), x),
-												startsWith(Strings.CS, x, "MPEG ADTS, layer III"))))
-								|| or(file, f -> or(Files.readAllBytes(toPath(f)), AddAudioJPanel::isXls,
-										AddAudioJPanel::isXlsx), f -> !isValidTypstFile(f))) {
-							//
-							return false;
-							//
-						} // if
-							//
-					} catch (final Exception e) {
-						//
-						throw toRuntimeException(e);
-						//
-					} // try
-						//
-					return true;
-					//
-				}
-
-			});
+			jfc.setFileFilter(createTypstFileFilter());
 			//
 			File file = null;
 			//
@@ -685,6 +632,65 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 		} // if
 			//
 		actionPerformed(this, source);
+		//
+	}
+
+	private static FileFilter createTypstFileFilter() {
+		//
+		return new FileFilter() {
+
+			@Override
+			public String getDescription() {
+				//
+				return "Typst Template File (*.typ)";
+				//
+			}
+
+			@Override
+			public boolean accept(final File file) {
+				//
+				if (isDirectory(file)) {
+					//
+					return true;
+					//
+				} // if
+					//
+				try {
+					//
+					final ContentInfo ci = testAndApply(f -> and(f, AddAudioJPanel::exists, AddAudioJPanel::isFile),
+							file, f -> new ContentInfoUtil().findMatch(f), null);
+					//
+					final String mimeType = getMimeType(ci);
+					//
+					final String message = getMessage(ci);
+					//
+					if (Boolean.logicalOr(
+							and(mimeType, Objects::nonNull,
+									x -> Boolean.logicalOr(
+											contains(List.of("audio/x-wav", "application/pdf", "application/xml",
+													"application/x-java-applet", "application/zip"), x),
+											startsWith(Strings.CS, x, "image/"))),
+							and(message, Objects::nonNull,
+									x -> Boolean.logicalOr(contains(List.of("OLE 2 Compound Document"), x),
+											startsWith(Strings.CS, x, "MPEG ADTS, layer III"))))
+							|| or(file, f -> or(Files.readAllBytes(toPath(f)), AddAudioJPanel::isXls,
+									AddAudioJPanel::isXlsx), f -> !isValidTypstFile(f))) {
+						//
+						return false;
+						//
+					} // if
+						//
+				} catch (final Exception e) {
+					//
+					throw toRuntimeException(e);
+					//
+				} // try
+					//
+				return true;
+				//
+			}
+
+		};
 		//
 	}
 

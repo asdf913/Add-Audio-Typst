@@ -37,6 +37,7 @@ import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
@@ -101,7 +102,8 @@ class AddAudioJPanelTest {
 			METHOD_SET_SUB_TYPE, METHOD_IIF, METHOD_GET_MEDIA_BOX, METHOD_GET_HEIGHT, METHOD_CLEAR, METHOD_APPEND_CHAR,
 			METHOD_APPEND_INT, METHOD_APPEND_STRING, METHOD_GET_FILE_EXTENSION, METHOD_CONTAINS_KEY,
 			METHOD_SET_MOD_DATE, METHOD_SET_SIZE, METHOD_CREATE_INPUT_STREAM_WORK_BOOK_FAILABLE_FUNCTION,
-			METHOD_IS_SELECTED, METHOD_OR, METHOD_IS_VALID_TYPST_FILE, METHOD_GET_PAGES, METHOD_INDEX_OF = null;
+			METHOD_IS_SELECTED, METHOD_OR, METHOD_IS_VALID_TYPST_FILE, METHOD_GET_PAGES, METHOD_INDEX_OF,
+			METHOD_CREATE_TYPST_FILE_FILTER, METHOD_TO_FILE = null;
 
 	@BeforeSuite
 	void beforeSuite() throws NoSuchMethodException {
@@ -227,6 +229,10 @@ class AddAudioJPanelTest {
 		(METHOD_GET_PAGES = clz.getDeclaredMethod("getPages", PDDocument.class)).setAccessible(true);
 		//
 		(METHOD_INDEX_OF = clz.getDeclaredMethod("indexOf", PDPageTree.class, PDPage.class)).setAccessible(true);
+		//
+		(METHOD_CREATE_TYPST_FILE_FILTER = clz.getDeclaredMethod("createTypstFileFilter")).setAccessible(true);
+		//
+		(METHOD_TO_FILE = clz.getDeclaredMethod("toFile", Path.class)).setAccessible(true);
 		//
 	}
 
@@ -530,7 +536,9 @@ class AddAudioJPanelTest {
 				//
 			if (contains(Arrays.asList(Integer.TYPE, Boolean.TYPE, Float.TYPE, Long.TYPE), getReturnType(m))
 					|| Boolean.logicalAnd(Objects.equals(getName(m), "toRuntimeException"),
-							Arrays.equals(parameterTypes, new Class<?>[] { Throwable.class }))) {
+							Arrays.equals(parameterTypes, new Class<?>[] { Throwable.class }))
+					|| Boolean.logicalAnd(Objects.equals(getName(m), "createTypstFileFilter"),
+							Arrays.equals(parameterTypes, new Class<?>[] {}))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
@@ -747,7 +755,9 @@ class AddAudioJPanelTest {
 					|| Boolean.logicalAnd(Objects.equals(name, "iif"),
 							Arrays.equals(parameterTypes, new Class<?>[] { Boolean.TYPE, Object.class, Object.class }))
 					|| Boolean.logicalAnd(Objects.equals(name, "getInstructions"),
-							Arrays.equals(parameterTypes, new Class<?>[] { InstructionList.class }))) {
+							Arrays.equals(parameterTypes, new Class<?>[] { InstructionList.class }))
+					|| Boolean.logicalAnd(Objects.equals(getName(m), "createTypstFileFilter"),
+							Arrays.equals(parameterTypes, new Class<?>[] {}))) {
 				//
 				Assert.assertNotNull(result, toString);
 				//
@@ -814,10 +824,24 @@ class AddAudioJPanelTest {
 	@Test
 	void testExists() throws Throwable {
 		//
-		Assert.assertEquals(invoke(METHOD_EXISTS, null, Path.of(".").toFile()), Boolean.TRUE);
+		Assert.assertEquals(invoke(METHOD_EXISTS, null, toFile(Path.of("."))), Boolean.TRUE);
 		//
-		Assert.assertEquals(invoke(METHOD_EXISTS, null, Path.of("1").toFile()), Boolean.FALSE);
+		Assert.assertEquals(invoke(METHOD_EXISTS, null, toFile(Path.of("1"))), Boolean.FALSE);
 		//
+	}
+
+	private static File toFile(final Path instance) throws Throwable {
+		try {
+			final Object obj = invoke(METHOD_TO_FILE, null, instance);
+			if (obj == null) {
+				return null;
+			} else if (obj instanceof File) {
+				return (File) obj;
+			} // if
+			throw new Throwable(Objects.toString(getClass(obj)));
+		} catch (final InvocationTargetException e) {
+			throw e.getTargetException();
+		}
 	}
 
 	private static Class<?> getClass(final Object instance) throws Throwable {
@@ -837,25 +861,25 @@ class AddAudioJPanelTest {
 	@Test
 	void testIsFile() throws Throwable {
 		//
-		Assert.assertEquals(invoke(METHOD_IS_FILE, null, Path.of("pom.xml").toFile()), Boolean.TRUE);
+		Assert.assertEquals(invoke(METHOD_IS_FILE, null, toFile(Path.of("pom.xml"))), Boolean.TRUE);
 		//
-		Assert.assertEquals(invoke(METHOD_IS_FILE, null, Path.of(".").toFile()), Boolean.FALSE);
+		Assert.assertEquals(invoke(METHOD_IS_FILE, null, toFile(Path.of("."))), Boolean.FALSE);
 		//
 	}
 
 	@Test
-	void testGetName() throws IllegalAccessException, InvocationTargetException {
+	void testGetName() throws Throwable {
 		//
 		final String name = "pom.xml";
 		//
-		Assert.assertEquals(name, invoke(METHOD_GET_NAME, null, Path.of(name).toFile()));
+		Assert.assertEquals(name, invoke(METHOD_GET_NAME, null, toFile(Path.of(name))));
 		//
 	}
 
 	@Test
 	void testGetAbsolutePath() throws Throwable {
 		//
-		Assert.assertNotNull(getAbsolutePath(Path.of("pom.xml").toFile()));
+		Assert.assertNotNull(getAbsolutePath(toFile(Path.of("pom.xml"))));
 		//
 	}
 
@@ -941,9 +965,9 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testToURI() throws IllegalAccessException, InvocationTargetException {
+	void testToURI() throws Throwable {
 		//
-		Assert.assertNotNull(invoke(METHOD_TO_URI, null, Path.of(".").toFile()));
+		Assert.assertNotNull(invoke(METHOD_TO_URI, null, toFile(Path.of("."))));
 		//
 	}
 
@@ -1028,9 +1052,9 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testGetParentFile() throws IllegalAccessException, InvocationTargetException {
+	void testGetParentFile() throws Throwable {
 		//
-		Assert.assertNull(invoke(METHOD_GET_PARENT_FILE, null, Path.of(".").toFile()));
+		Assert.assertNull(invoke(METHOD_GET_PARENT_FILE, null, toFile(Path.of("."))));
 		//
 	}
 
@@ -1145,21 +1169,21 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testToPath() throws IllegalAccessException, InvocationTargetException {
+	void testToPath() throws Throwable {
 		//
-		Assert.assertNotNull(invoke(METHOD_TO_PATH, null, Path.of(".").toFile()));
-		//
-	}
-
-	@Test
-	void testGetAbsoluteFile() throws IllegalAccessException, InvocationTargetException {
-		//
-		Assert.assertNotNull(invoke(METHOD_GET_ABSOLUTE_FILE, null, Path.of(".").toFile()));
+		Assert.assertNotNull(invoke(METHOD_TO_PATH, null, toFile(Path.of("."))));
 		//
 	}
 
 	@Test
-	void testSave() throws IllegalAccessException, InvocationTargetException, IOException {
+	void testGetAbsoluteFile() throws Throwable {
+		//
+		Assert.assertNotNull(invoke(METHOD_GET_ABSOLUTE_FILE, null, toFile(Path.of("."))));
+		//
+	}
+
+	@Test
+	void testSave() throws Throwable {
 		//
 		Assert.assertNull(invoke(METHOD_SAVE, null, null, null));
 		//
@@ -1167,7 +1191,7 @@ class AddAudioJPanelTest {
 		//
 		Assert.assertNull(invoke(METHOD_SAVE, null, pdDocument, null));
 		//
-		Assert.assertNull(invoke(METHOD_SAVE, null, pdDocument, Path.of(".").toFile()));
+		Assert.assertNull(invoke(METHOD_SAVE, null, pdDocument, toFile(Path.of("."))));
 		//
 		final File file = File.createTempFile(" ".repeat(3), null);
 		//
@@ -1197,16 +1221,16 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testOpen() throws IllegalAccessException, InvocationTargetException {
+	void testOpen() throws Throwable {
 		//
-		Assert.assertNull(invoke(METHOD_OPEN, null, Narcissus.allocateInstance(Desktop.class), Path.of(".").toFile()));
+		Assert.assertNull(invoke(METHOD_OPEN, null, Narcissus.allocateInstance(Desktop.class), toFile(Path.of("."))));
 		//
 	}
 
 	@Test
-	void testIsDirectory() throws IllegalAccessException, InvocationTargetException {
+	void testIsDirectory() throws Throwable {
 		//
-		Assert.assertEquals(invoke(METHOD_IS_DIRECTORY, null, Path.of("pom.xml").toFile()), Boolean.FALSE);
+		Assert.assertEquals(invoke(METHOD_IS_DIRECTORY, null, toFile(Path.of("pom.xml"))), Boolean.FALSE);
 		//
 	}
 
@@ -1392,7 +1416,24 @@ class AddAudioJPanelTest {
 	}
 
 	@Test
-	void testActionPerformed() throws IllegalAccessException {
+	void testCreateTypstFileFilter() throws Throwable {
+		//
+		final FileFilter fileFilter = cast(FileFilter.class, invoke(METHOD_CREATE_TYPST_FILE_FILTER, null));
+		//
+		if (fileFilter == null) {
+			//
+			return;
+			//
+		} // if
+			//
+		Assert.assertTrue(fileFilter.accept(toFile(Path.of("."))));
+		//
+		Assert.assertTrue(fileFilter.accept(toFile(Path.of("sample", "sample.typ"))));
+		//
+	}
+
+	@Test
+	void testActionPerformed() throws Throwable {
 		//
 		if (instance == null) {
 			//
@@ -1430,7 +1471,7 @@ class AddAudioJPanelTest {
 		//
 		final JTextComponent tfFilePdf = new JTextField();
 		//
-		tfFilePdf.setText(Objects.toString(Path.of(".").toFile().getAbsolutePath()));
+		tfFilePdf.setText(Objects.toString(toFile(Path.of(".")).getAbsolutePath()));
 		//
 		FieldUtils.writeDeclaredField(instance, "tfFilePdf", tfFilePdf, true);
 		//
