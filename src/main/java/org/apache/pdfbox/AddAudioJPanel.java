@@ -550,7 +550,7 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 						//
 						final Process process = pb.start();
 						//
-						try (final InputStream is = process != null ? process.getErrorStream() : null) {
+						try (final InputStream is = getErrorStream(process)) {
 							//
 							final boolean compilationResult = StringUtils.isEmpty(testAndApply(Objects::nonNull, is,
 									x -> IOUtils.toString(x, StandardCharsets.UTF_8), null));
@@ -637,6 +637,10 @@ public class AddAudioJPanel extends JPanel implements ActionListener {
 			//
 		actionPerformed(this, source);
 		//
+	}
+
+	private static InputStream getErrorStream(final Process instance) {
+		return instance != null ? instance.getErrorStream() : null;
 	}
 
 	private static void pack(final JFrame instance) {

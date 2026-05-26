@@ -619,7 +619,7 @@ class AddAudioJPanelTest {
 								//
 								if (Boolean.logicalOr(
 										Boolean.logicalAnd(self instanceof Process,
-												Objects.equals(name, "getOutputStream")),
+												contains(List.of("getOutputStream", "getErrorStream"), name)),
 										Boolean.logicalAnd(self instanceof InputStream,
 												Objects.equals(name, "readAllBytes")))) {
 									//
